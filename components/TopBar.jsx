@@ -12,7 +12,17 @@ const TITLES = {
   "/reports": "Downloadable Reports",
 };
 
-export default function TopBar({ pathname }) {
+const SHORT_TITLES = {
+  "/nifty500": "NIFTY 500",
+  "/fiidii": "FII / DII",
+  "/research": "Research",
+  "/nifty-strategy": "Strategy",
+  "/fno": "F&O",
+  "/ipo": "IPO",
+  "/reports": "Reports",
+};
+
+export default function TopBar({ pathname, onMenuToggle, sidebarOpen }) {
   const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
@@ -28,16 +38,32 @@ export default function TopBar({ pathname }) {
     document.documentElement.dataset.theme = next;
   }
 
+  const title = TITLES[pathname] || "ABC Research Platform";
+  const shortTitle = SHORT_TITLES[pathname] || "ABC Research";
+
   return (
     <header className="topbar">
-      <h1>{TITLES[pathname] || "ABC Research Platform"}</h1>
+      <button
+        type="button"
+        className="menu-btn"
+        aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+        aria-expanded={sidebarOpen}
+        onClick={onMenuToggle}
+      >
+        {sidebarOpen ? "✕" : "☰"}
+      </button>
+      <h1>
+        <span className="topbar-title-full">{title}</span>
+        <span className="topbar-title-short">{shortTitle}</span>
+      </h1>
       <div className="topbar-actions">
         <button className="btn btn-ghost btn-sm" type="button" onClick={toggleTheme}>
-          {theme === "dark" ? "Light" : "Dark"}
+          <span className="theme-label-full">{theme === "dark" ? "Light" : "Dark"}</span>
+          <span className="theme-label-short">{theme === "dark" ? "☀" : "☾"}</span>
         </button>
         <div className="status-pill live">
           <span className="status-dot" />
-          <span>Live</span>
+          <span className="status-label">Live</span>
         </div>
       </div>
     </header>

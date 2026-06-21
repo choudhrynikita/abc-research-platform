@@ -14,7 +14,7 @@ const NAV = [
   { href: "/reports", label: "Downloadable Reports" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open = false, onNavigate, onClose }) {
   const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [copilotOut, setCopilotOut] = useState("");
@@ -39,13 +39,23 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">
-        <span className="logo-icon">◈</span>
-        <div>
-          <strong>ABC Research</strong>
-          <p>Market Intelligence</p>
+    <aside className={`sidebar${open ? " open" : ""}`} aria-label="Main navigation">
+      <div className="sidebar-header-row">
+        <div className="sidebar-brand">
+          <span className="logo-icon">◈</span>
+          <div>
+            <strong>ABC Research</strong>
+            <p>Market Intelligence</p>
+          </div>
         </div>
+        <button
+          type="button"
+          className="sidebar-close-btn"
+          aria-label="Close menu"
+          onClick={onClose}
+        >
+          ✕
+        </button>
       </div>
       <nav className="sidebar-nav">
         {NAV.map((item) => (
@@ -53,6 +63,7 @@ export default function Sidebar() {
             key={item.href}
             href={item.href}
             className={`nav-item${pathname === item.href ? " active" : ""}`}
+            onClick={onNavigate}
           >
             {item.label}
           </Link>
