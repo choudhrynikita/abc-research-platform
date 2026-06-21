@@ -1,0 +1,86 @@
+[
+  {
+    "id": "strategy-1781970833389",
+    "name": "June 30 Strategy — 20 May 2026 (copy)",
+    "date": "2026-06-20",
+    "expiry": "Monthly (Jun 30)",
+    "bias": "NEUTRAL",
+    "status": "active",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Monthly expiry positioning with range-bound outlook"
+  },
+  {
+    "id": "full-strategy-18may",
+    "name": "Full Strategy — 18 May Post Market",
+    "date": "2026-05-18",
+    "expiry": "Weekly",
+    "bias": "BULLISH",
+    "status": "closed",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Post-market analysis for weekly expiry setup"
+  },
+  {
+    "id": "june30-20may",
+    "name": "June 30 Strategy — 20 May 2026",
+    "date": "2026-05-20",
+    "expiry": "Monthly (Jun 30)",
+    "bias": "NEUTRAL",
+    "status": "active",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Monthly expiry positioning with range-bound outlook"
+  },
+  {
+    "id": "postmarket-21may",
+    "name": "Post Market 21 May — June 30",
+    "date": "2026-05-21",
+    "expiry": "Monthly (Jun 30)",
+    "bias": "BULLISH",
+    "status": "active",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Updated levels after 21 May close"
+  },
+  {
+    "id": "updated-25may",
+    "name": "Updated 25 May — June 30",
+    "date": "2026-05-25",
+    "expiry": "Monthly (Jun 30)",
+    "bias": "BULLISH",
+    "status": "active",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Revised targets and support zones"
+  },
+  {
+    "id": "postmarket-28may",
+    "name": "Post Market 28 May — 29 May",
+    "date": "2026-05-28",
+    "expiry": "Weekly",
+    "bias": "BEARISH",
+    "status": "closed",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Short-term bearish setup into 29 May expiry"
+  },
+  {
+    "id": "postmarket-29may",
+    "name": "Post Market 29 May — June 30",
+    "date": "2026-05-29",
+    "expiry": "Monthly (Jun 30)",
+    "bias": "NEUTRAL",
+    "status": "active",
+    "entry": null,
+    "target": null,
+    "stopLoss": null,
+    "notes": "Transition strategy into June monthly expiry"
+  }
+]

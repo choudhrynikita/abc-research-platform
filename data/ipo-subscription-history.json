@@ -1,0 +1,14 @@
+{
+  "TURTLEMINT": [
+    {
+      "recordedAt": "2026-06-21T11:38:39.071Z",
+      "overall": 0.3067731270537202,
+      "retail": 0.1618607890081079,
+      "hni": 0.003240455700655961,
+      "qib": 0.5078480699415935,
+      "employee": null,
+      "source": "NSE ipo-detail",
+      "status": "Active"
+    }
+  ]
+}

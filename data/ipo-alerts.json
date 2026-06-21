@@ -1,0 +1,77 @@
+{
+  "preferences": {
+    "newIpo": true,
+    "opening": true,
+    "closing": true,
+    "subscription": true,
+    "gmp": false,
+    "listing": true
+  },
+  "log": [
+    {
+      "type": "ipo_open",
+      "symbol": "TURTLEMINT",
+      "message": "Turtlemint Fintech Solutions Limited IPO opened for subscription",
+      "source": "NSE ipo-current-issue",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "subscription_update",
+      "symbol": "TURTLEMINT",
+      "message": "Turtlemint Fintech Solutions Limited: overall subscription 0.31x",
+      "source": "NSE ipo-current-issue",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "ipo_open",
+      "symbol": "AVIENCE",
+      "message": "Avience Biomedicals Limited IPO opened for subscription",
+      "source": "NSE ipo-current-issue",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "subscription_update",
+      "symbol": "AVIENCE",
+      "message": "Avience Biomedicals Limited: overall subscription 39.96x",
+      "source": "NSE ipo-current-issue",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "new_ipo",
+      "symbol": "CORDELIA",
+      "message": "New upcoming IPO: Waterways Leisure Tourism Limited",
+      "source": "NSE all-upcoming-issues",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "new_ipo",
+      "symbol": "RAMBHAJO",
+      "message": "New upcoming IPO: Advit Jewels Limited",
+      "source": "NSE all-upcoming-issues",
+      "at": "2026-06-21T11:38:34.249Z"
+    },
+    {
+      "type": "new_ipo",
+      "symbol": "SHREEDHAR",
+      "message": "New upcoming IPO: Shreedhar Spinners Limited",
+      "source": "NSE all-upcoming-issues",
+      "at": "2026-06-21T11:38:34.249Z"
+    }
+  ],
+  "lastSnapshot": {
+    "openSymbols": [
+      "TURTLEMINT",
+      "AVIENCE"
+    ],
+    "openSubscriptions": {
+      "TURTLEMINT": 0.31,
+      "AVIENCE": 39.96
+    },
+    "upcomingSymbols": [
+      "CORDELIA",
+      "RAMBHAJO",
+      "SHREEDHAR"
+    ],
+    "at": "2026-06-21T11:39:12.702Z"
+  }
+}

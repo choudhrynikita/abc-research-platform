@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ABC Research Platform</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="overlay" class="overlay"></div>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <span class="logo-icon">◈</span>
+        <div>
+          <strong>ABC Research</strong>
+          <p>Market Intelligence</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-module="nifty500">NIFTY 500 Dashboard</button>
+        <button class="nav-item" data-module="fiidii">FII & DII Intelligence</button>
+        <button class="nav-item" data-module="research">AI Research Mode</button>
+        <button class="nav-item" data-module="nifty-strategy">NIFTY Strategy Center</button>
+        <button class="nav-item" data-module="fno">Equity F&O Center</button>
+        <button class="nav-item" data-module="ipo">IPO Intelligence Center</button>
+        <button class="nav-item" data-module="reports">Downloadable Reports</button>
+      </nav>
+      <div class="copilot-panel">
+        <h4>AI Copilot</h4>
+        <input id="copilotInput" type="text" placeholder="Analyze Reliance, NIFTY outlook..." />
+        <button id="copilotBtn" class="btn btn-primary btn-sm">Ask</button>
+        <div id="copilotOutput" class="copilot-output"></div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button id="menuBtn" class="menu-btn" aria-label="Menu">☰</button>
+        <h1 id="pageTitle">NIFTY 500 Dashboard</h1>
+        <div class="topbar-actions">
+          <button id="themeToggle" class="btn btn-ghost btn-sm" type="button">Light</button>
+          <div class="status-pill live" id="statusPill">
+            <span class="status-dot"></span>
+            <span id="statusText">Live</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Module 1: NIFTY 500 -->
+        <section id="module-nifty500" class="module-panel active">
+          <div id="nifty500Meta"></div>
+          <div id="nifty500Content"></div>
+        </section>
+
+        <!-- Module 2: FII/DII -->
+        <section id="module-fiidii" class="module-panel">
+          <div id="fiidiiMeta"></div>
+          <div id="fiidiiContent"></div>
+          <div id="fiidiiCharts"></div>
+        </section>
+
+        <!-- Module 3: AI Research -->
+        <section id="module-research" class="module-panel">
+          <div class="research-controls">
+            <input id="researchSymbol" type="text" placeholder="Enter symbol: RELIANCE, TCS, INFY..." />
+            <button id="runResearchBtn" class="btn btn-primary">Generate Report</button>
+          </div>
+          <div id="researchMeta"></div>
+          <section id="proChartPanel" class="chart-pro-panel">
+            <div class="chart-toolbar">
+              <select id="chartRangeSelect" class="chart-select">
+                <option value="5d">5 Day</option>
+                <option value="1mo">1 Month</option>
+                <option value="3mo">3 Month</option>
+                <option value="6mo">6 Month</option>
+                <option value="1y" selected>1 Year</option>
+                <option value="2y">2 Year</option>
+                <option value="5y">5 Year</option>
+                <option value="max">Max</option>
+              </select>
+              <select id="chartTypeSelect" class="chart-select">
+                <option value="candlestick">Candlestick</option>
+                <option value="heikin">Heikin Ashi</option>
+                <option value="line">Line</option>
+                <option value="area">Area</option>
+              </select>
+              <label class="toggle"><input type="checkbox" id="indSma" checked /><span>SMA20</span></label>
+              <label class="toggle"><input type="checkbox" id="indRsi" /><span>RSI</span></label>
+              <button id="chartFullscreenBtn" class="btn btn-ghost btn-sm" type="button">Fullscreen</button>
+            </div>
+            <div id="proChartWrap" class="chart-panel-pro"><p class="loading">Load a symbol to view verified chart data.</p></div>
+            <canvas id="rsiChart" class="rsi-subchart" height="80"></canvas>
+          </section>
+          <div id="researchContent"></div>
+        </section>
+
+        <!-- Module 4: NIFTY Strategy Center -->
+        <section id="module-nifty-strategy" class="module-panel">
+          <div id="strategyReportMeta"></div>
+          <div id="strategyReportContent"></div>
+
+          <nav class="nav-tabs inner-tabs" id="strategySubTabs">
+            <button class="nav-tab active" data-tab="dashboard">Live Dashboard</button>
+            <button class="nav-tab" data-tab="strategies">Strategies</button>
+          </nav>
+
+          <div class="tab-panel active" id="panel-dashboard">
+            <section class="controls">
+              <div class="search-group">
+                <input id="symbolInput" type="text" placeholder="Add symbol (e.g. AAPL, TCS.NS, ^NSEI)" autocomplete="off" />
+                <button id="addBtn" class="btn btn-primary">Add</button>
+              </div>
+              <div class="control-group">
+                <label class="toggle"><input type="checkbox" id="autoRefresh" checked /><span>Auto-refresh (30s)</span></label>
+                <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                <button id="resetBtn" class="btn btn-ghost">Reset</button>
+              </div>
+            </section>
+            <section class="index-strip" id="indexStrip"></section>
+            <section class="alignment-panel" id="alignmentPanel">
+              <div class="alignment-header">
+                <div><h2>Strategy Alignment</h2><p class="nifty-subtitle">Active strategies vs Nifty ensemble signal</p></div>
+                <div class="alignment-meta">
+                  <span class="ensemble-signal neutral" id="alignNiftySignal">—</span>
+                  <span class="align-price" id="alignNiftyPrice">—</span>
+                  <button class="btn btn-ghost btn-sm" id="manageStrategiesBtn">Manage</button>
+                </div>
+              </div>
+              <div class="alerts-strip" id="alertsStrip" hidden></div>
+              <div class="alignment-summary" id="alignmentSummary"></div>
+              <div class="alignment-cards" id="alignmentCards"></div>
+            </section>
+            <section class="nifty-panel" id="niftyPanel">
+              <div class="nifty-panel-header">
+                <div><h2>Nifty 50 Prediction</h2><p class="nifty-subtitle">Probability-based weekly/monthly forecasts</p></div>
+                <div class="nifty-panel-status">
+                  <span class="ensemble-signal neutral" id="niftySignal">—</span>
+                  <span class="nifty-confidence" id="niftyConfidence">—</span>
+                  <span class="nifty-updated" id="niftyUpdatedAt">—</span>
+                </div>
+              </div>
+              <div class="nifty-error" id="niftyError" hidden></div>
+              <div class="prediction-cards">
+                <div class="prediction-card" id="weeklyPredictionCard"></div>
+                <div class="prediction-card" id="monthlyPredictionCard"></div>
+              </div>
+              <div class="chart-panel"><canvas id="niftyChart"></canvas></div>
+              <div class="indicator-panel" id="indicatorPanel"></div>
+              <div class="breakdown-wrap" id="predictionBreakdown"></div>
+              <p class="nifty-disclaimer" id="niftyDisclaimer"></p>
+            </section>
+            <section class="summary" id="summary"></section>
+            <section class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="symbol">Symbol</th><th data-sort="name">Company</th>
+                    <th data-sort="price" class="num">Price</th><th data-sort="change" class="num">Change</th>
+                    <th data-sort="changePercent" class="num">Change %</th><th data-sort="volume" class="num">Volume</th>
+                    <th data-sort="marketCap" class="num">Mkt Cap</th><th data-sort="dayHigh" class="num">High</th>
+                    <th data-sort="dayLow" class="num">Low</th><th data-sort="exchange">Exch</th>
+                    <th data-sort="marketState">Status</th><th></th>
+                  </tr>
+                </thead>
+                <tbody id="quotesBody"><tr class="loading-row"><td colspan="12">Loading...</td></tr></tbody>
+              </table>
+            </section>
+          </div>
+
+          <div class="tab-panel" id="panel-strategies">
+            <section class="strategies-header">
+              <div><h2>Trading Strategies</h2><p class="nifty-subtitle">Probability-based index setups</p></div>
+              <div class="strategies-stats" id="strategyStats"></div>
+            </section>
+            <section class="strategy-form">
+              <h3 id="strategyFormTitle">Add Strategy</h3>
+              <input type="hidden" id="strategyEditId" value="" />
+              <div class="form-row">
+                <input id="strategyName" type="text" placeholder="Strategy name" />
+                <input id="strategyDate" type="date" />
+                <select id="strategyExpiry"><option value="Weekly">Weekly</option><option value="Monthly (Jun 30)">Monthly</option><option value="Custom">Custom</option></select>
+                <select id="strategyBias"><option value="BULLISH">Bullish</option><option value="BEARISH">Bearish</option><option value="NEUTRAL">Neutral</option></select>
+              </div>
+              <div class="form-row">
+                <input id="strategyEntry" type="number" step="0.01" placeholder="Entry" />
+                <input id="strategyTarget" type="number" step="0.01" placeholder="Target" />
+                <input id="strategyStopLoss" type="number" step="0.01" placeholder="Stop loss" />
+              </div>
+              <div class="form-row">
+                <input id="strategyNotes" type="text" placeholder="Notes" class="wide" />
+                <button id="saveStrategyBtn" class="btn btn-primary">Save</button>
+                <button id="cancelStrategyBtn" class="btn btn-ghost" hidden>Cancel</button>
+              </div>
+            </section>
+            <div class="strategies-toolbar">
+              <div class="filter-bar" id="strategyFilters">
+                <button class="filter-pill active" data-filter="all">All</button>
+                <button class="filter-pill" data-filter="active">Active</button>
+                <button class="filter-pill" data-filter="closed">Closed</button>
+              </div>
+              <input id="strategySearch" type="search" placeholder="Search..." class="search-input" />
+            </div>
+            <section class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Date</th><th>Expiry</th><th>Bias</th><th class="num">Entry</th><th class="num">Target</th><th class="num">Stop</th><th>Status</th><th>Notes</th><th></th></tr></thead>
+                <tbody id="strategiesBody"><tr class="loading-row"><td colspan="10">Loading...</td></tr></tbody>
+              </table>
+            </section>
+          </div>
+        </section>
+
+        <!-- Module 5: F&O -->
+        <section id="module-fno" class="module-panel">
+          <div id="fnoMeta"></div>
+          <div id="fnoContent"></div>
+        </section>
+
+        <!-- Module 6: IPO Intelligence -->
+        <section id="module-ipo" class="module-panel">
+          <div id="ipoMeta"></div>
+          <div id="ipoContent"></div>
+          <div id="ipoReportMeta"></div>
+          <div id="ipoReportContent"></div>
+          <div class="chart-panel-sm"><canvas id="ipoSubChart"></canvas></div>
+        </section>
+
+        <!-- Module 7: Reports -->
+        <section id="module-reports" class="module-panel">
+          <div id="reportsContent"></div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div id="globalDisclaimer"></div>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="theme.js"></script>
+    <script src="compliance-ui.js"></script>
+    <script src="report-ui.js"></script>
+    <script src="fiidii-charts.js"></script>
+    <script src="chart-pro.js"></script>
+    <script src="tabs.js"></script>
+    <script src="strategies.js"></script>
+    <script src="alignment.js"></script>
+    <script src="nifty.js"></script>
+    <script src="app.js"></script>
+    <script src="modules/nifty500.js"></script>
+    <script src="modules/fiidii.js"></script>
+    <script src="modules/research.js"></script>
+    <script src="modules/nifty-strategy.js"></script>
+    <script src="modules/fno.js"></script>
+    <script src="modules/ipo.js"></script>
+    <script src="modules/reports.js"></script>
+    <script src="modules/copilot.js"></script>
+    <script src="platform.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", () => { if (typeof initChartPro === "function") initChartPro(); });</script>
+  </body>
+</html>

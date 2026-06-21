@@ -1,0 +1,80 @@
+[
+  {
+    "id": "audit-1782041336480",
+    "timestamp": "2026-06-21T11:28:56.480Z",
+    "type": "research_report",
+    "symbol": "ESCORTS.NS",
+    "confidence": 75
+  },
+  {
+    "id": "audit-1782041315647",
+    "timestamp": "2026-06-21T11:28:35.647Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70
+  },
+  {
+    "id": "audit-1782041307918",
+    "timestamp": "2026-06-21T11:28:27.919Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70
+  },
+  {
+    "id": "audit-1781980305312",
+    "timestamp": "2026-06-20T18:31:45.312Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70
+  },
+  {
+    "id": "audit-1781978497426",
+    "timestamp": "2026-06-20T18:01:37.426Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70
+  },
+  {
+    "id": "audit-1781976819719",
+    "timestamp": "2026-06-20T17:33:39.719Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70
+  },
+  {
+    "id": "audit-1781975064942",
+    "timestamp": "2026-06-20T17:04:24.942Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 100
+  },
+  {
+    "id": "audit-1781974557915",
+    "timestamp": "2026-06-20T16:55:57.915Z",
+    "type": "research_report",
+    "symbol": "INFY.NS",
+    "confidence": 100
+  },
+  {
+    "id": "audit-1781974493175",
+    "timestamp": "2026-06-20T16:54:53.176Z",
+    "type": "research_report",
+    "symbol": "TCS.NS",
+    "confidence": 100
+  },
+  {
+    "id": "audit-1781974464761",
+    "timestamp": "2026-06-20T16:54:24.761Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 100
+  },
+  {
+    "id": "audit-1781973176506",
+    "timestamp": "2026-06-20T16:32:56.506Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 67,
+    "signal": "NEUTRAL"
+  }
+]
