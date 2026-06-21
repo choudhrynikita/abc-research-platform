@@ -31,6 +31,7 @@ async function dispatch(request, { params }) {
     pathname,
     query,
     body,
+    authHeader: request.headers.get("authorization"),
   });
 
   if (result.json) {

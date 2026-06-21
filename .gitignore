@@ -9,4 +9,3 @@ out/
 .DS_Store
 Thumbs.db
 tmp-*.json
-data/report-center.json

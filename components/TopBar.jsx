@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const TITLES = {
-  "/nifty500": "NIFTY 500 Dashboard",
+  "/nifty500": "NIFTY 500 Dashboard (Sample Universe)",
   "/fiidii": "FII & DII Intelligence",
   "/research": "AI Research Mode",
   "/nifty-strategy": "NIFTY Strategy Center",
@@ -13,7 +13,7 @@ const TITLES = {
 };
 
 const SHORT_TITLES = {
-  "/nifty500": "NIFTY 500",
+  "/nifty500": "NIFTY 500 Sample",
   "/fiidii": "FII / DII",
   "/research": "Research",
   "/nifty-strategy": "Strategy",

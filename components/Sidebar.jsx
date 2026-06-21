@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV = [
-  { href: "/nifty500", label: "NIFTY 500 Dashboard" },
+  { href: "/nifty500", label: "NIFTY 500 Dashboard (Sample)" },
   { href: "/fiidii", label: "FII & DII Intelligence" },
   { href: "/research", label: "AI Research Mode" },
   { href: "/nifty-strategy", label: "NIFTY Strategy Center" },

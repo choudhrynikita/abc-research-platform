@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import ReportViewer from "../ReportViewer";
+import PriceChart from "../charts/PriceChart";
 
 export default function ResearchModule() {
   const [symbol, setSymbol] = useState("RELIANCE");
+  const [chartSymbol, setChartSymbol] = useState("");
   const [payload, setPayload] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,6 +20,8 @@ export default function ResearchModule() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || json.error);
       setPayload(json);
+      const sym = symbol.trim().toUpperCase();
+      setChartSymbol(sym.includes(".") ? sym : `${sym}.NS`);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -40,6 +44,7 @@ export default function ResearchModule() {
         </button>
       </div>
       {error && <div className="error-panel"><p>{error}</p></div>}
+      {chartSymbol && <PriceChart symbol={chartSymbol} />}
       {payload && <ReportViewer payload={payload} />}
     </div>
   );

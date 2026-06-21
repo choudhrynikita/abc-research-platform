@@ -1,6 +1,12 @@
 "use client";
 
 import MetaBar from "./MetaBar";
+import SubscriptionChart from "./charts/SubscriptionChart";
+
+function fmt(n, d = 2) {
+  if (n == null || Number.isNaN(n)) return "—";
+  return Number(n).toLocaleString(undefined, { maximumFractionDigits: d });
+}
 
 function DataTypeTag({ type }) {
   const map = {
@@ -20,6 +26,63 @@ function ExportButtons({ reportId }) {
       <a href={`/api/report-center/${reportId}/export/xlsx`} className="btn btn-secondary btn-sm">Excel</a>
       <a href={`/api/report-center/${reportId}/export/pdf`} className="btn btn-secondary btn-sm">PDF</a>
     </div>
+  );
+}
+
+function SampleUniverseBanner({ report }) {
+  const breadth = report?.dashboard?.marketBreadth;
+  if (report?.type !== "nifty500" || !breadth) return null;
+  return (
+    <p className="hint-block sample-universe-banner">
+      Sample universe: {breadth.sampleSize} of {breadth.totalTracked} reference constituents quoted live.
+      Full NIFTY 500 coverage requires a licensed constituent feed — never estimated here.
+    </p>
+  );
+}
+
+function StrategyCards({ strategies }) {
+  if (!strategies?.length) return null;
+
+  return (
+    <section className="report-section">
+      <h3>Strategy Specifications</h3>
+      {strategies.map((s, i) => (
+        <div key={i} className="strategy-detail-card">
+          <h4>
+            {s.strategyName}{" "}
+            <span
+              className={`tag ${
+                s.marketBias === "Bullish" ? "factual" : s.marketBias === "Bearish" ? "unavailable" : "opinion"
+              }`}
+            >
+              {s.marketBias}
+            </span>
+          </h4>
+          <div className="strategy-metrics">
+            <span>Entry: <strong>{fmt(s.entryLevel)}</strong></span>
+            <span>Exit: <strong>{fmt(s.exitLevel)}</strong></span>
+            <span>Stop: <strong>{fmt(s.stopLoss)}</strong></span>
+            <span>Target: <strong>{fmt(s.targetLevels)}</strong></span>
+            <span>R:R: <strong>{fmt(s.riskRewardRatio)}</strong></span>
+            <span>
+              Exp. Profit:{" "}
+              <strong>{s.expectedProfitPotentialPct != null ? `${fmt(s.expectedProfitPotentialPct)}%` : "—"}</strong>
+            </span>
+            <span>
+              Max DD Est:{" "}
+              <strong>{s.maxDrawdownEstimatePct != null ? `${fmt(s.maxDrawdownEstimatePct)}%` : "—"}</strong>
+            </span>
+            <span>Horizon: <strong>{s.timeHorizon || "—"}</strong></span>
+          </div>
+          {s.backtest && (
+            <p className="hint-block">
+              Backtest: {s.backtest.sampleSize} samples, win rate {s.backtest.historicalWinRate ?? "N/A"}%,
+              avg return {s.backtest.averageReturn ?? "N/A"}%. Source: {s.backtest.source}
+            </p>
+          )}
+        </div>
+      ))}
+    </section>
   );
 }
 
@@ -47,6 +110,7 @@ export default function ReportViewer({ payload, meta }) {
         )}
         <ExportButtons reportId={reportId} />
       </div>
+      <SampleUniverseBanner report={report} />
       {(report.sections || []).map((s, i) => (
         <section key={i} className="report-section">
           <h3>{s.title} <DataTypeTag type={s.dataType} /></h3>
@@ -70,6 +134,10 @@ export default function ReportViewer({ payload, meta }) {
           )}
         </section>
       ))}
+      {report.type === "ipo" && report.subscriptionHistory?.length > 0 && (
+        <SubscriptionChart history={report.subscriptionHistory} />
+      )}
+      <StrategyCards strategies={report.strategies} />
       {report.disclaimer && <p className="hint-block">{report.disclaimer}</p>}
     </div>
   );
