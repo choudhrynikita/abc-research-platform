@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ReportViewer from "../ReportViewer";
-import PriceChart from "../charts/PriceChart";
+import ProChart from "../charts/ProChart";
 
 export default function ResearchModule() {
   const [symbol, setSymbol] = useState("RELIANCE");
@@ -44,7 +44,7 @@ export default function ResearchModule() {
         </button>
       </div>
       {error && <div className="error-panel"><p>{error}</p></div>}
-      {chartSymbol && <PriceChart symbol={chartSymbol} />}
+      {chartSymbol && <ProChart symbol={chartSymbol} />}
       {payload && <ReportViewer payload={payload} />}
     </div>
   );

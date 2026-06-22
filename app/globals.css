@@ -1643,12 +1643,21 @@ a.nav-item {
   border-radius: 12px;
 }
 
-.chart-toolbar {
+.chart-toolbar,
+.chart-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
   margin-bottom: 12px;
+}
+
+.chart-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
 }
 
 .chart-select {

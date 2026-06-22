@@ -2,6 +2,7 @@
 
 import MetaBar from "./MetaBar";
 import FiiDiiDashboard from "./charts/FiiDiiDashboard";
+import ProChart from "./charts/ProChart";
 import SubscriptionChart from "./charts/SubscriptionChart";
 
 function fmt(n, d = 2) {
@@ -28,6 +29,14 @@ function ExportButtons({ reportId }) {
       <a href={`/api/report-center/${reportId}/export/pdf`} className="btn btn-secondary btn-sm">PDF</a>
     </div>
   );
+}
+
+function resolveChartSymbol(report) {
+  if (report?.chartSymbol) return report.chartSymbol;
+  if (report?.type === "nifty500") return report.dashboard?.marketOverview?.indexSymbol;
+  if (report?.type === "nifty-strategy") return "^NSEI";
+  if (report?.type === "fno") return "^NSEI";
+  return null;
 }
 
 function SampleUniverseBanner({ report }) {
@@ -135,6 +144,9 @@ export default function ReportViewer({ payload, meta }) {
           )}
         </section>
       ))}
+      {resolveChartSymbol(report) && (
+        <ProChart symbol={resolveChartSymbol(report)} />
+      )}
       {report.type === "fiidii" && <FiiDiiDashboard report={report} />}
       {report.type === "ipo" && report.subscriptionHistory?.length > 0 && (
         <SubscriptionChart history={report.subscriptionHistory} />
