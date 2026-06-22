@@ -5,6 +5,7 @@ const PUBLIC_PATHS = new Set(["/api", "/api/health"]);
 const MUTATION_PREFIXES = [
   "/api/strategies",
   "/api/ipo-alerts/preferences",
+  "/api/copilot",
 ];
 
 function isProduction() {
