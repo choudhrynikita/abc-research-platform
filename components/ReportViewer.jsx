@@ -1,6 +1,7 @@
 "use client";
 
 import MetaBar from "./MetaBar";
+import FiiDiiDashboard from "./charts/FiiDiiDashboard";
 import SubscriptionChart from "./charts/SubscriptionChart";
 
 function fmt(n, d = 2) {
@@ -134,6 +135,7 @@ export default function ReportViewer({ payload, meta }) {
           )}
         </section>
       ))}
+      {report.type === "fiidii" && <FiiDiiDashboard report={report} />}
       {report.type === "ipo" && report.subscriptionHistory?.length > 0 && (
         <SubscriptionChart history={report.subscriptionHistory} />
       )}
