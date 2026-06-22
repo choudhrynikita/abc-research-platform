@@ -91,18 +91,26 @@ export default function IpoModule() {
     }
   }
 
+  async function loadDashboard() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/ipo/dashboard");
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.message || j.error);
+      setDashboard(j.dashboard);
+      setAlerts(j.alerts || []);
+      setMeta(j._meta);
+      if (j.dashboard?.open?.[0]) await loadReport(j.dashboard.open[0].symbol);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    fetch("/api/ipo/dashboard")
-      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => {
-        if (!ok) throw new Error(j.message || j.error);
-        setDashboard(j.dashboard);
-        setAlerts(j.alerts || []);
-        setMeta(j._meta);
-        if (j.dashboard?.open?.[0]) loadReport(j.dashboard.open[0].symbol);
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
+    loadDashboard();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -120,6 +128,9 @@ export default function IpoModule() {
       <div className="error-panel">
         <h3>IPO data unavailable</h3>
         <p>{error}</p>
+        <button className="btn btn-secondary" type="button" onClick={loadDashboard}>
+          Retry
+        </button>
       </div>
     );
   }

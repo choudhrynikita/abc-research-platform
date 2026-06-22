@@ -43,7 +43,14 @@ export default function ResearchModule() {
           {loading ? "Generating..." : "Generate Report"}
         </button>
       </div>
-      {error && <div className="error-panel"><p>{error}</p></div>}
+      {error && (
+        <div className="error-panel">
+          <p>{error}</p>
+          <button className="btn btn-secondary" type="button" onClick={generate} disabled={loading}>
+            Retry
+          </button>
+        </div>
+      )}
       {chartSymbol && <ProChart symbol={chartSymbol} />}
       {payload && <ReportViewer payload={payload} />}
     </div>
