@@ -2,33 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  CandlestickController,
-  CandlestickElement
-);
+import "@/lib/chart-setup";
+import { baseChartOptions } from "@/lib/chart-setup";
 
 const RANGES = [
   { value: "5d", label: "5D" },
@@ -39,14 +14,32 @@ const RANGES = [
   { value: "2y", label: "2Y" },
 ];
 
-const chartTheme = {
-  grid: "rgba(255,255,255,0.05)",
-  tick: "#8b9bb4",
-};
+const MA_CONFIG = [
+  { key: "sma20", label: "SMA 20", color: "#f59e0b" },
+  { key: "sma50", label: "SMA 50", color: "#3b82f6" },
+  { key: "sma100", label: "SMA 100", color: "#8b5cf6" },
+  { key: "sma200", label: "SMA 200", color: "#ec4899" },
+];
+
+function ChartSkeleton({ label, height = 140 }) {
+  return (
+    <div className="chart-skeleton" style={{ height }} role="status" aria-label={label}>
+      <div className="chart-skeleton-bars" aria-hidden="true">
+        <span /><span /><span /><span /><span /><span />
+      </div>
+      <p className="chart-skeleton-msg">{label || "Awaiting verified market data"}</p>
+    </div>
+  );
+}
 
 function OiHeatmap({ heatmap, maxPain, spot }) {
   if (!heatmap?.length) {
-    return <p className="chart-na">Option chain heatmap unavailable — NSE chain not verified</p>;
+    return (
+      <div className="oi-heatmap">
+        <h4>Option Chain OI Heatmap</h4>
+        <ChartSkeleton label="Awaiting verified market data" height={200} />
+      </div>
+    );
   }
 
   const maxOi = Math.max(
@@ -75,8 +68,8 @@ function OiHeatmap({ heatmap, maxPain, spot }) {
                 <div className="oi-bar put" style={{ width: `${putPct}%` }} />
               </div>
               <span className="oi-vals">
-                <span className="call">{row.callOi != null ? (row.callOi / 1000).toFixed(0) + "K" : "—"}</span>
-                <span className="put">{row.putOi != null ? (row.putOi / 1000).toFixed(0) + "K" : "—"}</span>
+                <span className="call">{row.callOi != null ? `${(row.callOi / 1000).toFixed(0)}K` : "—"}</span>
+                <span className="put">{row.putOi != null ? `${(row.putOi / 1000).toFixed(0)}K` : "—"}</span>
               </span>
             </div>
           );
@@ -87,7 +80,35 @@ function OiHeatmap({ heatmap, maxPain, spot }) {
   );
 }
 
-export default function StrategyCharts({ symbol, technicals, chainHeatmap, marketContext }) {
+function PcrGauge({ pcr }) {
+  if (pcr == null) {
+    return <ChartSkeleton label="PCR — awaiting verified OI data" height={100} />;
+  }
+  const pct = Math.min(100, (pcr / 2) * 100);
+  const color = pcr > 1.1 ? "var(--green)" : pcr < 0.9 ? "var(--red)" : "var(--yellow)";
+  return (
+    <div className="pcr-gauge">
+      <div className="gauge-head">
+        <span>Put–Call Ratio</span>
+        <strong style={{ color }}>{pcr}</strong>
+      </div>
+      <div className="gauge-bar">
+        <div className="gauge-fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <p className="chart-footnote">Verified NSE open interest · not estimated</p>
+    </div>
+  );
+}
+
+export default function StrategyCharts({
+  symbol,
+  technicals,
+  chainHeatmap,
+  marketContext,
+  chartContext,
+  marketStatus,
+  derivativesIntel,
+}) {
   const [range, setRange] = useState("3mo");
   const [fullscreen, setFullscreen] = useState(false);
   const [candles, setCandles] = useState([]);
@@ -131,21 +152,20 @@ export default function StrategyCharts({ symbol, technicals, chainHeatmap, marke
     }));
 
     const datasets = [{
-      label: "NIFTY",
+      label: symbol?.replace(".NS", "") || "Price",
       data: ohlc,
       type: "candlestick",
       color: { up: "#22c55e", down: "#ef4444", unchanged: "#8b9bb4" },
     }];
 
     const series = indicators?.series;
-    ["sma20", "sma50"].forEach((key, idx) => {
-      const colors = ["#f59e0b", "#3b82f6"];
+    MA_CONFIG.forEach(({ key, label, color }) => {
       if (series?.[key]) {
         datasets.push({
           type: "line",
-          label: key.toUpperCase().replace("SMA", "SMA "),
+          label,
           data: candles.map((_, i) => series[key][i] ?? null),
-          borderColor: colors[idx],
+          borderColor: color,
           pointRadius: 0,
           borderWidth: 1.5,
           spanGaps: true,
@@ -192,7 +212,7 @@ export default function StrategyCharts({ symbol, technicals, chainHeatmap, marke
     }
 
     return { labels: candles.map((c) => c.date), datasets };
-  }, [candles, indicators, technicals, marketContext]);
+  }, [candles, indicators, technicals, marketContext, symbol]);
 
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
@@ -257,28 +277,64 @@ export default function StrategyCharts({ symbol, technicals, chainHeatmap, marke
     };
   }, [vixCandles]);
 
-  const baseOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: "index", intersect: false },
-    plugins: {
-      legend: { labels: { color: chartTheme.tick, boxWidth: 12 } },
-      tooltip: { backgroundColor: "rgba(15,23,42,0.92)" },
-    },
-    scales: {
-      x: { ticks: { color: chartTheme.tick, maxTicksLimit: 8 }, grid: { color: chartTheme.grid } },
-      y: { ticks: { color: chartTheme.tick }, grid: { color: chartTheme.grid } },
-    },
-  };
+  const oiBarChart = useMemo(() => {
+    if (!chainHeatmap?.length) return null;
+    return {
+      labels: chainHeatmap.map((r) => String(r.strike)),
+      datasets: [
+        {
+          label: "Call OI",
+          data: chainHeatmap.map((r) => r.callOi ?? 0),
+          backgroundColor: "rgba(34,197,94,0.6)",
+        },
+        {
+          label: "Put OI",
+          data: chainHeatmap.map((r) => r.putOi ?? 0),
+          backgroundColor: "rgba(239,68,68,0.6)",
+        },
+      ],
+    };
+  }, [chainHeatmap]);
+
+  const ivLevel = derivativesIntel?.volatility?.impliedVolatility
+    ?? marketContext?.impliedVolatility
+    ?? null;
+
+  const ivChart = useMemo(() => {
+    if (ivLevel == null) return null;
+    return {
+      labels: ["ATM IV"],
+      datasets: [{
+        label: "Implied Volatility (%)",
+        data: [ivLevel],
+        backgroundColor: "rgba(168,85,247,0.55)",
+        borderWidth: 0,
+      }],
+    };
+  }, [ivLevel]);
+
+  const baseOptions = baseChartOptions();
 
   if (!symbol) return null;
+
+  const pcr = derivativesIntel?.marketFlow?.putCallRatio ?? marketContext?.putCallRatio ?? null;
 
   return (
     <section className={`strategy-charts glass-card${fullscreen ? " fullscreen" : ""}`}>
       <div className="chart-panel-head">
         <div>
           <h3>Interactive Analytics</h3>
-          <p className="panel-sub">NIFTY · Volume · RSI · MACD · India VIX · OI Heatmap</p>
+          <p className="panel-sub">
+            Candlestick · Volume · RSI · MACD · MAs (20/50/100/200) · OI · PCR · IV · Support/Resistance
+            {chartContext?.reflectsLastSession && (
+              <span className="chart-session-note">
+                {" "}· Latest completed session{chartContext.sessionDate ? ` (${chartContext.sessionDate})` : ""}
+              </span>
+            )}
+          </p>
+          {marketStatus?.mode === "pre-market" && (
+            <p className="chart-session-banner">{chartContext?.note || "Charts reflect the latest completed trading session"}</p>
+          )}
         </div>
         <div className="chart-panel-actions">
           {RANGES.map((r) => (
@@ -297,41 +353,83 @@ export default function StrategyCharts({ symbol, technicals, chainHeatmap, marke
         </div>
       </div>
 
-      {loading && <p className="chart-loading">Loading verified chart data…</p>}
-      {error && <p className="chart-error">{error}</p>}
+      {loading && (
+        <div className="chart-loading-block">
+          <div className="terminal-spinner" />
+          <p>Loading verified chart data…</p>
+        </div>
+      )}
 
-      {!loading && !error && priceChart && (
+      {error && !loading && (
+        <div className="chart-error-block">
+          <p className="chart-error">{error}</p>
+          <ChartSkeleton label="Awaiting verified market data" height={360} />
+        </div>
+      )}
+
+      {!loading && !error && (
         <>
           <div className="strategy-chart-main">
-            <Chart ref={mainRef} type="candlestick" data={priceChart} options={baseOptions} />
+            {priceChart ? (
+              <Chart ref={mainRef} type="line" data={priceChart} options={baseOptions} />
+            ) : (
+              <ChartSkeleton label="Awaiting verified market data" height={360} />
+            )}
           </div>
-          {volumeChart && (
-            <div className="strategy-chart-sub">
+
+          <div className="strategy-chart-sub">
+            {volumeChart ? (
               <Chart type="bar" data={volumeChart} options={{ ...baseOptions, plugins: { legend: { display: false } } }} />
-            </div>
-          )}
-          <div className="strategy-chart-row">
-            {rsiChart ? (
-              <div className="strategy-chart-sub">
+            ) : (
+              <ChartSkeleton label="Volume — awaiting verified data" />
+            )}
+          </div>
+
+          <div className="strategy-chart-stack">
+            <div className="strategy-chart-sub">
+              {rsiChart ? (
                 <Chart type="line" data={rsiChart} options={{ ...baseOptions, scales: { ...baseOptions.scales, y: { min: 0, max: 100 } } }} />
-              </div>
-            ) : (
-              <div className="strategy-chart-sub chart-na">RSI unavailable</div>
-            )}
-            {macdChart ? (
-              <div className="strategy-chart-sub">
+              ) : (
+                <ChartSkeleton label="RSI — awaiting verified data" />
+              )}
+            </div>
+            <div className="strategy-chart-sub">
+              {macdChart ? (
                 <Chart type="line" data={macdChart} options={baseOptions} />
-              </div>
-            ) : (
-              <div className="strategy-chart-sub chart-na">MACD unavailable</div>
-            )}
-            {vixChart ? (
-              <div className="strategy-chart-sub">
+              ) : (
+                <ChartSkeleton label="MACD — awaiting verified data" />
+              )}
+            </div>
+            <div className="strategy-chart-sub">
+              {vixChart ? (
                 <Chart type="line" data={vixChart} options={baseOptions} />
-              </div>
-            ) : (
-              <div className="strategy-chart-sub chart-na">India VIX unavailable</div>
-            )}
+              ) : (
+                <ChartSkeleton label="India VIX — awaiting verified data" />
+              )}
+            </div>
+          </div>
+
+          <div className="strategy-chart-stack deriv-charts">
+            <div className="strategy-chart-sub">
+              <h5 className="chart-mini-title">Open Interest</h5>
+              {oiBarChart ? (
+                <Chart type="bar" data={oiBarChart} options={{ ...baseOptions, plugins: { legend: { display: true } } }} />
+              ) : (
+                <ChartSkeleton label="OI — awaiting verified NSE chain" />
+              )}
+            </div>
+            <div className="strategy-chart-sub">
+              <h5 className="chart-mini-title">Put–Call Ratio</h5>
+              <PcrGauge pcr={pcr} />
+            </div>
+            <div className="strategy-chart-sub">
+              <h5 className="chart-mini-title">Implied Volatility</h5>
+              {ivChart ? (
+                <Chart type="bar" data={ivChart} options={{ ...baseOptions, plugins: { legend: { display: false } }, scales: { ...baseOptions.scales, y: { beginAtZero: true } } }} />
+              ) : (
+                <ChartSkeleton label="IV — awaiting verified NSE chain" />
+              )}
+            </div>
           </div>
         </>
       )}
@@ -339,7 +437,7 @@ export default function StrategyCharts({ symbol, technicals, chainHeatmap, marke
       <OiHeatmap
         heatmap={chainHeatmap}
         maxPain={marketContext?.maxPain}
-        spot={marketContext?.spotPrice}
+        spot={marketContext?.spotPrice ?? marketContext?.niftySpot}
       />
     </section>
   );

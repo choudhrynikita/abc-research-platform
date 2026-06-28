@@ -1,7 +1,7 @@
 "use client";
 
-export default function FnoInsightPanel({ insights }) {
-  if (!insights) return null;
+export default function FnoInsightPanel({ insights, backtest }) {
+  if (!insights && !backtest) return null;
 
   const blocks = [
     { key: "technical", title: "Technical Insight", icon: "▲" },
@@ -32,6 +32,30 @@ export default function FnoInsightPanel({ insights }) {
             </div>
           );
         })}
+      </div>
+
+      <div className="backtest-strip">
+        <h4>Historical Backtest</h4>
+        {backtest?.available ? (
+          <div className="backtest-metrics">
+            <div>
+              <small>Backtested Win Rate</small>
+              <strong>{backtest.winRate != null ? `${backtest.winRate}%` : "—"}</strong>
+            </div>
+            <div>
+              <small>Sample Size</small>
+              <strong>{backtest.samples ?? "—"}</strong>
+            </div>
+            <div>
+              <small>Period Tested</small>
+              <strong>{backtest.period ?? "—"}</strong>
+            </div>
+          </div>
+        ) : (
+          <p className="backtest-unavailable">
+            {backtest?.note || "No verified historical backtest available for this strategy."}
+          </p>
+        )}
       </div>
     </section>
   );

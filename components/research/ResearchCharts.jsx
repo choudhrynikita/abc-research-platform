@@ -2,33 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-import { CandlestickController, CandlestickElement } from "chartjs-chart-financial";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  CandlestickController,
-  CandlestickElement
-);
+import "@/lib/chart-setup";
+import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
 
 const RANGES = [
   { value: "3mo", label: "3M" },
@@ -37,11 +12,6 @@ const RANGES = [
   { value: "2y", label: "2Y" },
   { value: "5y", label: "5Y" },
 ];
-
-const chartTheme = {
-  grid: "rgba(255,255,255,0.05)",
-  tick: "#8b9bb4",
-};
 
 export default function ResearchCharts({ symbol, technicals }) {
   const [range, setRange] = useState("1y");
@@ -205,19 +175,7 @@ export default function ResearchCharts({ symbol, technicals }) {
     };
   }, [candles, indicators]);
 
-  const baseOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: { mode: "index", intersect: false },
-    plugins: {
-      legend: { labels: { color: chartTheme.tick, boxWidth: 12 } },
-      tooltip: { backgroundColor: "rgba(15,23,42,0.92)" },
-    },
-    scales: {
-      x: { ticks: { color: chartTheme.tick, maxTicksLimit: 8 }, grid: { color: chartTheme.grid } },
-      y: { ticks: { color: chartTheme.tick }, grid: { color: chartTheme.grid } },
-    },
-  };
+  const baseOptions = baseChartOptions();
 
   if (!symbol) return null;
 
@@ -254,7 +212,7 @@ export default function ResearchCharts({ symbol, technicals }) {
       {!loading && !error && priceChart && (
         <>
           <div className="research-chart-main">
-            <Chart ref={mainRef} type="candlestick" data={priceChart} options={baseOptions} />
+            <Chart ref={mainRef} type="line" data={priceChart} options={baseOptions} />
           </div>
           {volumeChart && (
             <div className="research-chart-sub">

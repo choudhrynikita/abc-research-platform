@@ -10,7 +10,7 @@ const ICONS = {
 };
 
 export default function StrategyInsightPanel({ insights, backtest }) {
-  if (!insights && !backtest?.available) return null;
+  if (!insights && !backtest) return null;
 
   return (
     <section className="strategy-insights glass-card">
@@ -45,30 +45,36 @@ export default function StrategyInsightPanel({ insights, backtest }) {
         </div>
       )}
 
-      {backtest?.available && (
-        <div className="backtest-strip">
-          <h4>Historical Backtest (Ensemble)</h4>
-          <div className="backtest-metrics">
-            <div>
-              <small>Win Rate</small>
-              <strong>{backtest.winRate != null ? `${(backtest.winRate * 100).toFixed(1)}%` : "—"}</strong>
+      <div className="backtest-strip">
+        <h4>Historical Backtest</h4>
+        {backtest?.available ? (
+          <>
+            <div className="backtest-metrics">
+              <div>
+                <small>Backtested Win Rate</small>
+                <strong>{backtest.winRate != null ? `${backtest.winRate}%` : "—"}</strong>
+              </div>
+              <div>
+                <small>Sample Size</small>
+                <strong>{backtest.samples ?? "—"}</strong>
+              </div>
+              <div>
+                <small>Period Tested</small>
+                <strong>{backtest.period ?? "—"}</strong>
+              </div>
+              <div>
+                <small>Max Drawdown</small>
+                <strong>{backtest.maxDrawdown != null ? `${backtest.maxDrawdown}%` : "—"}</strong>
+              </div>
             </div>
-            <div>
-              <small>Trades</small>
-              <strong>{backtest.samples ?? "—"}</strong>
-            </div>
-            <div>
-              <small>Period</small>
-              <strong>{backtest.period ?? "—"}</strong>
-            </div>
-            <div>
-              <small>Max Drawdown</small>
-              <strong>{backtest.maxDrawdown != null ? `${(backtest.maxDrawdown * 100).toFixed(1)}%` : "—"}</strong>
-            </div>
-          </div>
-          {backtest.note && <p className="backtest-note">{backtest.note}</p>}
-        </div>
-      )}
+            {backtest.note && <p className="backtest-note">{backtest.note}</p>}
+          </>
+        ) : (
+          <p className="backtest-unavailable">
+            {backtest?.note || "No verified historical backtest available for this strategy."}
+          </p>
+        )}
+      </div>
     </section>
   );
 }

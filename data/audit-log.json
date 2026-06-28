@@ -1,5 +1,13 @@
 [
   {
+    "id": "audit-1782655987583",
+    "timestamp": "2026-06-28T14:13:07.583Z",
+    "type": "research_report",
+    "symbol": "TCS.NS",
+    "confidence": 75,
+    "signal": "BEARISH"
+  },
+  {
     "id": "audit-1782041336480",
     "timestamp": "2026-06-21T11:28:56.480Z",
     "type": "research_report",

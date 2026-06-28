@@ -8,7 +8,13 @@ function fmt(v, digits = 2) {
 }
 
 function StatusBadge({ status }) {
-  const cls = status === "Active" ? "active" : status === "Wait" ? "wait" : "avoid";
+  const cls = status === "Active"
+    ? "active"
+    : status === "Pre-Market"
+      ? "pre-market"
+      : status === "Wait"
+        ? "wait"
+        : "avoid";
   return <span className={`strategy-status ${cls}`}>{status ?? "—"}</span>;
 }
 
@@ -92,6 +98,9 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           <h4>{strategy.name}</h4>
           <span className="strategy-type-pill">{strategy.type}</span>
           <span className="strategy-expiry">{strategy.expiryType} · {strategy.expiry ?? "—"}</span>
+          {strategy.modeLabel && strategy.mode === "pre-market" && (
+            <span className="strategy-mode-label">{strategy.modeLabel}</span>
+          )}
         </div>
         <StatusBadge status={strategy.status} />
       </header>
@@ -99,7 +108,11 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
       <div className="strategy-metrics-row">
         <div>
           <small>Net Premium</small>
-          <strong>{netPrem != null ? `${isCredit ? "Credit " : ""}₹${fmt(Math.abs(netPrem))}` : "—"}</strong>
+          <strong>
+            {netPrem != null
+              ? `${isCredit ? "Credit " : ""}₹${fmt(Math.abs(netPrem))}${strategy.mode === "pre-market" ? " ref." : ""}`
+              : "Trigger at open"}
+          </strong>
         </div>
         <div>
           <small>Max Risk</small>
@@ -128,19 +141,23 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         </div>
         <div>
           <small>Stop Loss</small>
-          <strong>{strategy.stopLoss != null ? `₹${fmt(strategy.stopLoss)}` : "—"}</strong>
+          <strong>{typeof strategy.stopLoss === "string" ? strategy.stopLoss : strategy.stopLoss != null ? `₹${fmt(strategy.stopLoss)}` : "—"}</strong>
         </div>
         <div>
           <small>Target 1</small>
-          <strong>{strategy.targets?.t1 != null ? `₹${fmt(strategy.targets.t1)}` : "—"}</strong>
+          <strong>{typeof strategy.targets?.t1 === "string" ? strategy.targets.t1 : strategy.targets?.t1 != null ? `₹${fmt(strategy.targets.t1)}` : "—"}</strong>
         </div>
         <div>
           <small>Target 2</small>
-          <strong>{strategy.targets?.t2 != null ? `₹${fmt(strategy.targets.t2)}` : "—"}</strong>
+          <strong>{typeof strategy.targets?.t2 === "string" ? strategy.targets.t2 : strategy.targets?.t2 != null ? `₹${fmt(strategy.targets.t2)}` : "—"}</strong>
         </div>
       </div>
 
       <LegsTable strikes={strategy.strikes} />
+
+      {strategy.premiumNote && (
+        <p className="strategy-premium-note">{strategy.premiumNote}</p>
+      )}
 
       {selected && (
         <div className="strategy-detail" onClick={(e) => e.stopPropagation()}>

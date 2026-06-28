@@ -34,7 +34,13 @@ function ExpandSection({ title, children, defaultOpen = false }) {
 export default function FnoStrategyCard({ strategy, selected, onSelect }) {
   const net = strategy.premiums?.net;
   const isCredit = net != null && net < 0;
-  const statusCls = strategy.status === "Active" ? "active" : strategy.status === "Wait" ? "wait" : "avoid";
+  const statusCls = strategy.status === "Active"
+    ? "active"
+    : strategy.status === "Pre-Market"
+      ? "pre-market"
+      : strategy.status === "Wait"
+        ? "wait"
+        : "avoid";
   const a = strategy.analytics || {};
   const ps = strategy.positionSizing || {};
 
@@ -59,10 +65,20 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
       <div className="fno-type-row">
         <span className="strategy-type-pill">{strategy.type}</span>
         <span className="strategy-expiry">Monthly · {strategy.expiry ?? "—"}</span>
+        {strategy.modeLabel && strategy.mode === "pre-market" && (
+          <span className="strategy-mode-label">{strategy.modeLabel}</span>
+        )}
       </div>
 
       <div className="strategy-metrics-row">
-        <div><small>Net Premium</small><strong>{net != null ? `${isCredit ? "Credit " : ""}₹${fmt(Math.abs(net))}` : "—"}</strong></div>
+        <div>
+          <small>Net Premium</small>
+          <strong>
+            {net != null
+              ? `${isCredit ? "Credit " : ""}₹${fmt(Math.abs(net))}${strategy.mode === "pre-market" ? " ref." : ""}`
+              : "Trigger at open"}
+          </strong>
+        </div>
         <div><small>Max Risk</small><strong className="risk">{strategy.maxRisk != null ? `₹${fmt(strategy.maxRisk)}` : "—"}</strong></div>
         <div><small>Max Reward</small><strong className="reward">{strategy.maxReward != null ? `₹${fmt(strategy.maxReward)}` : "Unlimited"}</strong></div>
         <div><small>R:R</small><strong>{strategy.riskRewardRatio != null ? `${strategy.riskRewardRatio}:1` : "—"}</strong></div>
@@ -74,11 +90,31 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
       </div>
 
       <div className="strategy-targets">
-        <div><small>Entry</small><strong>{strategy.entryZone ? `₹${fmt(strategy.entryZone.low)}–${fmt(strategy.entryZone.high)}` : "Awaiting verified market confirmation."}</strong></div>
-        <div><small>Stop</small><strong>{strategy.stopLoss != null ? `₹${fmt(strategy.stopLoss)}` : "—"}</strong></div>
-        <div><small>T1</small><strong>{strategy.targets?.t1 != null ? `₹${fmt(strategy.targets.t1)}` : "—"}</strong></div>
-        <div><small>T2</small><strong>{strategy.targets?.t2 != null ? `₹${fmt(strategy.targets.t2)}` : "—"}</strong></div>
+        <div>
+          <small>Entry</small>
+          <strong>
+            {strategy.entryZone
+              ? `₹${fmt(strategy.entryZone.low)}–${fmt(strategy.entryZone.high)}`
+              : strategy.entryTrigger || "Awaiting verified market confirmation."}
+          </strong>
+        </div>
+        <div>
+          <small>Stop</small>
+          <strong>{typeof strategy.stopLoss === "string" ? strategy.stopLoss : strategy.stopLoss != null ? `₹${fmt(strategy.stopLoss)}` : "—"}</strong>
+        </div>
+        <div>
+          <small>T1</small>
+          <strong>{typeof strategy.targets?.t1 === "string" ? strategy.targets.t1 : strategy.targets?.t1 != null ? `₹${fmt(strategy.targets.t1)}` : "—"}</strong>
+        </div>
+        <div>
+          <small>T2</small>
+          <strong>{typeof strategy.targets?.t2 === "string" ? strategy.targets.t2 : strategy.targets?.t2 != null ? `₹${fmt(strategy.targets.t2)}` : "—"}</strong>
+        </div>
       </div>
+
+      {strategy.premiumNote && (
+        <p className="strategy-premium-note">{strategy.premiumNote}</p>
+      )}
 
       {strategy.strikes?.length > 0 && (
         <table className="legs-table">

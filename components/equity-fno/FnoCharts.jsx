@@ -2,7 +2,7 @@
 
 import StrategyCharts from "../nifty-strategy/StrategyCharts";
 
-export default function FnoCharts({ symbol, technicals, chainHeatmap, marketContext }) {
+export default function FnoCharts({ symbol, technicals, chainHeatmap, marketContext, chartContext, marketStatus, derivativesIntel }) {
   if (!symbol) return null;
   return (
     <StrategyCharts
@@ -10,6 +10,9 @@ export default function FnoCharts({ symbol, technicals, chainHeatmap, marketCont
       technicals={technicals}
       chainHeatmap={chainHeatmap}
       marketContext={marketContext}
+      chartContext={chartContext}
+      marketStatus={marketStatus}
+      derivativesIntel={derivativesIntel}
     />
   );
 }
