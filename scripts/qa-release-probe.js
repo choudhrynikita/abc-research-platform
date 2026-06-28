@@ -2,6 +2,8 @@
  * Release QA probe — pages, APIs, exports
  */
 const http = require("http");
+const https = require("https");
+const { URL } = require("url");
 
 const BASE = process.env.QA_BASE || "http://localhost:4000";
 const TIMEOUT_MS = 120000;
@@ -36,7 +38,9 @@ const EXPORTS = [
 function get(path) {
   return new Promise((resolve, reject) => {
     const start = Date.now();
-    const req = http.get(`${BASE}${path}`, (res) => {
+    const url = new URL(path, BASE);
+    const client = url.protocol === "https:" ? https : http;
+    const req = client.get(url, (res) => {
       const chunks = [];
       res.on("data", (c) => chunks.push(c));
       res.on("end", () => {

@@ -1,4 +1,6 @@
 const http = require("http");
+const https = require("https");
+const { URL } = require("url");
 const BASE = process.env.QA_BASE || "http://localhost:4000";
 const paths = [
   "/api/export/nifty-strategy/pdf",
@@ -11,7 +13,9 @@ const paths = [
 
 function get(path) {
   return new Promise((resolve, reject) => {
-    http.get(`${BASE}${path}`, (res) => {
+    const url = new URL(path, BASE);
+    const client = url.protocol === "https:" ? https : http;
+    client.get(url, (res) => {
       const chunks = [];
       res.on("data", (c) => chunks.push(c));
       res.on("end", () =>
