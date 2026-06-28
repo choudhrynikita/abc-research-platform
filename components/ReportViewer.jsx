@@ -23,10 +23,8 @@ function ExportButtons({ reportId }) {
   if (!reportId) return null;
   return (
     <div className="export-toolbar">
-      <span className="export-label">Export report:</span>
-      <a href={`/api/report-center/${reportId}/export/csv`} className="btn btn-secondary btn-sm">CSV</a>
-      <a href={`/api/report-center/${reportId}/export/xlsx`} className="btn btn-secondary btn-sm">Excel</a>
       <a href={`/api/report-center/${reportId}/export/pdf`} className="btn btn-secondary btn-sm">PDF</a>
+      <a href={`/api/report-center/${reportId}/export/xlsx`} className="btn btn-secondary btn-sm">Excel</a>
     </div>
   );
 }

@@ -1,5 +1,10 @@
-import ReportModule from "../../components/modules/ReportModule";
+import FnoTerminal from "../../components/equity-fno/FnoTerminal";
+
+export const metadata = {
+  title: "Equity F&O Strategy Center | ABC Research",
+  description: "Institutional equity options strategy engine — top 10 monthly expiry ideas",
+};
 
 export default function FnoPage() {
-  return <ReportModule endpoint="/api/reports/generate/fno" label="F&O report" />;
+  return <FnoTerminal />;
 }

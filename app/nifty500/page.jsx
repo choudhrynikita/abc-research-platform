@@ -1,5 +1,5 @@
-import ReportModule from "../../components/modules/ReportModule";
+import Nifty500Dashboard from "../../components/nifty500/Nifty500Dashboard";
 
 export default function Nifty500Page() {
-  return <ReportModule endpoint="/api/reports/generate/nifty500" label="NIFTY 500 sample universe report" />;
+  return <Nifty500Dashboard />;
 }

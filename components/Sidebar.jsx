@@ -5,13 +5,12 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV = [
-  { href: "/nifty500", label: "NIFTY 500 Dashboard (Sample)" },
+  { href: "/nifty500", label: "Top 50 Stocks to Buy" },
   { href: "/fiidii", label: "FII & DII Intelligence" },
-  { href: "/research", label: "AI Research Mode" },
+  { href: "/research", label: "AI Research Engine" },
   { href: "/nifty-strategy", label: "NIFTY Strategy Center" },
   { href: "/fno", label: "Equity F&O Center" },
   { href: "/ipo", label: "IPO Intelligence Center" },
-  { href: "/reports", label: "Downloadable Reports" },
 ];
 
 export default function Sidebar({ open = false, onNavigate, onClose }) {

@@ -3,23 +3,21 @@
 import { useEffect, useState } from "react";
 
 const TITLES = {
-  "/nifty500": "NIFTY 500 Dashboard (Sample Universe)",
+  "/nifty500": "Top 50 Stocks to Buy",
   "/fiidii": "FII & DII Intelligence",
-  "/research": "AI Research Mode",
+  "/research": "AI Research Engine",
   "/nifty-strategy": "NIFTY Strategy Center",
   "/fno": "Equity F&O Center",
   "/ipo": "IPO Intelligence Center",
-  "/reports": "Downloadable Reports",
 };
 
 const SHORT_TITLES = {
-  "/nifty500": "NIFTY 500 Sample",
+  "/nifty500": "Top 50",
   "/fiidii": "FII / DII",
   "/research": "Research",
   "/nifty-strategy": "Strategy",
   "/fno": "F&O",
   "/ipo": "IPO",
-  "/reports": "Reports",
 };
 
 export default function TopBar({ pathname, onMenuToggle, sidebarOpen }) {

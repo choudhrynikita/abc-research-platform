@@ -1,5 +1,5 @@
-import ReportModule from "../../components/modules/ReportModule";
+import FiiDiiTerminal from "../../components/fiidii/FiiDiiTerminal";
 
 export default function FiiDiiPage() {
-  return <ReportModule endpoint="/api/reports/generate/fiidii" label="FII/DII report" />;
+  return <FiiDiiTerminal />;
 }

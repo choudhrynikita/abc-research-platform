@@ -1,5 +1,5 @@
-import ReportsModule from "../../components/modules/ReportsModule";
+import { redirect } from "next/navigation";
 
 export default function ReportsPage() {
-  return <ReportsModule />;
+  redirect("/nifty500");
 }

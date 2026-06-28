@@ -1,5 +1,5 @@
-import ResearchModule from "../../components/modules/ResearchModule";
+import ResearchTerminal from "../../components/research/ResearchTerminal";
 
 export default function ResearchPage() {
-  return <ResearchModule />;
+  return <ResearchTerminal />;
 }
