@@ -35,7 +35,10 @@ function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
             {isLive ? "Live Session" : "Pre-Market"}
           </span>
           <span className={`data-pill${chainStatus?.stale ? " cached" : ""}`}>{chainLabel}</span>
-          <span className="data-pill">{summary.strategiesActive ?? 0} Strategies</span>
+          <span className="data-pill">
+            {summary.strategiesTotal ?? 0} Ranked
+            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Active` : ""}
+          </span>
           <TerminalExport module="nifty-strategy" />
         </div>
       </div>
