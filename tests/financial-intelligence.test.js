@@ -3,6 +3,8 @@ const assert = require("node:assert/strict");
 
 const {
   MESSAGES,
+  POLICY_ID,
+  POLICY_VERSION,
   buildIntelligenceError,
   mapApiFailure,
   buildVerifiedField,
@@ -10,12 +12,35 @@ const {
   verifyFinancialPayload,
   requireVerifiedInputs,
   assistantPolicyPreamble,
+  getSystemPrompt,
+  getPolicyMeta,
+  enforceFreshDataPolicy,
+  buildInstitutionalFigure,
+  classifyDataType,
+  DATA_CLASSIFICATION,
 } = require("../lib/financial-intelligence");
+
+const { SYSTEM_PROMPT, ASSISTANT_PREAMBLE } = require("../lib/financial-intelligence-prompt");
 
 describe("financial-intelligence policy", () => {
   it("uses canonical unavailable messages", () => {
     assert.equal(MESSAGES.UNAVAILABLE_CURRENT, "Verified data is currently unavailable.");
     assert.match(assistantPolicyPreamble(), /hallucination/i);
+  });
+
+  it("exposes full production system prompt", () => {
+    assert.equal(getSystemPrompt(), SYSTEM_PROMPT);
+    assert.match(SYSTEM_PROMPT, /Zero Hallucination Policy/);
+    assert.match(SYSTEM_PROMPT, /Hallucination is prohibited/);
+    assert.equal(assistantPolicyPreamble(), ASSISTANT_PREAMBLE);
+  });
+
+  it("returns policy metadata for API envelopes", () => {
+    const meta = getPolicyMeta();
+    assert.equal(meta.policyId, POLICY_ID);
+    assert.equal(meta.policyVersion, POLICY_VERSION);
+    assert.equal(meta.policy, "zero_hallucination");
+    assert.ok(meta.preamble);
   });
 
   it("builds structured errors without fabricated data", () => {
@@ -85,5 +110,34 @@ describe("financial-intelligence policy", () => {
     });
     assert.equal(fail.verified, false);
     assert.ok(fail.failures.length > 0);
+  });
+
+  it("rejects stale cache per freshness policy", () => {
+    const stale = enforceFreshDataPolicy(new Date(Date.now() - 10 * 60 * 1000).toISOString(), 5 * 60 * 1000);
+    assert.equal(stale.fresh, false);
+    assert.equal(stale.stale, true);
+
+    const fresh = enforceFreshDataPolicy(new Date().toISOString(), 5 * 60 * 1000);
+    assert.equal(fresh.fresh, true);
+  });
+
+  it("builds institutional figures with reproducibility flag", () => {
+    const fig = buildInstitutionalFigure({
+      value: 100,
+      currency: "INR",
+      period: "Q1 FY2026",
+      source: "NSE",
+      collectedAt: new Date().toISOString(),
+    });
+    assert.equal(fig.verified, true);
+    assert.equal(fig.reproducible, true);
+    assert.equal(fig.dataSource, "NSE");
+  });
+
+  it("classifies data transparency types", () => {
+    assert.equal(classifyDataType({ verified: true }), DATA_CLASSIFICATION.VERIFIED_FACT);
+    assert.equal(classifyDataType({ verified: false }), DATA_CLASSIFICATION.UNAVAILABLE);
+    assert.equal(classifyDataType({ verified: true, isForecast: true }), DATA_CLASSIFICATION.FORECAST);
+    assert.equal(classifyDataType({ verified: true, isModel: true }), DATA_CLASSIFICATION.ANALYSIS);
   });
 });

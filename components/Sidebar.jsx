@@ -29,7 +29,12 @@ export default function Sidebar({ open = false, onNavigate, onClose }) {
         body: JSON.stringify({ query }),
       });
       const json = await res.json();
-      setCopilotOut(json.answer || json.message || "No response");
+      setCopilotOut(
+        json.answer
+        || json.error
+        || json.message
+        || "Verified data is currently unavailable."
+      );
     } catch (e) {
       setCopilotOut(e.message);
     } finally {
