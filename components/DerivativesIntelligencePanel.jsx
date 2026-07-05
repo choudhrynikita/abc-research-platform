@@ -2,15 +2,22 @@
 
 import { useState } from "react";
 
-const NA = "Data not available from verified source";
+const UNAVAILABLE = "Verified data unavailable.";
 
-function Metric({ label, value, sub }) {
-  const display = value ?? NA;
+function Metric({ label, value, sub, meta }) {
+  const display = value ?? UNAVAILABLE;
+  const isUnavailable = value == null || value === UNAVAILABLE;
   return (
     <div className="deriv-metric">
       <small>{label}</small>
-      <strong>{display}</strong>
+      <strong className={isUnavailable ? "metric-na" : undefined}>{display}</strong>
       {sub && <span className="deriv-sub">{sub}</span>}
+      {meta?.source && (
+        <span className="deriv-meta">
+          {meta.verified ? "Verified" : "Unverified"} · {meta.source}
+          {meta.collectedAt && ` · ${new Date(meta.collectedAt).toLocaleString()}`}
+        </span>
+      )}
     </div>
   );
 }
@@ -35,7 +42,7 @@ function Accordion({ title, children, defaultOpen = true }) {
 
 function RiskMeter({ riskReward, maxLoss }) {
   if (riskReward == null && maxLoss == null) {
-    return <p className="na-text">{NA}</p>;
+    return <p className="na-text">{UNAVAILABLE}</p>;
   }
   const rr = riskReward ?? 0;
   const level = rr >= 2 ? "low" : rr >= 1 ? "moderate" : "elevated";
@@ -66,6 +73,7 @@ export default function DerivativesIntelligencePanel({ intelligence, title = "De
   const vol = intelligence.volatility || {};
   const ms = intelligence.marketStrength || {};
   const g = vol.greeks || {};
+  const ivMeta = vol.impliedVolatilityMeta || {};
 
   return (
     <section className="derivatives-panel glass-card">
@@ -83,7 +91,7 @@ export default function DerivativesIntelligencePanel({ intelligence, title = "De
 
       <Accordion title="Market Flow Metrics">
         <div className="deriv-grid">
-          <Metric label="Put–Call Ratio (PCR)" value={mf.putCallRatio} />
+          <Metric label="Put–Call Ratio (PCR)" value={mf.putCallRatio} meta={{ source: intelligence.source, collectedAt: intelligence.fetchedAt, verified: intelligence.verified }} />
           <Metric label="Call OI (Total)" value={fmtNum(mf.callOi)} />
           <Metric label="Call OI Δ" value={fmtNum(mf.callOiChange)} />
           <Metric label="Put OI (Total)" value={fmtNum(mf.putOi)} />
@@ -109,15 +117,38 @@ export default function DerivativesIntelligencePanel({ intelligence, title = "De
 
       <Accordion title="Volatility Metrics" defaultOpen={false}>
         <div className="deriv-grid">
-          <Metric label="Implied Volatility (IV)" value={vol.impliedVolatility != null ? `${vol.impliedVolatility}%` : null} />
-          <Metric label="IV Rank" value={vol.ivRank} sub={vol.ivRank == null ? vol.ivRankNote : undefined} />
-          <Metric label="IV Percentile" value={vol.ivPercentile} />
-          <Metric label="India VIX" value={vol.indiaVix != null ? vol.indiaVix.toFixed(2) : null} />
+          <Metric
+            label="Implied Volatility (IV)"
+            value={vol.impliedVolatility != null ? `${vol.impliedVolatility}%` : null}
+            meta={ivMeta}
+          />
+          <Metric
+            label="IV Rank"
+            value={vol.ivRank}
+            sub={vol.ivRankNote}
+            meta={{ source: "NSE ATM IV history", verified: vol.ivMetricsVerified }}
+          />
+          <Metric
+            label="IV Percentile"
+            value={vol.ivPercentile}
+            sub={vol.ivPercentileNote}
+            meta={{ source: "NSE ATM IV history", verified: vol.ivMetricsVerified }}
+          />
+          <Metric
+            label="India VIX"
+            value={vol.indiaVix != null ? vol.indiaVix.toFixed(2) : null}
+            meta={vol.indiaVixMeta}
+          />
           <Metric label="Delta" value={g.delta} sub={g.source} />
           <Metric label="Gamma" value={g.gamma} />
           <Metric label="Theta" value={g.theta} />
           <Metric label="Vega" value={g.vega} />
         </div>
+        {vol.ivHistoryPoints != null && vol.ivHistoryPoints < 20 && (
+          <p className="deriv-footnote na-text">
+            IV rank/percentile require at least 20 verified daily ATM IV observations ({vol.ivHistoryPoints} recorded).
+          </p>
+        )}
       </Accordion>
 
       <Accordion title="Market Strength" defaultOpen={false}>
@@ -137,7 +168,7 @@ export default function DerivativesIntelligencePanel({ intelligence, title = "De
       </Accordion>
 
       {!intelligence.verified && (
-        <p className="deriv-unverified">{intelligence.unverifiedMessage || NA}</p>
+        <p className="deriv-unverified">{intelligence.unverifiedMessage || UNAVAILABLE}</p>
       )}
     </section>
   );
