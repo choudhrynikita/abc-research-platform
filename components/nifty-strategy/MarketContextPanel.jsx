@@ -62,9 +62,12 @@ export default function MarketContextPanel({ context, chainStatus }) {
         />
         <Metric
           label="Breadth"
-          value={context.breadth?.advancers != null
-            ? `${context.breadth.advancers}↑ / ${context.breadth.decliners}↓`
-            : null}
+          value={
+            (context.breadth?.advancers ?? context.breadth?.advances) != null
+              ? `${context.breadth.advancers ?? context.breadth.advances}↑ / ${context.breadth.decliners ?? context.breadth.declines}↓`
+              : null
+          }
+          sub={context.breadth?.advanceDeclineRatio != null ? `A/D ${context.breadth.advanceDeclineRatio}` : undefined}
         />
       </div>
 

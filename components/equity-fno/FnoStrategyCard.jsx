@@ -85,8 +85,12 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
       </div>
 
       <div className="confidence-gauge">
-        <div className="gauge-head"><span>Confidence</span><strong>{strategy.confidenceScore ?? "—"}</strong></div>
+        <div className="gauge-head">
+          <span>Strategy Confidence</span>
+          <strong>{strategy.confidenceScore != null ? `${strategy.confidenceScore}%` : "—"}</strong>
+        </div>
         <div className="gauge-bar"><div className="gauge-fill" style={{ width: `${strategy.confidenceScore ?? 0}%` }} /></div>
+        <p className="confidence-disclaimer">Composite signal strength — not a guaranteed success rate</p>
       </div>
 
       <div className="strategy-targets">

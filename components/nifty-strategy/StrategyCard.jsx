@@ -24,9 +24,12 @@ function ConfidenceGauge({ score, factors }) {
   return (
     <div className="confidence-gauge">
       <div className="gauge-head">
-        <span>Confidence</span>
-        <strong style={{ color }}>{score != null ? score : "—"}</strong>
+        <span>Strategy Confidence</span>
+        <strong style={{ color }}>{score != null ? `${score}%` : "—"}</strong>
       </div>
+      <p className="confidence-disclaimer">
+        Composite signal strength — not a guaranteed success rate
+      </p>
       <div className="gauge-bar">
         <div className="gauge-fill" style={{ width: `${pct}%`, background: color }} />
       </div>
@@ -124,7 +127,13 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         </div>
         <div>
           <small>R:R</small>
-          <strong>{strategy.riskRewardRatio != null ? `${strategy.riskRewardRatio}:1` : "—"}</strong>
+          <strong>
+            {strategy.riskRewardRatio != null
+              ? `${strategy.riskRewardRatio}:1`
+              : strategy.structuralRiskNote
+                ? "At trigger"
+                : "—"}
+          </strong>
         </div>
       </div>
 

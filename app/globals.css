@@ -3883,6 +3883,11 @@ a.nav-item {
   overflow: auto;
 }
 
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+}
+
 .strategy-chart-main {
   height: 360px;
   margin-bottom: 12px;
@@ -3891,6 +3896,13 @@ a.nav-item {
 .strategy-chart-sub {
   height: 140px;
   margin-bottom: 10px;
+}
+
+.confidence-disclaimer {
+  margin: 4px 0 0;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .strategy-chart-row,

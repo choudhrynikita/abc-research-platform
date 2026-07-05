@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
-import { baseChartOptions } from "@/lib/chart-setup";
+import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
 
 const RANGES = [
   { value: "5d", label: "5D" },
@@ -143,18 +143,17 @@ export default function StrategyCharts({
 
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
-    const ohlc = candles.map((c) => ({
-      x: c.date,
-      o: c.open ?? c.close,
-      h: c.high ?? c.close,
-      l: c.low ?? c.close,
-      c: c.close,
-    }));
 
     const datasets = [{
-      label: symbol?.replace(".NS", "") || "Price",
-      data: ohlc,
       type: "candlestick",
+      label: symbol?.replace(".NS", "") || "Price",
+      data: candles.map((c) => ({
+        x: c.date,
+        o: c.open ?? c.close,
+        h: c.high ?? c.close,
+        l: c.low ?? c.close,
+        c: c.close,
+      })),
       color: { up: "#22c55e", down: "#ef4444", unchanged: "#8b9bb4" },
     }];
 
@@ -164,11 +163,12 @@ export default function StrategyCharts({
         datasets.push({
           type: "line",
           label,
-          data: candles.map((_, i) => series[key][i] ?? null),
+          data: candles
+            .map((c, i) => ({ x: c.date, y: series[key][i] }))
+            .filter((d) => d.y != null),
           borderColor: color,
           pointRadius: 0,
           borderWidth: 1.5,
-          spanGaps: true,
         });
       }
     });
@@ -177,67 +177,71 @@ export default function StrategyCharts({
     const resistance = technicals?.resistance ?? marketContext?.resistance;
     const maxPain = marketContext?.maxPain;
 
-    if (support != null) {
+    const levelLine = (label, value, color, dash) => {
+      if (value == null) return;
       datasets.push({
         type: "line",
-        label: "Support",
-        data: Array(candles.length).fill(support),
-        borderColor: "#22c55e55",
-        borderDash: [4, 4],
+        label,
+        data: candles.map((c) => ({ x: c.date, y: value })),
+        borderColor: color,
+        borderDash: dash,
         pointRadius: 0,
         borderWidth: 1,
       });
-    }
-    if (resistance != null) {
-      datasets.push({
-        type: "line",
-        label: "Resistance",
-        data: Array(candles.length).fill(resistance),
-        borderColor: "#ef444455",
-        borderDash: [4, 4],
-        pointRadius: 0,
-        borderWidth: 1,
-      });
-    }
-    if (maxPain != null) {
-      datasets.push({
-        type: "line",
-        label: "Max Pain",
-        data: Array(candles.length).fill(maxPain),
-        borderColor: "#a855f755",
-        borderDash: [2, 6],
-        pointRadius: 0,
-        borderWidth: 1,
-      });
-    }
+    };
 
-    return { labels: candles.map((c) => c.date), datasets };
+    levelLine("Support", support, "#22c55e88", [4, 4]);
+    levelLine("Resistance", resistance, "#ef444488", [4, 4]);
+    levelLine("Max Pain", maxPain, "#a855f788", [2, 6]);
+
+    return {
+      data: { datasets },
+      options: {
+        ...baseChartOptions(),
+        plugins: { legend: { labels: { color: chartTheme.tick, boxWidth: 12 } } },
+      },
+    };
   }, [candles, indicators, technicals, marketContext, symbol]);
+
+  const subChartOptions = (extra = {}) => ({
+    ...baseChartOptions(),
+    plugins: { legend: { labels: { color: chartTheme.tick, boxWidth: 12 } } },
+    ...extra,
+  });
 
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
     return {
-      labels: candles.map((c) => c.date),
-      datasets: [{
-        label: "Volume",
-        data: candles.map((c) => c.volume ?? 0),
-        backgroundColor: "rgba(59,130,246,0.35)",
-        borderWidth: 0,
-      }],
+      data: {
+        datasets: [{
+          label: "Volume",
+          data: candles.map((c) => ({ x: c.date, y: c.volume ?? 0 })),
+          backgroundColor: "rgba(59,130,246,0.35)",
+          borderWidth: 0,
+        }],
+      },
+      options: subChartOptions({ plugins: { legend: { display: false } } }),
     };
   }, [candles]);
 
   const rsiChart = useMemo(() => {
     if (!candles.length || !indicators?.series?.rsi) return null;
     return {
-      labels: candles.map((c) => c.date),
-      datasets: [{
-        label: "RSI (14)",
-        data: indicators.series.rsi,
-        borderColor: "#a855f7",
-        pointRadius: 0,
-        tension: 0.1,
-      }],
+      data: {
+        datasets: [{
+          label: "RSI (14)",
+          data: candles
+            .map((c, i) => ({ x: c.date, y: indicators.series.rsi[i] }))
+            .filter((d) => d.y != null),
+          borderColor: "#a855f7",
+          pointRadius: 0,
+          tension: 0.1,
+        }],
+      },
+      options: subChartOptions({
+        scales: { ...baseChartOptions().scales, y: { min: 0, max: 100, ticks: { color: chartTheme.tick } } },
+        plugins: { legend: { display: false } },
+      }),
     };
   }, [candles, indicators]);
 
@@ -245,54 +249,69 @@ export default function StrategyCharts({
     if (!candles.length || !indicators?.series?.macdLine) return null;
     const s = indicators.series;
     return {
-      labels: candles.map((c) => c.date),
-      datasets: [
-        { label: "MACD", data: s.macdLine, borderColor: "#3b82f6", pointRadius: 0 },
-        { label: "Signal", data: s.macdSignal, borderColor: "#f59e0b", pointRadius: 0 },
-        {
-          label: "Histogram",
-          data: s.macdHistogram,
-          type: "bar",
-          backgroundColor: s.macdHistogram?.map((v) =>
-            v >= 0 ? "rgba(34,197,94,0.5)" : "rgba(239,68,68,0.5)"
-          ),
-        },
-      ],
+      data: {
+        datasets: [
+          {
+            label: "MACD",
+            data: candles.map((c, i) => ({ x: c.date, y: s.macdLine[i] })).filter((d) => d.y != null),
+            borderColor: "#3b82f6",
+            pointRadius: 0,
+          },
+          {
+            label: "Signal",
+            data: candles.map((c, i) => ({ x: c.date, y: s.macdSignal[i] })).filter((d) => d.y != null),
+            borderColor: "#f59e0b",
+            pointRadius: 0,
+          },
+          {
+            label: "Histogram",
+            type: "bar",
+            data: candles.map((c, i) => ({ x: c.date, y: s.macdHistogram[i] })).filter((d) => d.y != null),
+            backgroundColor: "rgba(59,130,246,0.35)",
+          },
+        ],
+      },
+      options: subChartOptions(),
     };
   }, [candles, indicators]);
 
   const vixChart = useMemo(() => {
     if (!vixCandles.length) return null;
     return {
-      labels: vixCandles.map((c) => c.date),
-      datasets: [{
-        label: "India VIX",
-        data: vixCandles.map((c) => c.close),
-        borderColor: "#f97316",
-        backgroundColor: "rgba(249,115,22,0.1)",
-        fill: true,
-        pointRadius: 0,
-        tension: 0.2,
-      }],
+      data: {
+        datasets: [{
+          label: "India VIX",
+          data: vixCandles.map((c) => ({ x: c.date, y: c.close })),
+          borderColor: "#f97316",
+          backgroundColor: "rgba(249,115,22,0.1)",
+          fill: true,
+          pointRadius: 0,
+          tension: 0.2,
+        }],
+      },
+      options: subChartOptions({ plugins: { legend: { display: false } } }),
     };
   }, [vixCandles]);
 
   const oiBarChart = useMemo(() => {
     if (!chainHeatmap?.length) return null;
     return {
-      labels: chainHeatmap.map((r) => String(r.strike)),
-      datasets: [
-        {
-          label: "Call OI",
-          data: chainHeatmap.map((r) => r.callOi ?? 0),
-          backgroundColor: "rgba(34,197,94,0.6)",
-        },
-        {
-          label: "Put OI",
-          data: chainHeatmap.map((r) => r.putOi ?? 0),
-          backgroundColor: "rgba(239,68,68,0.6)",
-        },
-      ],
+      data: {
+        labels: chainHeatmap.map((r) => String(r.strike)),
+        datasets: [
+          {
+            label: "Call OI",
+            data: chainHeatmap.map((r) => r.callOi ?? 0),
+            backgroundColor: "rgba(34,197,94,0.6)",
+          },
+          {
+            label: "Put OI",
+            data: chainHeatmap.map((r) => r.putOi ?? 0),
+            backgroundColor: "rgba(239,68,68,0.6)",
+          },
+        ],
+      },
+      options: subChartOptions(),
     };
   }, [chainHeatmap]);
 
@@ -303,17 +322,21 @@ export default function StrategyCharts({
   const ivChart = useMemo(() => {
     if (ivLevel == null) return null;
     return {
-      labels: ["ATM IV"],
-      datasets: [{
-        label: "Implied Volatility (%)",
-        data: [ivLevel],
-        backgroundColor: "rgba(168,85,247,0.55)",
-        borderWidth: 0,
-      }],
+      data: {
+        labels: ["ATM IV"],
+        datasets: [{
+          label: "Implied Volatility (%)",
+          data: [ivLevel],
+          backgroundColor: "rgba(168,85,247,0.55)",
+          borderWidth: 0,
+        }],
+      },
+      options: subChartOptions({
+        plugins: { legend: { display: false } },
+        scales: { ...baseChartOptions().scales, y: { beginAtZero: true, ticks: { color: chartTheme.tick } } },
+      }),
     };
   }, [ivLevel]);
-
-  const baseOptions = baseChartOptions();
 
   if (!symbol) return null;
 
@@ -369,40 +392,40 @@ export default function StrategyCharts({
 
       {!loading && !error && (
         <>
-          <div className="strategy-chart-main">
+          <div className="strategy-chart-main chart-canvas-wrap">
             {priceChart ? (
-              <Chart ref={mainRef} type="line" data={priceChart} options={baseOptions} />
+              <Chart ref={mainRef} type="line" data={priceChart.data} options={priceChart.options} />
             ) : (
               <ChartSkeleton label="Awaiting verified market data" height={360} />
             )}
           </div>
 
-          <div className="strategy-chart-sub">
+          <div className="strategy-chart-sub chart-canvas-wrap">
             {volumeChart ? (
-              <Chart type="bar" data={volumeChart} options={{ ...baseOptions, plugins: { legend: { display: false } } }} />
+              <Chart type="bar" data={volumeChart.data} options={volumeChart.options} />
             ) : (
               <ChartSkeleton label="Volume — awaiting verified data" />
             )}
           </div>
 
           <div className="strategy-chart-stack">
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               {rsiChart ? (
-                <Chart type="line" data={rsiChart} options={{ ...baseOptions, scales: { ...baseOptions.scales, y: { min: 0, max: 100 } } }} />
+                <Chart type="line" data={rsiChart.data} options={rsiChart.options} />
               ) : (
                 <ChartSkeleton label="RSI — awaiting verified data" />
               )}
             </div>
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               {macdChart ? (
-                <Chart type="line" data={macdChart} options={baseOptions} />
+                <Chart type="line" data={macdChart.data} options={macdChart.options} />
               ) : (
                 <ChartSkeleton label="MACD — awaiting verified data" />
               )}
             </div>
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               {vixChart ? (
-                <Chart type="line" data={vixChart} options={baseOptions} />
+                <Chart type="line" data={vixChart.data} options={vixChart.options} />
               ) : (
                 <ChartSkeleton label="India VIX — awaiting verified data" />
               )}
@@ -410,22 +433,22 @@ export default function StrategyCharts({
           </div>
 
           <div className="strategy-chart-stack deriv-charts">
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               <h5 className="chart-mini-title">Open Interest</h5>
               {oiBarChart ? (
-                <Chart type="bar" data={oiBarChart} options={{ ...baseOptions, plugins: { legend: { display: true } } }} />
+                <Chart type="bar" data={oiBarChart.data} options={oiBarChart.options} />
               ) : (
                 <ChartSkeleton label="OI — awaiting verified NSE chain" />
               )}
             </div>
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               <h5 className="chart-mini-title">Put–Call Ratio</h5>
               <PcrGauge pcr={pcr} />
             </div>
-            <div className="strategy-chart-sub">
+            <div className="strategy-chart-sub chart-canvas-wrap">
               <h5 className="chart-mini-title">Implied Volatility</h5>
               {ivChart ? (
-                <Chart type="bar" data={ivChart} options={{ ...baseOptions, plugins: { legend: { display: false } }, scales: { ...baseOptions.scales, y: { beginAtZero: true } } }} />
+                <Chart type="bar" data={ivChart.data} options={ivChart.options} />
               ) : (
                 <ChartSkeleton label="IV — awaiting verified NSE chain" />
               )}

@@ -11,7 +11,14 @@ export default function FnoMarketPanel({ context, stockContext }) {
         <div className="ctx-metric"><small>NIFTY Spot</small><strong>{context.niftySpot?.toLocaleString() ?? "—"}</strong></div>
         <div className="ctx-metric"><small>India VIX</small><strong>{context.indiaVix?.value?.toFixed(2) ?? "—"}</strong></div>
         <div className="ctx-metric"><small>FII Net</small><strong>{context.fiiDii?.fiiNet != null ? `${context.fiiDii.fiiNet.toLocaleString()} Cr` : "—"}</strong></div>
-        <div className="ctx-metric"><small>Breadth</small><strong>{context.breadth?.advancers != null ? `${context.breadth.advancers}↑/${context.breadth.decliners}↓` : "—"}</strong></div>
+        <div className="ctx-metric">
+          <small>Breadth</small>
+          <strong>
+            {(context.breadth?.advancers ?? context.breadth?.advances) != null
+              ? `${context.breadth.advancers ?? context.breadth.advances}↑/${context.breadth.decliners ?? context.breadth.declines}↓`
+              : "—"}
+          </strong>
+        </div>
         <div className="ctx-metric"><small>RSI (NIFTY)</small><strong>{context.technicals?.rsi?.toFixed(1) ?? "—"}</strong></div>
       </div>
 
