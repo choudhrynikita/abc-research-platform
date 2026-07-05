@@ -4393,6 +4393,8 @@ a.nav-item {
   .strategy-exec,
   .fno-exec,
   .strategy-insights,
+  .fno-insights,
+  .fno-context,
   .strategy-assistant,
   .derivatives-panel {
     padding: 16px;
@@ -4422,16 +4424,19 @@ a.nav-item {
     line-height: 1.45;
   }
 
-  .strategy-card {
+  .strategy-card,
+  .fno-card {
     padding: 14px;
   }
 
-  .strategy-card-head {
+  .strategy-card-head,
+  .fno-card-head {
     flex-wrap: wrap;
     gap: 10px;
   }
 
-  .strategy-identity h4 {
+  .strategy-identity h4,
+  .fno-identity h4 {
     font-size: 0.95rem;
     line-height: 1.35;
     word-break: break-word;
@@ -4439,6 +4444,13 @@ a.nav-item {
 
   .strategy-status {
     margin-left: auto;
+  }
+
+  .fno-type-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
   }
 
   .strategy-expand .expand-head {
@@ -4477,7 +4489,9 @@ a.nav-item {
   .plan-grid,
   .deriv-grid,
   .context-grid,
-  .backtest-metrics {
+  .backtest-metrics,
+  .sizing-grid,
+  .analytics-grid {
     grid-template-columns: 1fr;
   }
 
@@ -4590,6 +4604,8 @@ a.nav-item {
   cursor: pointer;
   border: 1px solid transparent;
   transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .fno-card:hover,
@@ -4667,7 +4683,7 @@ a.nav-item {
 
 @media (max-width: 900px) {
   .fno-insight-grid { grid-template-columns: 1fr; }
-  .sizing-grid, .analytics-grid { grid-template-columns: 1fr 1fr; }
+  .sizing-grid, .analytics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ── IPO Research Center ── */

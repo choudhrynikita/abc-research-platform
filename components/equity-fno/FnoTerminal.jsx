@@ -33,7 +33,10 @@ function ExecutiveSummary({ summary, refreshedAt, marketStatus }) {
           <span className={`data-pill${summary.chainsStale > 0 ? " cached" : ""}`}>
             {summary.chainsVerified}/{summary.universeSize} Chains
           </span>
-          <span className="data-pill">{summary.strategiesActive ?? 0} Strategies</span>
+          <span className="data-pill">
+            {summary.strategiesTotal ?? 0} Ranked
+            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Active` : ""}
+          </span>
           <TerminalExport module="fno" />
         </div>
       </div>
@@ -197,8 +200,11 @@ export default function FnoTerminal() {
         <div className="section-head">
           <h3>Top 10 Strategies</h3>
           <p className="panel-sub">
+            {top10.length > 0
+              ? `${top10.length} strategies ranked #1–#${top10.length} · `
+              : ""}
             {data?.marketMode === "live"
-              ? "Ranked by confidence score — trend, liquidity, OI, RS, volume & risk-reward"
+              ? "Sorted by confidence score — trend, liquidity, OI, RS, volume & risk-reward"
               : "Pre-market preparation — technical setups with conditional entry triggers"}
           </p>
         </div>

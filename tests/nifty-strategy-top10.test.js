@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
 const { generateCandidates, rankTop10 } = require("../lib/nifty-strategy-engine");
-const { supplementCandidates, generateTechnicalSetups } = require("../lib/pre-market-strategy");
+const { supplementCandidates, generateTechnicalSetups, assignSequentialRanks } = require("../lib/pre-market-strategy");
 
 function mockChain(spot = 24500) {
   const atm = 24500;
@@ -70,6 +70,14 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.ok(setups.length >= 5);
     assert.ok(setups.length <= 10);
     setups.forEach((s) => assert.ok(s.name));
+  });
+
+  it("assignSequentialRanks renumbers after finalize without gaps", () => {
+    const ranked = assignSequentialRanks([
+      { name: "A", rank: 3 },
+      { name: "B", rank: 7 },
+    ]);
+    assert.deepEqual(ranked.map((s) => s.rank), [1, 2]);
   });
 
   it("assigns contiguous ranks 1 through 10 with no skipped even numbers", () => {
