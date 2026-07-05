@@ -4,6 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
+import {
+  alignSeriesToLabels,
+  buildBarChartData,
+  buildCandlestickChartData,
+  parseChartApiPayload,
+} from "@/lib/chart-builders";
 
 const RANGES = [
   { value: "5d", label: "5D" },
@@ -116,7 +122,9 @@ export default function StrategyCharts({
   const [vixCandles, setVixCandles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [chartMeta, setChartMeta] = useState(null);
   const mainRef = useRef(null);
+  const mainWrapRef = useRef(null);
 
   useEffect(() => {
     if (!symbol) return;
@@ -125,15 +133,20 @@ export default function StrategyCharts({
     setError(null);
 
     Promise.all([
-      fetch(`/api/chart/${encodeURIComponent(symbol)}?range=${range}`).then((r) => r.json()),
-      fetch(`/api/chart/${encodeURIComponent("^INDIAVIX")}?range=${range}`).then((r) => r.json()).catch(() => null),
+      fetch(`/api/chart/${encodeURIComponent(symbol)}?range=${range}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))),
+      fetch(`/api/chart/${encodeURIComponent("^INDIAVIX")}?range=${range}`).then((r) => r.json().then((j) => ({ ok: r.ok, j }))).catch(() => ({ ok: false, j: null })),
     ])
-      .then(([main, vix]) => {
+      .then(([mainRes, vixRes]) => {
         if (cancelled) return;
-        if (!main.candles?.length) throw new Error(main.message || main.error || "Chart unavailable");
-        setCandles(main.candles);
-        setIndicators(main.indicators || null);
-        setVixCandles(vix?.candles || []);
+        const parsed = parseChartApiPayload(mainRes.j);
+        if (!mainRes.ok || !parsed.ok) {
+          throw new Error(parsed.error || "Unable to render chart because verified data could not be retrieved.");
+        }
+        setCandles(parsed.candles);
+        setIndicators(parsed.indicators);
+        setChartMeta(parsed.meta || mainRes.j?.chartMeta || null);
+        const vixParsed = vixRes?.j ? parseChartApiPayload(vixRes.j) : { ok: false, candles: [] };
+        setVixCandles(vixParsed.ok ? vixParsed.candles : []);
       })
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -141,61 +154,48 @@ export default function StrategyCharts({
     return () => { cancelled = true; };
   }, [symbol, range]);
 
+  useEffect(() => {
+    const el = mainWrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(() => mainRef.current?.update?.("none"));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [candles.length]);
+
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
 
-    const datasets = [{
-      type: "candlestick",
-      label: symbol?.replace(".NS", "") || "Price",
-      data: candles.map((c) => ({
-        x: c.date,
-        o: c.open ?? c.close,
-        h: c.high ?? c.close,
-        l: c.low ?? c.close,
-        c: c.close,
-      })),
-      color: { up: "#22c55e", down: "#ef4444", unchanged: "#8b9bb4" },
-    }];
-
+    const labels = candles.map((c) => c.date);
     const series = indicators?.series;
-    MA_CONFIG.forEach(({ key, label, color }) => {
-      if (series?.[key]) {
-        datasets.push({
-          type: "line",
-          label,
-          data: candles
-            .map((c, i) => ({ x: c.date, y: series[key][i] }))
-            .filter((d) => d.y != null),
-          borderColor: color,
-          pointRadius: 0,
-          borderWidth: 1.5,
-        });
-      }
-    });
+    const overlays = MA_CONFIG
+      .filter(({ key }) => series?.[key])
+      .map(({ key, label, color }) => ({
+        label,
+        color,
+        data: alignSeriesToLabels(labels, series[key]),
+      }));
 
     const support = technicals?.support ?? marketContext?.support;
     const resistance = technicals?.resistance ?? marketContext?.resistance;
     const maxPain = marketContext?.maxPain;
 
-    const levelLine = (label, value, color, dash) => {
-      if (value == null) return;
-      datasets.push({
-        type: "line",
-        label,
-        data: candles.map((c) => ({ x: c.date, y: value })),
-        borderColor: color,
-        borderDash: dash,
-        pointRadius: 0,
-        borderWidth: 1,
-      });
-    };
+    if (support != null) {
+      overlays.push({ label: "Support", color: "#22c55e88", borderDash: [4, 4], data: labels.map(() => support) });
+    }
+    if (resistance != null) {
+      overlays.push({ label: "Resistance", color: "#ef444488", borderDash: [4, 4], data: labels.map(() => resistance) });
+    }
+    if (maxPain != null) {
+      overlays.push({ label: "Max Pain", color: "#a855f788", borderDash: [2, 6], data: labels.map(() => maxPain) });
+    }
 
-    levelLine("Support", support, "#22c55e88", [4, 4]);
-    levelLine("Resistance", resistance, "#ef444488", [4, 4]);
-    levelLine("Max Pain", maxPain, "#a855f788", [2, 6]);
+    const data = buildCandlestickChartData(candles, {
+      label: symbol?.replace(".NS", "") || "Price",
+      overlays,
+    });
 
     return {
-      data: { datasets },
+      data,
       options: {
         ...baseChartOptions(),
         plugins: { legend: { labels: { color: chartTheme.tick, boxWidth: 12 } } },
@@ -212,14 +212,10 @@ export default function StrategyCharts({
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
     return {
-      data: {
-        datasets: [{
-          label: "Volume",
-          data: candles.map((c) => ({ x: c.date, y: c.volume ?? 0 })),
-          backgroundColor: "rgba(59,130,246,0.35)",
-          borderWidth: 0,
-        }],
-      },
+      data: buildBarChartData(
+        candles.map((c) => c.date),
+        candles.map((c) => c.volume ?? 0)
+      ),
       options: subChartOptions({ plugins: { legend: { display: false } } }),
     };
   }, [candles]);
@@ -392,13 +388,18 @@ export default function StrategyCharts({
 
       {!loading && !error && (
         <>
-          <div className="strategy-chart-main chart-canvas-wrap">
+          <div className="strategy-chart-main chart-canvas-wrap" ref={mainWrapRef}>
             {priceChart ? (
               <Chart ref={mainRef} type="line" data={priceChart.data} options={priceChart.options} />
             ) : (
               <ChartSkeleton label="Awaiting verified market data" height={360} />
             )}
           </div>
+          {chartMeta?.lastUpdated && (
+            <p className="chart-footnote">
+              {chartMeta.candleCount} verified candles · Updated {new Date(chartMeta.lastUpdated).toLocaleString()}
+            </p>
+          )}
 
           <div className="strategy-chart-sub chart-canvas-wrap">
             {volumeChart ? (

@@ -139,9 +139,9 @@ export default function ResearchTerminal() {
             currency={data.currency}
           />
 
-          <InsightCards insights={data.insights} />
-
           <ResearchCharts symbol={data.chartSymbol} technicals={data.technicalAnalysis} />
+
+          <InsightCards insights={data.insights} />
 
           <PeerComparisonPanel data={data.competitorComparison} />
 

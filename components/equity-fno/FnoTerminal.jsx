@@ -184,6 +184,14 @@ export default function FnoTerminal() {
 
       <FnoInsightPanel insights={data?.insights} backtest={data?.backtest} />
 
+      <FnoCharts
+        key={chartKey}
+        {...chartProps}
+        chartContext={data?.chartContext}
+        marketStatus={data?.marketStatus}
+        derivativesIntel={derivativesIntel}
+      />
+
       <section className="strategy-list-section">
         <div className="section-head">
           <h3>Top 10 Strategies</h3>
@@ -214,14 +222,6 @@ export default function FnoTerminal() {
       </section>
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} title="Equity Derivatives Intelligence" />
-
-      <FnoCharts
-        key={chartKey}
-        {...chartProps}
-        chartContext={data?.chartContext}
-        marketStatus={data?.marketStatus}
-        derivativesIntel={derivativesIntel}
-      />
 
       <FnoMarketPanel
         context={data?.marketContext}

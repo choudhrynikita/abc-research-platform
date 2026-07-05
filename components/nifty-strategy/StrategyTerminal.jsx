@@ -199,6 +199,17 @@ export default function StrategyTerminal() {
 
       <StrategyInsightPanel insights={data?.insights} backtest={data?.backtest} />
 
+      <StrategyCharts
+        key={chartKey}
+        symbol={data?.chartSymbol || "^NSEI"}
+        technicals={data?.indicators}
+        chainHeatmap={data?.chainHeatmap}
+        marketContext={data?.marketContext}
+        chartContext={data?.chartContext}
+        marketStatus={data?.marketStatus}
+        derivativesIntel={derivativesIntel}
+      />
+
       <section className="strategy-list-section">
         <div className="section-head">
           <h3>Top 10 Strategies</h3>
@@ -233,17 +244,6 @@ export default function StrategyTerminal() {
       </section>
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} />
-
-      <StrategyCharts
-        key={chartKey}
-        symbol={data?.chartSymbol || "^NSEI"}
-        technicals={data?.indicators}
-        chainHeatmap={data?.chainHeatmap}
-        marketContext={data?.marketContext}
-        chartContext={data?.chartContext}
-        marketStatus={data?.marketStatus}
-        derivativesIntel={derivativesIntel}
-      />
 
       <MarketContextPanel context={data?.marketContext} chainStatus={data?.chainStatus} />
     </div>

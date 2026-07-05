@@ -24,6 +24,7 @@ import MarketOverviewBar from "./MarketOverviewBar";
 import SectorHeatmap from "./SectorHeatmap";
 import StockCard from "./StockCard";
 import TerminalExport from "../TerminalExport";
+import InteractivePriceChart from "../charts/InteractivePriceChart";
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "buy", label: "Buy" },
@@ -125,6 +126,16 @@ export default function Nifty500Dashboard() {
       </header>
 
       <MarketOverviewBar data={data} />
+
+      <InteractivePriceChart
+        symbol="^NSEI"
+        title="NIFTY 50 — Interactive Market Chart"
+        subtitle="Verified OHLCV · Official Yahoo Finance feed"
+        defaultRange="6mo"
+        showVolume
+        showSma20
+        showSma50
+      />
 
       {movers && (
         <section className="movers-row">

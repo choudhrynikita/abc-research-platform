@@ -3930,6 +3930,33 @@ a.nav-item {
   width: 100%;
 }
 
+.interactive-price-chart {
+  margin-bottom: 16px;
+}
+
+.interactive-chart-main,
+.interactive-chart-sub {
+  position: relative;
+  width: 100%;
+}
+
+.chart-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 200px;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted, #8b9bb4);
+}
+
+.chart-meta-ts {
+  color: var(--muted, #8b9bb4);
+  font-size: 0.85em;
+}
+
 .strategy-chart-main {
   height: 360px;
   margin-bottom: 12px;

@@ -2,18 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import "@/lib/chart-setup";
+import { parseChartApiPayload } from "@/lib/chart-builders";
 
 export default function PriceChart({ symbol, range = "1y" }) {
   const [candles, setCandles] = useState(null);
@@ -29,8 +19,9 @@ export default function PriceChart({ symbol, range = "1y" }) {
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
       .then(({ ok, j }) => {
         if (cancelled) return;
-        if (!ok) throw new Error(j.message || j.error || "Chart data unavailable");
-        setCandles(j.candles || []);
+        const parsed = parseChartApiPayload(j);
+        if (!ok || !parsed.ok) throw new Error(parsed.error || j.message || "Verified market data unavailable.");
+        setCandles(parsed.candles);
       })
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });

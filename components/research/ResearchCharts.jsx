@@ -4,6 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
+import {
+  alignSeriesToLabels,
+  buildBarChartData,
+  buildCandlestickChartData,
+  parseChartApiPayload,
+} from "@/lib/chart-builders";
 
 const RANGES = [
   { value: "3mo", label: "3M" },
@@ -32,12 +38,14 @@ export default function ResearchCharts({ symbol, technicals }) {
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
       .then(({ ok, j }) => {
         if (cancelled) return;
-        if (!ok) throw new Error(j.message || j.error || "Chart unavailable");
-        setCandles(j.candles || []);
-        setIndicators(j.indicators || null);
+        const parsed = parseChartApiPayload(j);
+        if (!ok || !parsed.ok) {
+          throw new Error(parsed.error || j.message || "Unable to render chart because verified data could not be retrieved.");
+        }
+        setCandles(parsed.candles);
+        setIndicators(parsed.indicators);
         const miss = [];
-        if (!j.candles?.length) miss.push("OHLCV");
-        if (!j.indicators?.series) miss.push("Indicators");
+        if (!parsed.indicators?.series) miss.push("Indicators");
         setMissing(miss);
       })
       .catch((e) => { if (!cancelled) setError(e.message); })
@@ -48,87 +56,29 @@ export default function ResearchCharts({ symbol, technicals }) {
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
     const labels = candles.map((c) => c.date);
-    const ohlc = candles.map((c) => ({
-      x: c.date,
-      o: c.open ?? c.close,
-      h: c.high ?? c.close,
-      l: c.low ?? c.close,
-      c: c.close,
-    }));
-
-    const datasets = [
-      {
-        label: symbol,
-        data: ohlc,
-        type: "candlestick",
-        color: { up: "#22c55e", down: "#ef4444", unchanged: "#8b9bb4" },
-      },
-    ];
-
     const series = indicators?.series;
+    const overlays = [];
     if (series?.sma20) {
-      datasets.push({
-        type: "line",
-        label: "SMA 20",
-        data: candles.map((_, i) => series.sma20[i] ?? null),
-        borderColor: "#f59e0b",
-        pointRadius: 0,
-        borderWidth: 1.5,
-        spanGaps: true,
-      });
+      overlays.push({ label: "SMA 20", color: "#f59e0b", data: alignSeriesToLabels(labels, series.sma20) });
     }
     if (series?.sma50) {
-      datasets.push({
-        type: "line",
-        label: "SMA 50",
-        data: candles.map((_, i) => series.sma50[i] ?? null),
-        borderColor: "#3b82f6",
-        pointRadius: 0,
-        borderWidth: 1.5,
-        spanGaps: true,
-      });
+      overlays.push({ label: "SMA 50", color: "#3b82f6", data: alignSeriesToLabels(labels, series.sma50) });
     }
-
     if (technicals?.support != null) {
-      datasets.push({
-        type: "line",
-        label: "Support",
-        data: Array(candles.length).fill(technicals.support),
-        borderColor: "#22c55e55",
-        borderDash: [4, 4],
-        pointRadius: 0,
-        borderWidth: 1,
-      });
+      overlays.push({ label: "Support", color: "#22c55e55", borderDash: [4, 4], data: labels.map(() => technicals.support) });
     }
     if (technicals?.resistance != null) {
-      datasets.push({
-        type: "line",
-        label: "Resistance",
-        data: Array(candles.length).fill(technicals.resistance),
-        borderColor: "#ef444455",
-        borderDash: [4, 4],
-        pointRadius: 0,
-        borderWidth: 1,
-      });
+      overlays.push({ label: "Resistance", color: "#ef444455", borderDash: [4, 4], data: labels.map(() => technicals.resistance) });
     }
-
-    return {
-      labels,
-      datasets,
-    };
+    return buildCandlestickChartData(candles, { label: symbol, overlays });
   }, [candles, indicators, symbol, technicals]);
 
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
-    return {
-      labels: candles.map((c) => c.date),
-      datasets: [{
-        label: "Volume",
-        data: candles.map((c) => c.volume ?? 0),
-        backgroundColor: "rgba(59,130,246,0.35)",
-        borderWidth: 0,
-      }],
-    };
+    return buildBarChartData(
+      candles.map((c) => c.date),
+      candles.map((c) => c.volume ?? 0)
+    );
   }, [candles]);
 
   const rsiChart = useMemo(() => {
