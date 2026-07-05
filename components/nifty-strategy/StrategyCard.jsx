@@ -172,10 +172,18 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         <div className="strategy-detail" onClick={(e) => e.stopPropagation()}>
           <ExpandSection title="Why This Strategy?" defaultOpen>
             {strategy.why?.length ? (
-              <ul>
-                {strategy.why.map((w) => (
-                  <li key={w}>{w}</li>
-                ))}
+              <ul className="why-rationale">
+                {strategy.why.map((w) => {
+                  const item = typeof w === "string" ? { category: null, text: w } : w;
+                  return (
+                    <li key={item.text}>
+                      {item.category && (
+                        <span className={`why-tag why-${item.category.toLowerCase()}`}>{item.category}</span>
+                      )}
+                      <span>{item.text}</span>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="na-text">Rationale pending verified data.</p>

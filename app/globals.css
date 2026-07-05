@@ -3828,6 +3828,48 @@ a.nav-item {
   line-height: 1.55;
 }
 
+.why-rationale {
+  list-style: none;
+  padding-left: 0 !important;
+}
+
+.why-rationale li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.why-tag {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.why-technical {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.why-fundamental {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.why-derivatives {
+  color: var(--yellow);
+  background: rgba(245, 158, 11, 0.12);
+}
+
 .plan-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
