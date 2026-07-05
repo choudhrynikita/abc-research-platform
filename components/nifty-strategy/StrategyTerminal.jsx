@@ -218,9 +218,12 @@ export default function StrategyTerminal() {
         <div className="section-head">
           <h3>Top 10 Strategies</h3>
           <p className="panel-sub">
+            {top10.length > 0
+              ? `${top10.length} strategies ranked #1–#${top10.length} · `
+              : ""}
             {data?.marketMode === "live"
-              ? "Ranked by confidence score — live trend, volatility, OI, PCR, volume & risk-reward"
-              : "Pre-market preparation — ranked by technical alignment, OI structure & verified close data"}
+              ? "Sorted by confidence score — live trend, volatility, OI, PCR, volume & risk-reward"
+              : "Pre-market preparation — sorted by technical alignment, OI structure & verified close data"}
           </p>
         </div>
 

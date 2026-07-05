@@ -71,4 +71,15 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.ok(setups.length <= 10);
     setups.forEach((s) => assert.ok(s.name));
   });
+
+  it("assigns contiguous ranks 1 through 10 with no skipped even numbers", () => {
+    const sparse = [{ name: "A", type: "Long CE", bias: "Bullish", status: "Active" }];
+    const filled = supplementCandidates(sparse, baseContext, "NIFTY", 10);
+    const ranked = rankTop10(filled, { ...baseContext, chain: mockChain(), vix: 15 });
+    assert.equal(ranked.length, 10);
+    assert.deepEqual(
+      ranked.map((s) => s.rank),
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    );
+  });
 });
