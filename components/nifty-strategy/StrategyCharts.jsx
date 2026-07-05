@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
-import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
+import { baseChartOptions, financialChartOptions, chartTheme } from "@/lib/chart-setup";
 import {
   alignSeriesToLabels,
   buildBarChartData,
@@ -180,13 +180,13 @@ export default function StrategyCharts({
     const maxPain = marketContext?.maxPain;
 
     if (support != null) {
-      overlays.push({ label: "Support", color: "#22c55e88", borderDash: [4, 4], data: labels.map(() => support) });
+      overlays.push({ label: "Support", color: "#22c55e88", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: support })) });
     }
     if (resistance != null) {
-      overlays.push({ label: "Resistance", color: "#ef444488", borderDash: [4, 4], data: labels.map(() => resistance) });
+      overlays.push({ label: "Resistance", color: "#ef444488", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: resistance })) });
     }
     if (maxPain != null) {
-      overlays.push({ label: "Max Pain", color: "#a855f788", borderDash: [2, 6], data: labels.map(() => maxPain) });
+      overlays.push({ label: "Max Pain", color: "#a855f788", borderDash: [2, 6], data: candles.map((c) => ({ x: c.date, y: maxPain })) });
     }
 
     const data = buildCandlestickChartData(candles, {
@@ -196,10 +196,7 @@ export default function StrategyCharts({
 
     return {
       data,
-      options: {
-        ...baseChartOptions(),
-        plugins: { legend: { labels: { color: chartTheme.tick, boxWidth: 12 } } },
-      },
+      options: financialChartOptions(),
     };
   }, [candles, indicators, technicals, marketContext, symbol]);
 
@@ -390,7 +387,7 @@ export default function StrategyCharts({
         <>
           <div className="strategy-chart-main chart-canvas-wrap" ref={mainWrapRef}>
             {priceChart ? (
-              <Chart ref={mainRef} type="line" data={priceChart.data} options={priceChart.options} />
+              <Chart ref={mainRef} type="candlestick" data={priceChart.data} options={priceChart.options} />
             ) : (
               <ChartSkeleton label="Awaiting verified market data" height={360} />
             )}

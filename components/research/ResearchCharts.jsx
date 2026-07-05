@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
-import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
+import { baseChartOptions, financialChartOptions, chartTheme } from "@/lib/chart-setup";
 import {
   alignSeriesToLabels,
   buildBarChartData,
@@ -65,10 +65,10 @@ export default function ResearchCharts({ symbol, technicals }) {
       overlays.push({ label: "SMA 50", color: "#3b82f6", data: alignSeriesToLabels(labels, series.sma50) });
     }
     if (technicals?.support != null) {
-      overlays.push({ label: "Support", color: "#22c55e55", borderDash: [4, 4], data: labels.map(() => technicals.support) });
+      overlays.push({ label: "Support", color: "#22c55e55", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: technicals.support })) });
     }
     if (technicals?.resistance != null) {
-      overlays.push({ label: "Resistance", color: "#ef444455", borderDash: [4, 4], data: labels.map(() => technicals.resistance) });
+      overlays.push({ label: "Resistance", color: "#ef444455", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: technicals.resistance })) });
     }
     return buildCandlestickChartData(candles, { label: symbol, overlays });
   }, [candles, indicators, symbol, technicals]);
@@ -162,7 +162,7 @@ export default function ResearchCharts({ symbol, technicals }) {
       {!loading && !error && priceChart && (
         <>
           <div className="research-chart-main">
-            <Chart ref={mainRef} type="line" data={priceChart} options={baseOptions} />
+            <Chart ref={mainRef} type="candlestick" data={priceChart} options={financialChartOptions()} />
           </div>
           {volumeChart && (
             <div className="research-chart-sub">

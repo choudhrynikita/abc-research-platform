@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
-import { baseChartOptions, chartTheme } from "@/lib/chart-setup";
+import { financialChartOptions } from "@/lib/chart-setup";
 import {
   alignSeriesToLabels,
   buildBarChartData,
@@ -128,7 +128,7 @@ export default function InteractivePriceChart({
         label: "Support",
         color: "#22c55e88",
         borderDash: [4, 4],
-        data: labels.map(() => support),
+        data: candles.map((c) => ({ x: c.date, y: support })),
       });
     }
     if (resistance != null) {
@@ -136,7 +136,7 @@ export default function InteractivePriceChart({
         label: "Resistance",
         color: "#ef444488",
         borderDash: [4, 4],
-        data: labels.map(() => resistance),
+        data: candles.map((c) => ({ x: c.date, y: resistance })),
       });
     }
 
@@ -155,7 +155,7 @@ export default function InteractivePriceChart({
     );
   }, [candles, showVolume]);
 
-  const chartOptions = useMemo(() => baseChartOptions(), []);
+  const chartOptions = useMemo(() => financialChartOptions(), []);
 
   if (!symbol?.trim()) return null;
 
@@ -204,7 +204,7 @@ export default function InteractivePriceChart({
           <div className="chart-canvas-wrap interactive-chart-main" ref={wrapRef} style={{ height }}>
             <Chart
               ref={chartRef}
-              type="line"
+              type="candlestick"
               data={priceChart}
               options={chartOptions}
             />

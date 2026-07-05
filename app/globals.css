@@ -4180,6 +4180,15 @@ a.nav-item {
 .interactive-chart-sub {
   position: relative;
   width: 100%;
+  min-height: 120px;
+}
+
+.interactive-chart-main canvas,
+.strategy-chart-main canvas,
+.research-chart-main canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .chart-empty-state {

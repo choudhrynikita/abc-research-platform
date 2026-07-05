@@ -56,15 +56,27 @@ describe("sanitizeCandles", () => {
 });
 
 describe("chart builders", () => {
-  it("builds candlestick data with explicit labels", () => {
+  it("builds candlestick data with x-coordinates for financial chart controller", () => {
     const candles = [
       { date: "2026-01-01", open: 100, high: 105, low: 99, close: 104 },
       { date: "2026-01-02", open: 104, high: 106, low: 103, close: 105 },
     ];
     const chart = buildCandlestickChartData(candles, { label: "TEST" });
-    assert.equal(chart.labels.length, 2);
     assert.equal(chart.datasets[0].type, "candlestick");
+    assert.equal(chart.datasets[0].data[0].x, "2026-01-01");
     assert.equal(chart.datasets[0].data[0].o, 100);
+    assert.equal(chart.datasets[0].data[1].c, 105);
+    assert.equal(chart.labels, undefined);
+  });
+
+  it("aligns indicator overlays as {x,y} points without interpolation", () => {
+    const { alignSeriesToLabels } = require("../lib/chart-builders");
+    const labels = ["2026-01-01", "2026-01-02", "2026-01-03"];
+    const series = [null, 50, 55];
+    const points = alignSeriesToLabels(labels, series);
+    assert.equal(points.length, 2);
+    assert.deepEqual(points[0], { x: "2026-01-02", y: 50 });
+    assert.deepEqual(points[1], { x: "2026-01-03", y: 55 });
   });
 
   it("parses API success and error payloads", () => {
