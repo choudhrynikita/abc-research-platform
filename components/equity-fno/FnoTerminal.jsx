@@ -9,6 +9,7 @@ import TerminalExport from "../TerminalExport";
 import MarketStatusBanner from "../MarketStatusBanner";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
+import StrategyAssistant from "../strategy/StrategyAssistant";
 
 function ExecutiveSummary({ summary, refreshedAt, marketStatus }) {
   if (!summary) return null;
@@ -220,6 +221,20 @@ export default function FnoTerminal() {
           </div>
         )}
       </section>
+
+      <StrategyAssistant
+        strategy={selected}
+        marketContext={{
+          ...data?.marketContext,
+          price: selected?.stockMarketContext?.price ?? data?.marketContext?.price,
+          trend: selected?.stockMarketContext?.trend ?? data?.marketContext?.marketTrend,
+          support: selected?.stockMarketContext?.support,
+          resistance: selected?.stockMarketContext?.resistance,
+        }}
+        derivativesIntel={derivativesIntel}
+        module="equity-fno"
+        refreshedAt={data?.refreshedAt}
+      />
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} title="Equity Derivatives Intelligence" />
 

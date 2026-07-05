@@ -6,6 +6,7 @@ const MUTATION_PREFIXES = [
   "/api/strategies",
   "/api/ipo-alerts/preferences",
   "/api/copilot",
+  "/api/strategy-assistant",
 ];
 
 function isProduction() {

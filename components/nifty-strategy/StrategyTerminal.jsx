@@ -9,6 +9,7 @@ import TerminalExport from "../TerminalExport";
 import MarketStatusBanner from "../MarketStatusBanner";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
+import StrategyAssistant from "../strategy/StrategyAssistant";
 
 function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
   if (!summary) return null;
@@ -242,6 +243,14 @@ export default function StrategyTerminal() {
           </div>
         )}
       </section>
+
+      <StrategyAssistant
+        strategy={selected}
+        marketContext={data?.marketContext}
+        derivativesIntel={derivativesIntel}
+        module="nifty-strategy"
+        refreshedAt={data?.refreshedAt}
+      />
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} />
 
