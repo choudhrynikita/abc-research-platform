@@ -3278,6 +3278,7 @@ a.nav-item {
   max-width: 1480px;
   margin: 0 auto;
   padding: 0 4px 32px;
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
   overflow-x: hidden;
 }
 
@@ -3636,16 +3637,12 @@ a.nav-item {
 
 .section-head h3 { margin: 0 0 4px; }
 
+/* Single column by default — sequential ranks #1–#10 on all screen sizes */
 .strategy-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
-}
-
-@media (min-width: 1200px) {
-  .strategy-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  width: 100%;
 }
 
 /* Strategy AI Assistant */
@@ -3895,6 +3892,8 @@ a.nav-item {
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
   border: 1px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .strategy-card:hover,
@@ -4025,11 +4024,18 @@ a.nav-item {
   line-height: 1.5;
 }
 
+.legs-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 10px;
+}
+
 .legs-table {
   width: 100%;
+  min-width: 280px;
   font-size: 0.78rem;
   border-collapse: collapse;
-  margin-bottom: 10px;
 }
 
 .legs-table th,
@@ -4363,7 +4369,6 @@ a.nav-item {
 
 @media (max-width: 1100px) {
   .strategy-exec-grid { grid-template-columns: repeat(3, 1fr); }
-  .strategy-grid { grid-template-columns: 1fr; }
   .assistant-layout { grid-template-columns: 1fr; }
   .assistant-sidebar { order: 2; }
   .context-grid { grid-template-columns: repeat(2, 1fr); }
@@ -4372,6 +4377,97 @@ a.nav-item {
   .chart-panel-head { flex-direction: column; gap: 12px; }
   .chart-panel-actions { justify-content: flex-start; }
   .fno-insight-grid { grid-template-columns: 1fr; }
+  .strategy-metrics-row,
+  .strategy-targets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .strategy-terminal,
+  .fno-terminal {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  .strategy-exec,
+  .fno-exec,
+  .strategy-insights,
+  .strategy-assistant,
+  .derivatives-panel {
+    padding: 16px;
+  }
+
+  .strategy-exec h2,
+  .fno-exec h2 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .exec-badges {
+    width: 100%;
+  }
+
+  .exec-badges .data-pill,
+  .exec-badges .market-pill {
+    font-size: 0.72rem;
+  }
+
+  .section-head h3 {
+    font-size: 1.05rem;
+  }
+
+  .panel-sub {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .strategy-card {
+    padding: 14px;
+  }
+
+  .strategy-card-head {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .strategy-identity h4 {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .strategy-status {
+    margin-left: auto;
+  }
+
+  .strategy-expand .expand-head {
+    min-height: 44px;
+    padding: 8px 0;
+  }
+
+  .assistant-chips {
+    gap: 8px;
+  }
+
+  .assistant-chips .chip {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.35;
+  }
+
+  .assistant-messages {
+    max-height: min(50vh, 360px);
+  }
+
+  .terminal-refresh-overlay {
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    justify-content: center;
+  }
 }
 
 @media (max-width: 600px) {
@@ -4384,10 +4480,79 @@ a.nav-item {
   .backtest-metrics {
     grid-template-columns: 1fr;
   }
-  .strategy-chart-main { height: 260px; }
-  .terminal-refresh-bar { flex-direction: column; align-items: stretch; }
-  .trb-btn { width: 100%; }
-  .exec-head { flex-direction: column; align-items: flex-start; }
+
+  .strategy-chart-main { height: 240px; }
+  .strategy-chart-sub { height: 120px; }
+
+  .terminal-refresh-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+    top: auto;
+    position: relative;
+  }
+
+  .trb-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .trb-timestamp {
+    font-size: 0.74rem;
+    word-break: break-word;
+  }
+
+  .trb-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .exec-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .assistant-input-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .assistant-input {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .assistant-input-row .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .assistant-section-toggle {
+    min-height: 44px;
+  }
+
+  .legs-table {
+    font-size: 0.72rem;
+  }
+
+  .legs-table th,
+  .legs-table td {
+    padding: 8px 6px;
+  }
+
+  .strategy-metrics-row strong,
+  .strategy-targets strong {
+    font-size: 0.82rem;
+    word-break: break-word;
+  }
+
+  .global-disclaimer {
+    font-size: 0.7rem;
+    padding: 0 12px 12px;
+  }
 }
 
 /* ── Equity F&O Strategy Center ── */

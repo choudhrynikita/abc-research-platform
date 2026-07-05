@@ -121,18 +121,20 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
       )}
 
       {strategy.strikes?.length > 0 && (
-        <table className="legs-table">
-          <thead><tr><th>Leg</th><th>Strike</th><th>Premium</th></tr></thead>
-          <tbody>
-            {strategy.strikes.map((leg, i) => (
-              <tr key={i}>
-                <td className={leg.action === "BUY" ? "buy" : "sell"}>{leg.action} {leg.type}</td>
-                <td>{leg.strike?.toLocaleString()}</td>
-                <td>₹{fmt(leg.premium)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="legs-table-wrap">
+          <table className="legs-table">
+            <thead><tr><th>Leg</th><th>Strike</th><th>Premium</th></tr></thead>
+            <tbody>
+              {strategy.strikes.map((leg, i) => (
+                <tr key={i}>
+                  <td className={leg.action === "BUY" ? "buy" : "sell"}>{leg.action} {leg.type}</td>
+                  <td>{leg.strike?.toLocaleString()}</td>
+                  <td>₹{fmt(leg.premium)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {selected && (

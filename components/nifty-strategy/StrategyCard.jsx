@@ -162,7 +162,9 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         </div>
       </div>
 
-      <LegsTable strikes={strategy.strikes} />
+      <div className="legs-table-wrap">
+        <LegsTable strikes={strategy.strikes} />
+      </div>
 
       {strategy.premiumNote && (
         <p className="strategy-premium-note">{strategy.premiumNote}</p>
