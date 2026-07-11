@@ -57,15 +57,25 @@ function mergeDerivativesIntel(base, strategy) {
   if (!base) return null;
   if (!strategy) return base;
   const a = strategy.analytics || {};
+  const ps = strategy.positionSizing || {};
   return {
     ...base,
     risk: {
       ...base.risk,
-      riskRewardRatio: strategy.riskRewardRatio ?? base.risk?.riskRewardRatio,
-      maxLoss: strategy.maxRisk ?? base.risk?.maxLoss,
-      maxProfit: strategy.maxReward ?? base.risk?.maxProfit,
-      breakeven: strategy.positionSizing?.breakEven ?? base.risk?.breakeven,
-      note: "Calculated from verified strategy entry/exit levels",
+      riskRewardRatio: strategy.riskRewardRatio ?? ps.riskRewardRatio ?? base.risk?.riskRewardRatio,
+      maxLoss: strategy.payoff?.maxLossUnlimited
+        ? null
+        : strategy.maxRiskLot ?? strategy.maxRisk ?? base.risk?.maxLoss,
+      maxProfit: strategy.payoff?.maxProfitUnlimited
+        ? null
+        : strategy.maxRewardLot ?? strategy.maxReward ?? base.risk?.maxProfit,
+      maxLossUnlimited: strategy.payoff?.maxLossUnlimited === true,
+      maxProfitUnlimited: strategy.payoff?.maxProfitUnlimited === true,
+      breakeven:
+        strategy.payoff?.breakEvenDisplay ||
+        ps.breakEven ||
+        base.risk?.breakeven,
+      note: "Expiry payoff from verified NSE premiums — never estimated from targets",
     },
     volatility: {
       ...base.volatility,
@@ -140,7 +150,15 @@ export default function FnoTerminal() {
       <div className="terminal-loading">
         <div className="terminal-spinner" />
         <p>Scanning F&O universe &amp; fetching NSE option chains…</p>
-        <small>Analyzing 10 liquid equities — may take 60–90 seconds.</small>
+        <small>
+          Analyzing liquid equities with verified premiums only — values are never estimated.
+          This may take 60–90 seconds.
+        </small>
+        <div className="skeleton-stack" aria-hidden>
+          <div className="skeleton-line" />
+          <div className="skeleton-line short" />
+          <div className="skeleton-block" />
+        </div>
       </div>
     );
   }
@@ -148,9 +166,11 @@ export default function FnoTerminal() {
   if (error) {
     return (
       <div className="strategy-error glass-card">
-        <p>Equity F&O dashboard unavailable.</p>
+        <p className="metric-na">Live Data Currently Unavailable</p>
         <p className="error-detail">{error}</p>
-        <button className="btn btn-primary" type="button" onClick={() => load(false)}>Refresh Data</button>
+        <button className="btn btn-primary" type="button" onClick={() => load(false)}>
+          Retry
+        </button>
       </div>
     );
   }

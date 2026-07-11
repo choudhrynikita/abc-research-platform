@@ -104,10 +104,25 @@ export default function DerivativesIntelligencePanel({ intelligence, title = "De
       <Accordion title="Risk Metrics" defaultOpen={false}>
         <div className="deriv-grid">
           <Metric label="Risk-to-Reward" value={risk.riskRewardRatio != null ? `${risk.riskRewardRatio}:1` : null} />
-          <Metric label="Max Loss" value={risk.maxLoss != null ? `₹${fmtNum(risk.maxLoss)}` : null} />
+          <Metric
+            label="Max Loss"
+            value={
+              risk.maxLossUnlimited
+                ? "Unlimited"
+                : risk.maxLoss != null
+                  ? `₹${fmtNum(risk.maxLoss)}`
+                  : null
+            }
+          />
           <Metric
             label="Max Profit"
-            value={risk.maxProfit != null ? `₹${fmtNum(risk.maxProfit)}` : risk.maxProfit === null ? "Unlimited" : null}
+            value={
+              risk.maxProfitUnlimited
+                ? "Unlimited"
+                : risk.maxProfit != null
+                  ? `₹${fmtNum(risk.maxProfit)}`
+                  : null
+            }
           />
           <Metric label="Breakeven" value={risk.breakeven} />
         </div>

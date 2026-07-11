@@ -3457,6 +3457,37 @@ a.nav-item {
   .fiidii-chart-canvas { height: 260px; }
 }
 
+/* ── Equity F&O strategy metrics ── */
+
+.equity-risk-grid {
+  gap: 8px;
+}
+
+.equity-metric small,
+.sizing-grid .equity-metric small {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.equity-metric strong {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.equity-sizing-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 900px) {
+  .equity-sizing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
 /* ── Options Payoff Chart ── */
 
 .payoff-chart-panel {
