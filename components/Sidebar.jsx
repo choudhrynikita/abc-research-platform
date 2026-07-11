@@ -11,6 +11,7 @@ const NAV = [
   { href: "/nifty-strategy", label: "NIFTY Strategy Center" },
   { href: "/fno", label: "Equity F&O Center" },
   { href: "/ipo", label: "IPO Intelligence Center" },
+  { href: "/reports", label: "Report Archive" },
 ];
 
 export default function Sidebar({ open = false, onNavigate, onClose }) {

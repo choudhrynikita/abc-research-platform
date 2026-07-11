@@ -9,6 +9,7 @@ const TITLES = {
   "/nifty-strategy": "NIFTY Strategy Center",
   "/fno": "Equity F&O Center",
   "/ipo": "IPO Intelligence Center",
+  "/reports": "Report Archive",
 };
 
 const SHORT_TITLES = {
@@ -18,6 +19,7 @@ const SHORT_TITLES = {
   "/nifty-strategy": "Strategy",
   "/fno": "F&O",
   "/ipo": "IPO",
+  "/reports": "Reports",
 };
 
 export default function TopBar({ pathname, onMenuToggle, sidebarOpen }) {

@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import ReportsModule from "../../components/modules/ReportsModule";
+
+export const metadata = {
+  title: "Report Archive | ABC Research Platform",
+  description: "Downloadable institutional research reports — PDF, Excel, and CSV exports",
+};
 
 export default function ReportsPage() {
-  redirect("/nifty500");
+  return <ReportsModule />;
 }

@@ -9,6 +9,8 @@ const MUTATION_PREFIXES = [
   "/api/strategy-assistant",
 ];
 
+const PROTECTED_READ_PATHS = new Set(["/api/audit"]);
+
 function isProduction() {
   return process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
 }
@@ -19,6 +21,15 @@ function requiresMutationAuth(method, pathname) {
   return MUTATION_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
+function requiresProtectedReadAuth(method, pathname) {
+  if (method !== "GET" && method !== "HEAD") return false;
+  return PROTECTED_READ_PATHS.has(pathname);
+}
+
+function requiresApiAuth(method, pathname) {
+  return requiresMutationAuth(method, pathname) || requiresProtectedReadAuth(method, pathname);
+}
+
 function extractBearerToken(authHeader) {
   if (!authHeader) return "";
   const match = String(authHeader).match(/^Bearer\s+(.+)$/i);
@@ -26,7 +37,7 @@ function extractBearerToken(authHeader) {
 }
 
 function checkApiAuth({ method, pathname, authHeader }) {
-  if (!requiresMutationAuth(method, pathname)) return null;
+  if (!requiresApiAuth(method, pathname)) return null;
 
   const secret = process.env.API_SECRET || "";
   if (!secret) {
