@@ -4,9 +4,12 @@ export default function InvestmentDecisionPanel({ decision }) {
   if (!decision) return null;
 
   return (
-    <section className="research-decision glass-card">
-      <h3>Execution Plan</h3>
-      <p className="panel-sub">Entry, targets, and risks — recommendation shown in executive summary above</p>
+    <section className="research-decision glass-card research-section">
+      <h3>Investment Decision / Execution Plan</h3>
+      <p className="panel-sub">
+        Analytical model levels from verified support/resistance — not a broker order ticket. Recommendation shown in executive summary.
+      </p>
+      {decision.methodology && <p className="panel-sub">{decision.methodology}</p>}
 
       <div className="decision-targets">
         <div><small>Entry Zone</small><strong>{decision.entryZone != null ? `₹${decision.entryZone}` : "—"}</strong></div>
