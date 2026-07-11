@@ -22,6 +22,12 @@ const GROUPS = [
       { key: "marketCap", label: "Market Cap", type: "cr", definition: "Total market capitalization (₹ Cr)" },
       { key: "enterpriseValue", label: "Enterprise Value", type: "cr", definition: "Market cap + net debt (when provided)" },
       { key: "dividendYield", label: "Dividend Yield", type: "yield", decimals: 2, definition: "Trailing / indicated dividend yield" },
+      { key: "bookValue", label: "Book Value / Share", type: "price", decimals: 2, definition: "Book value per share from Yahoo" },
+      { key: "currentPrice", label: "Current Share Price", type: "price", decimals: 2, definition: "Last price from Yahoo financials when provided" },
+      { key: "fiftyTwoWeekHigh", label: "52-Week High", type: "price", decimals: 2, definition: "52-week high from Yahoo summaryDetail" },
+      { key: "fiftyTwoWeekLow", label: "52-Week Low", type: "price", decimals: 2, definition: "52-week low from Yahoo summaryDetail" },
+      { key: "intrinsicValue", label: "Intrinsic Value", type: "price", definition: "Only if documented DCF exists — never estimated" },
+      { key: "faceValue", label: "Face Value", type: "price", definition: "Requires exchange master data" },
     ],
   },
   {
@@ -31,10 +37,12 @@ const GROUPS = [
     metrics: [
       { key: "roe", label: "ROE", type: "ratio", decimals: 1, definition: "Return on equity" },
       { key: "roa", label: "ROA", type: "ratio", decimals: 1, definition: "Return on assets" },
+      { key: "roce", label: "ROCE", type: "ratio", decimals: 1, definition: "Not provided by Yahoo — never estimated" },
       { key: "grossMargin", label: "Gross Margin", type: "ratio", decimals: 1, definition: "Gross profit margin" },
       { key: "operatingMargin", label: "Operating Margin", type: "ratio", decimals: 1, definition: "Operating profit margin" },
-      { key: "netMargin", label: "Net Margin", type: "ratio", decimals: 1, definition: "Net profit margin" },
+      { key: "netMargin", label: "Net Profit Margin", type: "ratio", decimals: 1, definition: "Net profit margin" },
       { key: "trailingEps", label: "EPS (TTM)", type: "eps", decimals: 2, definition: "Trailing twelve-month earnings per share" },
+      { key: "ebitda", label: "EBITDA", type: "cr", definition: "EBITDA from Yahoo financialData" },
     ],
   },
   {
@@ -43,7 +51,7 @@ const GROUPS = [
     description: "Year-over-year growth rates from Yahoo (not estimated)",
     metrics: [
       { key: "revenueGrowth", label: "Revenue Growth", type: "ratio", decimals: 1, definition: "Year-over-year revenue growth" },
-      { key: "profitGrowth", label: "Earnings Growth", type: "ratio", decimals: 1, definition: "Year-over-year earnings growth" },
+      { key: "profitGrowth", label: "Profit / Earnings Growth", type: "ratio", decimals: 1, definition: "Year-over-year earnings growth" },
     ],
   },
   {
@@ -53,19 +61,28 @@ const GROUPS = [
     metrics: [
       { key: "debtToEquity", label: "Debt / Equity", type: "number", decimals: 2, definition: "Yahoo debt-to-equity figure (as reported)" },
       { key: "currentRatio", label: "Current Ratio", type: "number", decimals: 2, definition: "Current assets / current liabilities" },
+      { key: "quickRatio", label: "Quick Ratio", type: "number", decimals: 2, definition: "Quick ratio from Yahoo financialData" },
       { key: "freeCashFlow", label: "Free Cash Flow", type: "cr", definition: "Free cash flow (₹ Cr)" },
       { key: "operatingCashFlow", label: "Operating CF", type: "cr", definition: "Operating cash flow (₹ Cr)" },
+      { key: "totalCash", label: "Total Cash", type: "cr", definition: "Total cash from Yahoo" },
+      { key: "totalDebt", label: "Total Debt", type: "cr", definition: "Total debt from Yahoo" },
+      { key: "totalRevenue", label: "Total Revenue", type: "cr", definition: "Total revenue (TTM) from Yahoo" },
       { key: "beta", label: "Beta", type: "number", decimals: 2, definition: "Equity beta vs market" },
+      { key: "sharesOutstanding", label: "Shares Outstanding", type: "number", decimals: 0, definition: "Shares outstanding from Yahoo" },
     ],
   },
 ];
 
-/** Fields we intentionally do not show as primary tiles (no reliable source). */
+/** Fields we intentionally call out (no reliable source). */
 const UNSUPPORTED = [
   { key: "roce", label: "ROCE", reason: "ROCE is not provided by the Yahoo Finance feed and is never estimated." },
   { key: "deliveryPercent", label: "Delivery %", reason: "Requires NSE exchange delivery feed." },
   { key: "institutionalHolding", label: "Institutional Holding", reason: "Requires NSE/BSE shareholding feed." },
   { key: "promoterHolding", label: "Promoter Holding", reason: "Requires NSE/BSE shareholding feed." },
+  { key: "fiiHolding", label: "FII Holdings", reason: "Requires NSE/BSE shareholding feed." },
+  { key: "diiHolding", label: "DII Holdings", reason: "Requires NSE/BSE shareholding feed." },
+  { key: "intrinsicValue", label: "Intrinsic Value", reason: "Requires documented DCF with verified inputs — never estimated." },
+  { key: "faceValue", label: "Face Value", reason: "Requires exchange master / ISIN feed." },
 ];
 
 function pickField(source, key) {

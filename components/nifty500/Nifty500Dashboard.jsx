@@ -34,6 +34,7 @@ function IntegrityPanel({ data }) {
   );
 }
 import MarketOverviewBar from "./MarketOverviewBar";
+import MarketMoversPanel from "./MarketMoversPanel";
 import SectorHeatmap from "./SectorHeatmap";
 import StockCard from "./StockCard";
 import TerminalExport from "../TerminalExport";
@@ -150,28 +151,7 @@ export default function Nifty500Dashboard() {
         showSma50
       />
 
-      {movers && (
-        <section className="movers-row">
-          <div className="movers-panel glass-card">
-            <h4>Top Gainers</h4>
-            <ul>{movers.gainers?.map((s) => (
-              <li key={s.symbol}><span>{s.name}</span><strong className="up">+{s.changePercent}%</strong></li>
-            ))}</ul>
-          </div>
-          <div className="movers-panel glass-card">
-            <h4>Top Losers</h4>
-            <ul>{movers.losers?.map((s) => (
-              <li key={s.symbol}><span>{s.name}</span><strong className="down">{s.changePercent}%</strong></li>
-            ))}</ul>
-          </div>
-          <div className="movers-panel glass-card">
-            <h4>Most Active</h4>
-            <ul>{movers.mostActive?.map((s) => (
-              <li key={s.symbol}><span>{s.name}</span><strong>{(s.volume / 1e6).toFixed(1)}M</strong></li>
-            ))}</ul>
-          </div>
-        </section>
-      )}
+      <MarketMoversPanel movers={movers} />
 
       <div className="terminal-toolbar glass-card">
         <input

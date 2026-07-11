@@ -13,6 +13,8 @@ describe("chart range normalization", () => {
     assert.equal(normalizeChartRange("3mo"), "3mo");
     assert.equal(normalizeChartRange("BAD"), "1y");
     assert.equal(normalizeChartRange(null), "1y");
+    assert.equal(normalizeChartRange("1d"), "1d");
+    assert.equal(normalizeChartRange("max"), "max");
   });
 });
 
