@@ -3457,6 +3457,112 @@ a.nav-item {
   .fiidii-chart-canvas { height: 260px; }
 }
 
+/* ── Options Payoff Chart ── */
+
+.payoff-chart-panel {
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+
+.payoff-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.payoff-chart-head h4 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.payoff-zoom {
+  display: flex;
+  gap: 6px;
+}
+
+.payoff-metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.payoff-metrics-strip > div {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.payoff-metrics-strip small {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.payoff-metrics-strip strong {
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.payoff-chart-canvas {
+  position: relative;
+  width: 100%;
+  min-height: 240px;
+}
+
+.payoff-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.payoff-tag {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.payoff-tag.spot {
+  border-color: rgba(59, 130, 246, 0.45);
+  color: var(--accent);
+}
+
+.payoff-tag.strike {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--yellow);
+}
+
+.payoff-tag.be {
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+}
+
+.strategy-metrics-risk {
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+}
+
+.risk-source {
+  color: var(--text-muted) !important;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .payoff-metrics-strip,
+  .strategy-metrics-risk {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
 /* ── AI Research Terminal ── */
 
 .research-terminal {

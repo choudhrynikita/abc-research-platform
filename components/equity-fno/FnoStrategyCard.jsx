@@ -1,10 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import PayoffChart from "../nifty-strategy/PayoffChart";
+
+const DATA_UNAVAILABLE = "Data Unavailable";
 
 function fmt(v, d = 2) {
-  if (v == null || Number.isNaN(v)) return "—";
-  return typeof v === "number" ? v.toFixed(d) : String(v);
+  if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
+  return typeof v === "number"
+    ? v.toLocaleString("en-IN", { maximumFractionDigits: d })
+    : String(v);
+}
+
+function formatMaxProfit(s) {
+  if (s.payoff?.maxProfitUnlimited) return "Unlimited";
+  if (s.maxReward != null) return `₹${fmt(s.maxReward)}`;
+  return DATA_UNAVAILABLE;
+}
+
+function formatMaxLoss(s) {
+  if (s.payoff?.maxLossUnlimited) return "Unlimited";
+  if (s.maxRisk != null) return `₹${fmt(s.maxRisk)}`;
+  return DATA_UNAVAILABLE;
 }
 
 function Gauge({ label, value, max = 100, color }) {
@@ -70,18 +87,22 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         )}
       </div>
 
-      <div className="strategy-metrics-row">
+      <div className="strategy-metrics-row strategy-metrics-risk">
         <div>
           <small>Net Premium</small>
           <strong>
             {net != null
-              ? `${isCredit ? "Credit " : ""}₹${fmt(Math.abs(net))}${strategy.mode === "pre-market" ? " ref." : ""}`
+              ? `${isCredit ? "Credit " : "Debit "}₹${fmt(Math.abs(net))}${strategy.mode === "pre-market" ? " ref." : ""}`
               : "Trigger at open"}
           </strong>
         </div>
-        <div><small>Max Risk</small><strong className="risk">{strategy.maxRisk != null ? `₹${fmt(strategy.maxRisk)}` : "—"}</strong></div>
-        <div><small>Max Reward</small><strong className="reward">{strategy.maxReward != null ? `₹${fmt(strategy.maxReward)}` : "Unlimited"}</strong></div>
-        <div><small>R:R</small><strong>{strategy.riskRewardRatio != null ? `${strategy.riskRewardRatio}:1` : "—"}</strong></div>
+        <div><small>Max Loss</small><strong className="risk">{formatMaxLoss(strategy)}</strong></div>
+        <div><small>Max Profit</small><strong className="reward">{formatMaxProfit(strategy)}</strong></div>
+        <div>
+          <small>Break-even</small>
+          <strong>{strategy.payoff?.breakEvenDisplay || ps.breakEven || DATA_UNAVAILABLE}</strong>
+        </div>
+        <div><small>R:R</small><strong>{strategy.riskRewardRatio != null ? `${strategy.riskRewardRatio}:1` : DATA_UNAVAILABLE}</strong></div>
       </div>
 
       <div className="confidence-gauge">
@@ -139,6 +160,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
 
       {selected && (
         <div className="fno-detail" onClick={(e) => e.stopPropagation()}>
+          <PayoffChart strategy={strategy} height={260} />
           <ExpandSection title="Position Sizing" defaultOpen>
             {ps.available ? (
               <div className="sizing-grid">
