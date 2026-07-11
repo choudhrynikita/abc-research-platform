@@ -5,11 +5,13 @@ import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, financialChartOptions, chartTheme } from "@/lib/chart-setup";
 import {
-  alignSeriesToLabels,
-  buildBarChartData,
+  alignSeriesToCandles,
+  buildVolumeChartData,
   buildCandlestickChartData,
   parseChartApiPayload,
+  dateToTimestamp,
 } from "@/lib/chart-builders";
+import { volumeChartOptions } from "@/lib/chart-setup";
 
 const RANGES = [
   { value: "5d", label: "5D" },
@@ -165,29 +167,36 @@ export default function StrategyCharts({
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
 
-    const labels = candles.map((c) => c.date);
     const series = indicators?.series;
     const overlays = MA_CONFIG
       .filter(({ key }) => series?.[key])
       .map(({ key, label, color }) => ({
         label,
         color,
-        data: alignSeriesToLabels(labels, series[key]),
+        data: alignSeriesToCandles(candles, series[key]),
       }));
 
     const support = technicals?.support ?? marketContext?.support;
     const resistance = technicals?.resistance ?? marketContext?.resistance;
     const maxPain = marketContext?.maxPain;
 
-    if (support != null) {
-      overlays.push({ label: "Support", color: "#22c55e88", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: support })) });
-    }
-    if (resistance != null) {
-      overlays.push({ label: "Resistance", color: "#ef444488", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: resistance })) });
-    }
-    if (maxPain != null) {
-      overlays.push({ label: "Max Pain", color: "#a855f788", borderDash: [2, 6], data: candles.map((c) => ({ x: c.date, y: maxPain })) });
-    }
+    const levelOverlay = (label, color, value, dash) => {
+      if (value == null || !Number.isFinite(Number(value))) return;
+      overlays.push({
+        label,
+        color,
+        borderDash: dash,
+        data: candles
+          .map((c) => {
+            const x = dateToTimestamp(c.date);
+            return x != null ? { x, y: Number(value) } : null;
+          })
+          .filter(Boolean),
+      });
+    };
+    levelOverlay("Support", "#22c55e88", support, [4, 4]);
+    levelOverlay("Resistance", "#ef444488", resistance, [4, 4]);
+    levelOverlay("Max Pain", "#a855f788", maxPain, [2, 6]);
 
     const data = buildCandlestickChartData(candles, {
       label: symbol?.replace(".NS", "") || "Price",
@@ -208,12 +217,11 @@ export default function StrategyCharts({
 
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
+    const data = buildVolumeChartData(candles);
+    if (!data) return null;
     return {
-      data: buildBarChartData(
-        candles.map((c) => c.date),
-        candles.map((c) => c.volume ?? 0)
-      ),
-      options: subChartOptions({ plugins: { legend: { display: false } } }),
+      data,
+      options: volumeChartOptions(),
     };
   }, [candles]);
 

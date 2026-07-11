@@ -63,27 +63,65 @@ describe("chart builders", () => {
     ];
     const chart = buildCandlestickChartData(candles, { label: "TEST" });
     assert.equal(chart.datasets[0].type, "candlestick");
-    assert.equal(chart.datasets[0].data[0].x, "2026-01-01");
+    // Time-scale x is UTC timestamp (never fabricate string category labels)
+    assert.equal(typeof chart.datasets[0].data[0].x, "number");
+    assert.ok(Number.isFinite(chart.datasets[0].data[0].x));
     assert.equal(chart.datasets[0].data[0].o, 100);
     assert.equal(chart.datasets[0].data[1].c, 105);
     assert.equal(chart.labels, undefined);
   });
 
-  it("aligns indicator overlays as {x,y} points without interpolation", () => {
-    const { alignSeriesToLabels } = require("../lib/chart-builders");
+  it("aligns indicator overlays as {x,y} timestamp points without interpolation", () => {
+    const { alignSeriesToLabels, dateToTimestamp } = require("../lib/chart-builders");
     const labels = ["2026-01-01", "2026-01-02", "2026-01-03"];
     const series = [null, 50, 55];
     const points = alignSeriesToLabels(labels, series);
     assert.equal(points.length, 2);
-    assert.deepEqual(points[0], { x: "2026-01-02", y: 50 });
-    assert.deepEqual(points[1], { x: "2026-01-03", y: 55 });
+    assert.equal(points[0].x, dateToTimestamp("2026-01-02"));
+    assert.equal(points[0].y, 50);
+    assert.equal(points[1].x, dateToTimestamp("2026-01-03"));
+    assert.equal(points[1].y, 55);
   });
 
   it("parses API success and error payloads", () => {
-    const ok = parseChartApiPayload({ candles: [{ date: "2026-01-01", open: 1, high: 2, low: 0.5, close: 1.5 }] });
+    // Need ≥2 verified candles for chart payload
+    const ok = parseChartApiPayload({
+      candles: [
+        { date: "2026-01-01", open: 1, high: 2, low: 0.5, close: 1.5 },
+        { date: "2026-01-02", open: 1.5, high: 2.1, low: 1.4, close: 2 },
+      ],
+    });
     assert.equal(ok.ok, true);
-    const fail = parseChartApiPayload({ error: "Chart data unavailable", message: "Verified market data unavailable." });
+    assert.equal(ok.candles.length, 2);
+
+    const single = parseChartApiPayload({
+      candles: [{ date: "2026-01-01", open: 1, high: 2, low: 0.5, close: 1.5 }],
+    });
+    assert.equal(single.ok, false);
+
+    const fail = parseChartApiPayload({
+      error: "Chart data unavailable",
+      message: "Verified market data unavailable.",
+    });
     assert.equal(fail.ok, false);
     assert.match(fail.error, /unavailable/i);
+  });
+
+  it("omits missing volume rather than fabricating zero", () => {
+    const { buildVolumeChartData, buildBarChartData } = require("../lib/chart-builders");
+    const candles = [
+      { date: "2026-01-01", open: 100, high: 105, low: 99, close: 104, volume: 1000 },
+      { date: "2026-01-02", open: 104, high: 106, low: 103, close: 105, volume: null },
+    ];
+    const vol = buildVolumeChartData(candles);
+    assert.ok(vol);
+    assert.equal(vol.datasets[0].data.length, 1);
+
+    const bar = buildBarChartData(
+      ["2026-01-01", "2026-01-02"],
+      [1000, null]
+    );
+    assert.ok(bar);
+    assert.equal(bar.datasets[0].data.length, 1);
   });
 });

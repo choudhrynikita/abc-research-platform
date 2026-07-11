@@ -2,30 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Line, Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+import "@/lib/chart-setup";
+import { baseChartOptions, exportChartPng } from "@/lib/chart-setup";
 
 const TIMEFRAMES = [
   { id: "daily", label: "Daily" },
@@ -152,10 +130,7 @@ function buildDataset(chartType, chartData, timeframe) {
   };
 }
 
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  interaction: { mode: "index", intersect: false },
+const chartOptions = baseChartOptions({
   animation: { duration: 450, easing: "easeOutQuart" },
   plugins: {
     legend: { labels: { color: "#8b9bb4", boxWidth: 12 } },
@@ -167,8 +142,12 @@ const chartOptions = {
       callbacks: {
         label: (ctx) => {
           const v = ctx.parsed.y;
-          if (v == null || Number.isNaN(v)) return `${ctx.dataset.label}: Data Unavailable`;
-          const abs = Math.abs(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+          if (v == null || Number.isNaN(v)) {
+            return `${ctx.dataset.label}: Data Unavailable`;
+          }
+          const abs = Math.abs(v).toLocaleString("en-IN", {
+            maximumFractionDigits: 2,
+          });
           const sign = v < 0 ? "-" : v > 0 ? "+" : "";
           return `${ctx.dataset.label}: ₹ ${sign}${abs} Cr`;
         },
@@ -177,6 +156,7 @@ const chartOptions = {
   },
   scales: {
     x: {
+      type: "category",
       ticks: { color: "#8b9bb4", maxTicksLimit: 10, maxRotation: 0 },
       grid: { color: "rgba(255,255,255,0.04)" },
     },
@@ -191,7 +171,7 @@ const chartOptions = {
       grid: { color: "rgba(255,255,255,0.06)" },
     },
   },
-};
+});
 
 export default function FlowChartPanel({ charts, activePeriod }) {
   const [timeframe, setTimeframe] = useState(activePeriod || "daily");
@@ -227,6 +207,13 @@ export default function FlowChartPanel({ charts, activePeriod }) {
           <p className="panel-sub">Interactive institutional flow charts — verified NSE sessions only</p>
         </div>
         <div className="chart-panel-actions">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => exportChartPng(chartRef.current, `fiidii-${timeframe}.png`)}
+          >
+            PNG
+          </button>
           <button
             type="button"
             className="btn btn-ghost btn-sm"

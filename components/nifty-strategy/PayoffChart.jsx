@@ -2,28 +2,8 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+import "@/lib/chart-setup";
+import { baseChartOptions, exportChartPng } from "@/lib/chart-setup";
 
 const DATA_UNAVAILABLE = "Data Unavailable";
 
@@ -40,6 +20,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
   const [zoom, setZoom] = useState(1);
   const chartRef = useRef(null);
   const payoff = strategy?.payoff;
+  // chartRef used for PNG export
 
   const chart = useMemo(() => {
     if (!payoff?.available || !payoff.payoffCurve?.length) return null;
@@ -106,14 +87,14 @@ export default function PayoffChart({ strategy, height = 320 }) {
         ],
       },
       meta: { spot, bes, strikes, slice },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        animation: { duration: 400 },
+      options: baseChartOptions({
         plugins: {
           legend: {
-            labels: { color: "#8b9bb4", boxWidth: 12, filter: (item) => item.text !== "Break-even (0)" },
+            labels: {
+              color: "#8b9bb4",
+              boxWidth: 12,
+              filter: (item) => item.text !== "Break-even (0)",
+            },
           },
           tooltip: {
             backgroundColor: "rgba(15,23,42,0.94)",
@@ -141,13 +122,19 @@ export default function PayoffChart({ strategy, height = 320 }) {
                   lines.push("≈ Current spot region");
                 }
                 for (const be of bes) {
-                  if (Math.abs(pt.underlying - be) < 15) lines.push(`Near break-even ${fmtNum(be, 0)}`);
+                  if (Math.abs(pt.underlying - be) < 15) {
+                    lines.push(`Near break-even ${fmtNum(be, 0)}`);
+                  }
                 }
                 for (const k of strikes) {
-                  if (Math.abs(pt.underlying - k) < 15) lines.push(`Strike ${fmtNum(k, 0)}`);
+                  if (Math.abs(pt.underlying - k) < 15) {
+                    lines.push(`Strike ${fmtNum(k, 0)}`);
+                  }
                 }
                 if (pt.plLot != null) {
-                  lines.push(`Per lot: ₹ ${pt.plLot >= 0 ? "+" : ""}${fmtNum(pt.plLot)}`);
+                  lines.push(
+                    `Per lot: ₹ ${pt.plLot >= 0 ? "+" : ""}${fmtNum(pt.plLot)}`
+                  );
                 }
                 return lines;
               },
@@ -156,6 +143,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
         },
         scales: {
           x: {
+            type: "category",
             ticks: {
               color: "#8b9bb4",
               maxTicksLimit: 8,
@@ -166,7 +154,12 @@ export default function PayoffChart({ strategy, height = 320 }) {
               },
             },
             grid: { color: "rgba(255,255,255,0.04)" },
-            title: { display: true, text: "Underlying at expiry", color: "#8b9bb4", font: { size: 11 } },
+            title: {
+              display: true,
+              text: "Underlying at expiry",
+              color: "#8b9bb4",
+              font: { size: 11 },
+            },
           },
           y: {
             ticks: {
@@ -174,10 +167,15 @@ export default function PayoffChart({ strategy, height = 320 }) {
               callback: (v) => `₹ ${Number(v).toLocaleString("en-IN")}`,
             },
             grid: { color: "rgba(255,255,255,0.06)" },
-            title: { display: true, text: "Profit / Loss", color: "#8b9bb4", font: { size: 11 } },
+            title: {
+              display: true,
+              text: "Profit / Loss",
+              color: "#8b9bb4",
+              font: { size: 11 },
+            },
           },
         },
-      },
+      }),
     };
   }, [payoff, zoom]);
 
@@ -217,6 +215,13 @@ export default function PayoffChart({ strategy, height = 320 }) {
           </button>
           <button type="button" className="chip sm" onClick={() => setZoom(1)}>
             Reset
+          </button>
+          <button
+            type="button"
+            className="chip sm"
+            onClick={() => exportChartPng(chartRef.current, "payoff-chart.png")}
+          >
+            PNG
           </button>
         </div>
       </div>

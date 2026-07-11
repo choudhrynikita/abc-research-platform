@@ -3457,6 +3457,66 @@ a.nav-item {
   .fiidii-chart-canvas { height: 260px; }
 }
 
+/* ── Shared chart shell ── */
+
+.chart-panel.fullscreen,
+.interactive-price-chart.fullscreen,
+.research-charts.fullscreen {
+  position: fixed;
+  inset: 12px;
+  z-index: 220;
+  margin: 0;
+  overflow: auto;
+  max-width: none;
+}
+
+.chart-empty-state {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--text-muted);
+}
+
+.chart-empty-state .metric-na {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.chart-loading-block {
+  text-align: center;
+  padding: 28px 16px;
+}
+
+.chart-canvas-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 120px;
+}
+
+.interactive-chart-main {
+  margin-bottom: 8px;
+}
+
+.interactive-chart-sub {
+  margin-top: 4px;
+}
+
+.chart-meta-ts {
+  color: var(--text-muted);
+}
+
+.fiidii-mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+@media (max-width: 700px) {
+  .fiidii-mini-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Equity F&O strategy metrics ── */
 
 .equity-risk-grid {

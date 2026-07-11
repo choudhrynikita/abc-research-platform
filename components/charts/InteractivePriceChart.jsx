@@ -3,34 +3,30 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
-import { financialChartOptions } from "@/lib/chart-setup";
 import {
-  alignSeriesToLabels,
-  buildBarChartData,
+  financialChartOptions,
+  volumeChartOptions,
+  exportChartPng,
+  chartTheme,
+} from "@/lib/chart-setup";
+import {
+  alignSeriesToCandles,
   buildCandlestickChartData,
+  buildVolumeChartData,
   parseChartApiPayload,
+  dateToTimestamp,
 } from "@/lib/chart-builders";
+import ChartPanel from "./ChartPanel";
 
 const DEFAULT_RANGES = [
+  { value: "5d", label: "5D" },
+  { value: "1mo", label: "1M" },
   { value: "3mo", label: "3M" },
   { value: "6mo", label: "6M" },
   { value: "1y", label: "1Y" },
   { value: "2y", label: "2Y" },
   { value: "5y", label: "5Y" },
 ];
-
-function ChartEmpty({ message, onRetry }) {
-  return (
-    <div className="chart-empty-state" role="status">
-      <p>{message || "Verified market data unavailable."}</p>
-      {onRetry && (
-        <button type="button" className="btn btn-secondary btn-sm" onClick={onRetry}>
-          Retry
-        </button>
-      )}
-    </div>
-  );
-}
 
 /**
  * Production interactive OHLCV chart — verified Yahoo Finance data only.
@@ -55,42 +51,49 @@ export default function InteractivePriceChart({
   const [chartMeta, setChartMeta] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const chartRef = useRef(null);
   const wrapRef = useRef(null);
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     if (!symbol?.trim()) return;
-    let cancelled = false;
     setLoading(true);
     setError(null);
+    let lastErr = null;
 
-    fetch(`/api/chart/${encodeURIComponent(symbol.trim())}?range=${range}`)
-      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => {
-        if (cancelled) return;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(
+          `/api/chart/${encodeURIComponent(symbol.trim())}?range=${range}`
+        );
+        const j = await res.json();
         const parsed = parseChartApiPayload(j);
-        if (!ok || !parsed.ok) {
-          throw new Error(parsed.error || j.message || "Unable to render chart because verified data could not be retrieved.");
+        if (!res.ok || !parsed.ok) {
+          throw new Error(
+            parsed.error ||
+              j.message ||
+              "Unable to render chart because verified data could not be retrieved."
+          );
         }
         setCandles(parsed.candles);
         setIndicators(parsed.indicators);
         setChartMeta(parsed.meta || j.chartMeta || null);
-      })
-      .catch((e) => {
-        if (!cancelled) {
-          setError(e.message);
-          setCandles([]);
-          setIndicators(null);
-        }
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
+        setLoading(false);
+        return;
+      } catch (e) {
+        lastErr = e;
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 600 * 2 ** attempt));
+      }
+    }
 
-    return () => { cancelled = true; };
+    setError(lastErr?.message || "Live Data Currently Unavailable");
+    setCandles([]);
+    setIndicators(null);
+    setLoading(false);
   }, [symbol, range]);
 
   useEffect(() => {
-    const cleanup = load();
-    return cleanup;
+    load();
   }, [load]);
 
   useEffect(() => {
@@ -105,7 +108,6 @@ export default function InteractivePriceChart({
 
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
-    const labels = candles.map((c) => c.date);
     const series = indicators?.series;
     const overlays = [];
 
@@ -113,30 +115,40 @@ export default function InteractivePriceChart({
       overlays.push({
         label: "SMA 20",
         color: "#f59e0b",
-        data: alignSeriesToLabels(labels, series.sma20),
+        data: alignSeriesToCandles(candles, series.sma20),
       });
     }
     if (showSma50 && series?.sma50) {
       overlays.push({
         label: "SMA 50",
-        color: "#3b82f6",
-        data: alignSeriesToLabels(labels, series.sma50),
+        color: chartTheme.accent,
+        data: alignSeriesToCandles(candles, series.sma50),
       });
     }
-    if (support != null) {
+    if (support != null && Number.isFinite(Number(support))) {
       overlays.push({
         label: "Support",
         color: "#22c55e88",
         borderDash: [4, 4],
-        data: candles.map((c) => ({ x: c.date, y: support })),
+        data: candles
+          .map((c) => {
+            const x = dateToTimestamp(c.date);
+            return x != null ? { x, y: Number(support) } : null;
+          })
+          .filter(Boolean),
       });
     }
-    if (resistance != null) {
+    if (resistance != null && Number.isFinite(Number(resistance))) {
       overlays.push({
         label: "Resistance",
         color: "#ef444488",
         borderDash: [4, 4],
-        data: candles.map((c) => ({ x: c.date, y: resistance })),
+        data: candles
+          .map((c) => {
+            const x = dateToTimestamp(c.date);
+            return x != null ? { x, y: Number(resistance) } : null;
+          })
+          .filter(Boolean),
       });
     }
 
@@ -148,84 +160,106 @@ export default function InteractivePriceChart({
 
   const volumeChart = useMemo(() => {
     if (!showVolume || !candles.length) return null;
-    return buildBarChartData(
-      candles.map((c) => c.date),
-      candles.map((c) => c.volume ?? 0),
-      { label: "Volume" }
-    );
+    return buildVolumeChartData(candles, { label: "Volume" });
   }, [candles, showVolume]);
 
   const chartOptions = useMemo(() => financialChartOptions(), []);
+  const volOptions = useMemo(() => volumeChartOptions(), []);
 
   if (!symbol?.trim()) return null;
 
+  const actions = (
+    <>
+      {ranges.map((r) => (
+        <button
+          key={r.value}
+          type="button"
+          className={`chip sm${range === r.value ? " active" : ""}`}
+          onClick={() => setRange(r.value)}
+        >
+          {r.label}
+        </button>
+      ))}
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm"
+        onClick={() =>
+          exportChartPng(
+            chartRef.current,
+            `${symbol.replace(/[^\w.-]+/g, "_")}-${range}.png`
+          )
+        }
+        title="Download PNG"
+      >
+        PNG
+      </button>
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm"
+        onClick={() => setFullscreen((v) => !v)}
+      >
+        {fullscreen ? "Exit" : "Full"}
+      </button>
+    </>
+  );
+
   return (
-    <section className={`interactive-price-chart glass-card ${className}`.trim()}>
-      <div className="chart-panel-head">
-        <div>
-          <h3>{title}</h3>
-          <p className="panel-sub">
-            {subtitle || `Verified OHLCV · ${symbol}`}
-            {chartMeta?.lastUpdated && (
-              <span className="chart-meta-ts">
-                {" "}· Updated {new Date(chartMeta.lastUpdated).toLocaleString()}
-                {chartMeta.provider && ` · ${chartMeta.provider}`}
-              </span>
-            )}
-          </p>
-        </div>
-        <div className="chart-panel-actions">
-          {ranges.map((r) => (
-            <button
-              key={r.value}
-              type="button"
-              className={`chip sm${range === r.value ? " active" : ""}`}
-              onClick={() => setRange(r.value)}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
+    <ChartPanel
+      title={title}
+      subtitle={
+        subtitle ||
+        `Verified OHLCV · ${symbol}${
+          chartMeta?.lastUpdated
+            ? ` · Updated ${new Date(chartMeta.lastUpdated).toLocaleString()}`
+            : ""
+        }`
+      }
+      actions={actions}
+      loading={loading}
+      error={error}
+      empty={!priceChart ? "Awaiting Latest Market Data" : null}
+      onRetry={load}
+      meta={
+        chartMeta
+          ? {
+              candleCount: chartMeta.candleCount ?? candles.length,
+              range: chartMeta.range ?? range,
+              lastUpdated: chartMeta.lastUpdated,
+              provider: chartMeta.provider || chartMeta.source,
+              rejectedPoints: chartMeta.rejectedPoints,
+            }
+          : candles.length
+            ? { candleCount: candles.length, range }
+            : null
+      }
+      fullscreen={fullscreen}
+      className={`interactive-price-chart ${className}`.trim()}
+      source="Yahoo Finance Chart API"
+    >
+      <div
+        className="chart-canvas-wrap interactive-chart-main"
+        ref={wrapRef}
+        style={{ height: fullscreen ? "min(70vh, 640px)" : height }}
+      >
+        {priceChart && (
+          <Chart
+            ref={chartRef}
+            type="candlestick"
+            data={priceChart}
+            options={chartOptions}
+          />
+        )}
       </div>
-
-      {loading && (
-        <div className="chart-loading-block">
-          <div className="terminal-spinner" />
-          <p>Loading verified chart data…</p>
+      {volumeChart && (
+        <div className="chart-canvas-wrap interactive-chart-sub" style={{ height: 120 }}>
+          <Chart type="bar" data={volumeChart} options={volOptions} />
         </div>
       )}
-
-      {error && !loading && (
-        <ChartEmpty message={error} onRetry={load} />
+      {!volumeChart && showVolume && (
+        <p className="panel-sub chart-footnote">
+          Volume: Source does not provide this information for the selected range.
+        </p>
       )}
-
-      {!loading && !error && priceChart && (
-        <>
-          <div className="chart-canvas-wrap interactive-chart-main" ref={wrapRef} style={{ height }}>
-            <Chart
-              ref={chartRef}
-              type="candlestick"
-              data={priceChart}
-              options={chartOptions}
-            />
-          </div>
-          {volumeChart && (
-            <div className="chart-canvas-wrap interactive-chart-sub" style={{ height: 120 }}>
-              <Chart type="bar" data={volumeChart} options={{ ...chartOptions, plugins: { legend: { display: false } } }} />
-            </div>
-          )}
-          {chartMeta && (
-            <p className="chart-footnote">
-              {chartMeta.candleCount} verified candles · Range {chartMeta.range}
-              {chartMeta.rejectedPoints > 0 && ` · ${chartMeta.rejectedPoints} points rejected`}
-            </p>
-          )}
-        </>
-      )}
-
-      {!loading && !error && !priceChart && (
-        <ChartEmpty message="Verified market data unavailable." onRetry={load} />
-      )}
-    </section>
+    </ChartPanel>
   );
 }

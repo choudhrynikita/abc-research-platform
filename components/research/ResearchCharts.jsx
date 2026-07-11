@@ -5,11 +5,13 @@ import { Chart } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, financialChartOptions, chartTheme } from "@/lib/chart-setup";
 import {
-  alignSeriesToLabels,
-  buildBarChartData,
+  alignSeriesToCandles,
+  buildVolumeChartData,
   buildCandlestickChartData,
   parseChartApiPayload,
+  dateToTimestamp,
 } from "@/lib/chart-builders";
+import { volumeChartOptions } from "@/lib/chart-setup";
 
 const RANGES = [
   { value: "3mo", label: "3M" },
@@ -55,30 +57,42 @@ export default function ResearchCharts({ symbol, technicals }) {
 
   const priceChart = useMemo(() => {
     if (!candles.length) return null;
-    const labels = candles.map((c) => c.date);
     const series = indicators?.series;
     const overlays = [];
     if (series?.sma20) {
-      overlays.push({ label: "SMA 20", color: "#f59e0b", data: alignSeriesToLabels(labels, series.sma20) });
+      overlays.push({ label: "SMA 20", color: "#f59e0b", data: alignSeriesToCandles(candles, series.sma20) });
     }
     if (series?.sma50) {
-      overlays.push({ label: "SMA 50", color: "#3b82f6", data: alignSeriesToLabels(labels, series.sma50) });
+      overlays.push({ label: "SMA 50", color: "#3b82f6", data: alignSeriesToCandles(candles, series.sma50) });
     }
-    if (technicals?.support != null) {
-      overlays.push({ label: "Support", color: "#22c55e55", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: technicals.support })) });
+    if (technicals?.support != null && Number.isFinite(Number(technicals.support))) {
+      overlays.push({
+        label: "Support",
+        color: "#22c55e55",
+        borderDash: [4, 4],
+        data: candles.map((c) => {
+          const x = dateToTimestamp(c.date);
+          return x != null ? { x, y: Number(technicals.support) } : null;
+        }).filter(Boolean),
+      });
     }
-    if (technicals?.resistance != null) {
-      overlays.push({ label: "Resistance", color: "#ef444455", borderDash: [4, 4], data: candles.map((c) => ({ x: c.date, y: technicals.resistance })) });
+    if (technicals?.resistance != null && Number.isFinite(Number(technicals.resistance))) {
+      overlays.push({
+        label: "Resistance",
+        color: "#ef444455",
+        borderDash: [4, 4],
+        data: candles.map((c) => {
+          const x = dateToTimestamp(c.date);
+          return x != null ? { x, y: Number(technicals.resistance) } : null;
+        }).filter(Boolean),
+      });
     }
     return buildCandlestickChartData(candles, { label: symbol, overlays });
   }, [candles, indicators, symbol, technicals]);
 
   const volumeChart = useMemo(() => {
     if (!candles.length) return null;
-    return buildBarChartData(
-      candles.map((c) => c.date),
-      candles.map((c) => c.volume ?? 0)
-    );
+    return buildVolumeChartData(candles);
   }, [candles]);
 
   const rsiChart = useMemo(() => {
@@ -153,39 +167,58 @@ export default function ResearchCharts({ symbol, technicals }) {
         </div>
       </div>
 
-      {loading && <p className="chart-loading">Loading verified chart data…</p>}
-      {error && <p className="chart-error">{error}</p>}
-      {missing.length > 0 && !error && (
-        <p className="chart-missing">Missing datasets: {missing.join(", ")}</p>
+      {loading && (
+        <div className="chart-loading-block">
+          <div className="terminal-spinner" />
+          <p>Loading verified chart data…</p>
+        </div>
+      )}
+      {error && !loading && (
+        <div className="chart-empty-state">
+          <p className="metric-na">Data Unavailable</p>
+          <p className="chart-error">{error}</p>
+        </div>
+      )}
+      {missing.length > 0 && !error && !loading && (
+        <p className="chart-missing">Missing datasets: {missing.join(", ")} — never estimated</p>
       )}
 
       {!loading && !error && priceChart && (
         <>
-          <div className="research-chart-main">
+          <div className="research-chart-main chart-canvas-wrap">
             <Chart ref={mainRef} type="candlestick" data={priceChart} options={financialChartOptions()} />
           </div>
-          {volumeChart && (
-            <div className="research-chart-sub">
-              <Chart type="bar" data={volumeChart} options={{ ...baseOptions, plugins: { legend: { display: false } } }} />
+          {volumeChart ? (
+            <div className="research-chart-sub chart-canvas-wrap">
+              <Chart type="bar" data={volumeChart} options={volumeChartOptions()} />
             </div>
+          ) : (
+            <p className="panel-sub chart-footnote">Volume: Source does not provide this information</p>
           )}
           <div className="research-chart-row">
             {rsiChart ? (
-              <div className="research-chart-sub">
+              <div className="research-chart-sub chart-canvas-wrap">
                 <Chart type="line" data={rsiChart} options={{ ...baseOptions, scales: { ...baseOptions.scales, y: { min: 0, max: 100, ticks: { color: chartTheme.tick } } } }} />
               </div>
             ) : (
-              <div className="research-chart-sub chart-na">RSI data unavailable for this range</div>
+              <div className="research-chart-sub chart-na">RSI: Data Unavailable for this range</div>
             )}
             {macdChart ? (
-              <div className="research-chart-sub">
+              <div className="research-chart-sub chart-canvas-wrap">
                 <Chart type="line" data={macdChart} options={baseOptions} />
               </div>
             ) : (
-              <div className="research-chart-sub chart-na">MACD data unavailable for this range</div>
+              <div className="research-chart-sub chart-na">MACD: Data Unavailable for this range</div>
             )}
           </div>
+          <p className="chart-footnote">{candles.length} verified candles · Yahoo Finance Chart API · Range {range}</p>
         </>
+      )}
+      {!loading && !error && !priceChart && (
+        <div className="chart-empty-state">
+          <p className="metric-na">Data Unavailable</p>
+          <p>Awaiting Latest Market Data</p>
+        </div>
       )}
     </section>
   );
