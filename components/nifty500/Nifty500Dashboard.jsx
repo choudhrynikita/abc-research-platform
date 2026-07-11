@@ -3,19 +3,32 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 function IntegrityPanel({ data }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   if (!data?.dataIntegrity) return null;
+  const withFund = (data.top50 || []).filter((s) => s.fundamentalsAvailable).length;
+  const total = (data.top50 || []).length;
   return (
     <div className="integrity-panel glass-card">
       <button type="button" className="expand-head" onClick={() => setOpen((v) => !v)}>
-        <h4>Data Sources</h4>
+        <h4>Data Integrity</h4>
         <span>{open ? "▾" : "▸"}</span>
       </button>
       {open && (
-        <ul>
-          <li>Prices: {data.dataIntegrity.priceSource}</li>
-          <li>Fundamentals: {data.dataIntegrity.fundamentalsSource}</li>
-        </ul>
+        <>
+          <p className="panel-sub">
+            Policy: never hallucinate. Missing metrics show as &quot;Data Unavailable&quot;.
+          </p>
+          <ul>
+            <li>Prices: {data.dataIntegrity.priceSource}</li>
+            <li>Fundamentals: {data.dataIntegrity.fundamentalsSource}</li>
+            <li>
+              Shareholding: {data.dataIntegrity.shareholdingSource || "Licensed feed required"}
+            </li>
+            <li>
+              Fundamentals coverage: {withFund}/{total} recommendations
+            </li>
+          </ul>
+        </>
       )}
     </div>
   );

@@ -12,9 +12,25 @@ import { extractValue, formatMetric } from "../nifty500/MetricValue";
 
 const QUICK_SYMBOLS = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "MARUTI"];
 
-function FundamentalsPanel({ fundamentals, available }) {
-  const [open, setOpen] = useState(false);
-  if (!available) return null;
+function ResearchFundamentalsPanel({ fundamentals, valuation, available, source }) {
+  const [open, setOpen] = useState(true);
+  const rows = [
+    ["Revenue Growth", fundamentals?.revenueGrowth, "ratio", "YoY revenue growth from Yahoo"],
+    ["Earnings Growth", fundamentals?.profitGrowth, "ratio", "YoY earnings growth from Yahoo"],
+    ["ROE", fundamentals?.roe, "ratio", "Return on equity"],
+    ["ROA", fundamentals?.roa, "ratio", "Return on assets"],
+    ["Gross Margin", fundamentals?.grossMargin, "ratio", "Gross profit margin"],
+    ["Operating Margin", fundamentals?.operatingMargin, "ratio", "Operating profit margin"],
+    ["Net Margin", fundamentals?.netMargin, "ratio", "Net profit margin"],
+    ["Debt/Equity", fundamentals?.debtToEquity, "number", "As reported by Yahoo (not estimated)"],
+    ["Free Cash Flow", fundamentals?.freeCashFlow, "cr", "Free cash flow"],
+    ["P/E (TTM)", valuation?.peRatio, "x", "Trailing P/E"],
+    ["Forward P/E", valuation?.forwardPe, "x", "Forward P/E"],
+    ["P/B", valuation?.pbRatio, "x", "Price-to-book"],
+    ["EV/EBITDA", valuation?.evEbitda, "x", "Enterprise value / EBITDA when provided"],
+    ["Dividend Yield", valuation?.dividendYield, "yield", "Dividend yield when provided"],
+    ["Market Cap", valuation?.marketCap, "cr", "Market capitalization"],
+  ];
 
   return (
     <section className="research-fundamentals glass-card">
@@ -23,23 +39,26 @@ function FundamentalsPanel({ fundamentals, available }) {
         <span>{open ? "▾" : "▸"}</span>
       </button>
       {open && (
-        <div className="fund-grid">
-          {[
-            ["Revenue Growth", fundamentals.revenueGrowth, "ratio"],
-            ["Profit Growth", fundamentals.profitGrowth, "ratio"],
-            ["ROE", fundamentals.roe, "ratio"],
-            ["ROCE", fundamentals.roce, "ratio"],
-            ["Debt/Equity", fundamentals.debtToEquity, "number"],
-            ["Operating Margin", fundamentals.operatingMargin, "ratio"],
-            ["Net Margin", fundamentals.netMargin, "ratio"],
-            ["Free Cash Flow", fundamentals.freeCashFlow, "cr"],
-          ].map(([label, val, type]) => (
-            <div key={label}>
-              <small>{label}</small>
-              <strong>{formatMetric(extractValue(val), type) ?? "—"}</strong>
-            </div>
-          ))}
-        </div>
+        <>
+          {!available && (
+            <p className="panel-sub fund-empty-msg">
+              Data Unavailable — Source does not provide verified fundamentals at this time. Values are never estimated.
+            </p>
+          )}
+          <div className="fund-grid">
+            {rows.map(([label, val, type, def]) => (
+              <div key={label} title={def}>
+                <small>{label}</small>
+                <strong>
+                  {formatMetric(extractValue(val), type) ?? "Data Unavailable"}
+                </strong>
+              </div>
+            ))}
+          </div>
+          <p className="fund-source panel-sub">
+            Source: {source || "Yahoo Finance quoteSummary API"} · ROCE omitted (not provided by feed)
+          </p>
+        </>
       )}
     </section>
   );
@@ -151,9 +170,11 @@ export default function ResearchTerminal() {
             relativeStrength={data.relativeStrength}
           />
 
-          <FundamentalsPanel
+          <ResearchFundamentalsPanel
             fundamentals={data.fundamentalAnalysis}
+            valuation={data.valuationAnalysis || data.fundamentals?.valuation}
             available={data.fundamentalsAvailable}
+            source={data.fundamentals?.source || data.source}
           />
 
           <InvestmentDecisionPanel decision={data.investmentDecision} />

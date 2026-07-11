@@ -2274,6 +2274,279 @@ a.nav-item {
   color: var(--text-muted);
   font-size: 0.72rem;
   font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.metric-value {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Institutional Fundamentals Panel ── */
+
+.fundamentals-panel {
+  padding: 18px 20px 14px;
+  margin-bottom: 14px;
+}
+
+.fund-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.fund-panel-head h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.fund-status {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fund-status-ok {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.fund-status-na {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.fund-empty {
+  padding: 18px 12px 8px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fund-empty-msg {
+  font-size: 0.95rem !important;
+  margin: 0 0 8px;
+}
+
+.fund-source {
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.fund-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.fund-group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+
+.fund-group-head h4 {
+  margin: 0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.fund-group-head span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fund-group-desc {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.fund-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fund-metric-grid.compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-tile {
+  padding: 12px 12px 10px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.metric-tile:hover {
+  border-color: rgba(59, 130, 246, 0.45);
+  background: var(--bg-hover);
+}
+
+.metric-tile-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.metric-tile-label small {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-info {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  font-size: 0.58rem;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: help;
+}
+
+.metric-tile-value {
+  font-size: 0.98rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.fund-panel-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.fund-panel-foot .linkish {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fund-unsupported {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.fund-unsupported li {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.fund-unsupported strong {
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.fund-card-note {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  color: var(--yellow);
+  letter-spacing: 0.01em;
+}
+
+.score-pill-na strong {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-spot-price {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-spot-price .metric-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.skeleton-stack {
+  max-width: 420px;
+  margin: 28px auto 0;
+  display: grid;
+  gap: 10px;
+}
+
+.skeleton-line,
+.skeleton-block {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--bg-elevated), var(--bg-hover), var(--bg-elevated));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-line {
+  height: 12px;
+}
+
+.skeleton-line.short {
+  width: 55%;
+}
+
+.skeleton-block {
+  height: 96px;
+  margin-top: 6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+@media (max-width: 1100px) {
+  .fund-metric-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .fund-metric-grid,
+  .fund-metric-grid.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .up { color: var(--green); }
