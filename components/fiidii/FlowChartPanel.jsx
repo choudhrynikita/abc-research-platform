@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -29,9 +29,8 @@ ChartJS.register(
 
 const TIMEFRAMES = [
   { id: "daily", label: "Daily" },
+  { id: "weekly", label: "Weekly" },
   { id: "monthly", label: "Monthly" },
-  { id: "quarterly", label: "Quarterly" },
-  { id: "yearly", label: "Yearly" },
 ];
 
 const CHART_TYPES = [
@@ -72,6 +71,7 @@ function buildDataset(chartType, chartData, timeframe) {
           pointRadius: timeframe === "daily" ? 0 : 3,
         },
       ],
+      useBar: false,
     };
   }
 
@@ -99,6 +99,7 @@ function buildDataset(chartType, chartData, timeframe) {
           pointRadius: 0,
         },
       ],
+      useBar: false,
     };
   }
 
@@ -126,6 +127,7 @@ function buildDataset(chartType, chartData, timeframe) {
           pointRadius: 0,
         },
       ],
+      useBar: false,
     };
   }
 
@@ -154,19 +156,21 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   interaction: { mode: "index", intersect: false },
-  animation: { duration: 400 },
+  animation: { duration: 450, easing: "easeOutQuart" },
   plugins: {
     legend: { labels: { color: "#8b9bb4", boxWidth: 12 } },
     tooltip: {
-      backgroundColor: "rgba(15,23,42,0.9)",
+      backgroundColor: "rgba(15,23,42,0.92)",
       titleColor: "#e8edf5",
       bodyColor: "#8b9bb4",
       padding: 12,
       callbacks: {
         label: (ctx) => {
           const v = ctx.parsed.y;
-          if (v == null) return `${ctx.dataset.label}: —`;
-          return `${ctx.dataset.label}: ${v >= 0 ? "+" : ""}${v.toLocaleString()} Cr`;
+          if (v == null || Number.isNaN(v)) return `${ctx.dataset.label}: Data Unavailable`;
+          const abs = Math.abs(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+          const sign = v < 0 ? "-" : v > 0 ? "+" : "";
+          return `${ctx.dataset.label}: ₹ ${sign}${abs} Cr`;
         },
       },
     },
@@ -177,20 +181,32 @@ const chartOptions = {
       grid: { color: "rgba(255,255,255,0.04)" },
     },
     y: {
-      ticks: { color: "#8b9bb4" },
+      ticks: {
+        color: "#8b9bb4",
+        callback: (v) => {
+          if (v == null) return "";
+          return `₹ ${Number(v).toLocaleString("en-IN")}`;
+        },
+      },
       grid: { color: "rgba(255,255,255,0.06)" },
     },
   },
 };
 
-export default function FlowChartPanel({ charts }) {
-  const [timeframe, setTimeframe] = useState("daily");
-  const [chartType, setChartType] = useState("netFii");
+export default function FlowChartPanel({ charts, activePeriod }) {
+  const [timeframe, setTimeframe] = useState(activePeriod || "daily");
+  const [chartType, setChartType] = useState("fiiVsDii");
   const [fullscreen, setFullscreen] = useState(false);
   const chartRef = useRef(null);
 
+  useEffect(() => {
+    if (activePeriod && ["daily", "weekly", "monthly"].includes(activePeriod)) {
+      setTimeframe(activePeriod);
+    }
+  }, [activePeriod]);
+
   const selectedType = CHART_TYPES.find((c) => c.id === chartType) || CHART_TYPES[0];
-  const chartData = charts?.[timeframe];
+  const chartData = charts?.[timeframe] || (timeframe === "weekly" ? charts?.daily : null);
 
   const dataset = useMemo(() => {
     if (!chartData?.available) return null;
@@ -221,7 +237,7 @@ export default function FlowChartPanel({ charts }) {
         </div>
       </div>
 
-      <div className="chart-timeframe-tabs">
+      <div className="chart-timeframe-tabs" role="tablist" aria-label="Chart period">
         {TIMEFRAMES.map((tf) => (
           <button
             key={tf.id}
@@ -250,7 +266,7 @@ export default function FlowChartPanel({ charts }) {
       <div className="fiidii-chart-canvas">
         {!chartData?.available ? (
           <p className="chart-empty">
-            Latest verified institutional flow data is temporarily unavailable. Please refresh or try again later.
+            Data Unavailable — Latest verified institutional flow data is temporarily unavailable.
           </p>
         ) : isRollingCumulativeDailyOnly ? (
           <p className="chart-empty">Rolling and cumulative views are available on the Daily timeframe only.</p>
@@ -266,7 +282,9 @@ export default function FlowChartPanel({ charts }) {
       </div>
 
       {chartData?.points > 0 && (
-        <p className="chart-footnote">{chartData.points} verified data points · Source: NSE India</p>
+        <p className="chart-footnote">
+          {chartData.points} verified data points · Source: NSE India · Values in ₹ Cr
+        </p>
       )}
     </section>
   );
