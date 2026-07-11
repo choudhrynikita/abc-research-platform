@@ -42,7 +42,8 @@ function testAuthModule() {
     ["POST", "/api/strategies/abc/duplicate", null, 401],
     ["PATCH", "/api/strategies/abc", null, 401],
     ["DELETE", "/api/strategies/abc", null, 401],
-    ["POST", "/api/copilot", "phase10-secret", null],
+    // Copilot is public research Q&A — auth module must allow without Bearer
+    ["POST", "/api/copilot", null, null],
     ["GET", "/api/reports/generate/nifty500", null, null],
   ];
 
@@ -70,13 +71,15 @@ function testAuthModule() {
     ["PATCH", "/api/strategies/x"],
     ["DELETE", "/api/strategies/x"],
     ["POST", "/api/ipo-alerts/preferences"],
-    ["POST", "/api/copilot"],
   ];
   for (const [method, pathname] of mutations) {
     const needs = requiresMutationAuth(method, pathname);
     console.log(`${needs ? "PASS" : "FAIL"} requiresMutationAuth ${method} ${pathname}`);
     ok = needs && ok;
   }
+  const copilotPublic = !requiresMutationAuth("POST", "/api/copilot");
+  console.log(`${copilotPublic ? "PASS" : "FAIL"} copilot is public (no mutation auth)`);
+  ok = copilotPublic && ok;
 
   process.env.API_SECRET = prevSecret;
   process.env.NODE_ENV = prevNode;
