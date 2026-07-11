@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 
 const PUBLIC_PATHS = new Set(["/api", "/api/health"]);
 
+/**
+ * Write/mutation endpoints requiring Bearer API_SECRET in production.
+ * /api/copilot is a public research Q&A endpoint (no platform mutation).
+ */
 const MUTATION_PREFIXES = [
   "/api/strategies",
   "/api/ipo-alerts/preferences",
-  "/api/copilot",
   "/api/strategy-assistant",
 ];
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import CopilotPanel from "./CopilotPanel";
 
 const NAV = [
   { href: "/nifty500", label: "Top 50 Stocks to Buy" },
@@ -16,32 +16,6 @@ const NAV = [
 
 export default function Sidebar({ open = false, onNavigate, onClose }) {
   const pathname = usePathname();
-  const [query, setQuery] = useState("");
-  const [copilotOut, setCopilotOut] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function askCopilot() {
-    if (!query.trim()) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/copilot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
-      });
-      const json = await res.json();
-      setCopilotOut(
-        json.answer
-        || json.error
-        || json.message
-        || "Verified data is currently unavailable."
-      );
-    } catch (e) {
-      setCopilotOut(e.message);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <aside className={`sidebar${open ? " open" : ""}`} aria-label="Main navigation">
@@ -74,20 +48,7 @@ export default function Sidebar({ open = false, onNavigate, onClose }) {
           </Link>
         ))}
       </nav>
-      <div className="copilot-panel">
-        <h4>AI Copilot</h4>
-        <input
-          type="text"
-          placeholder="Analyze Reliance, NIFTY outlook..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && askCopilot()}
-        />
-        <button className="btn btn-primary btn-sm" onClick={askCopilot} disabled={loading}>
-          {loading ? "..." : "Ask"}
-        </button>
-        {copilotOut && <div className="copilot-output">{copilotOut}</div>}
-      </div>
+      <CopilotPanel compact />
     </aside>
   );
 }

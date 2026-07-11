@@ -18,7 +18,8 @@ function testAuthModule() {
     { method: "POST", path: "/api/strategies", secret: "test-secret", token: "test-secret", expect: null },
     { method: "GET", path: "/api/strategies", secret: "test-secret", token: null, expect: null },
     { method: "POST", path: "/api/ipo-alerts/preferences", secret: "test-secret", token: null, expect: 401 },
-    { method: "POST", path: "/api/copilot", secret: "test-secret", token: null, expect: 401 },
+    // Copilot is a public research Q&A endpoint (no platform mutation) — must not require Bearer
+    { method: "POST", path: "/api/copilot", secret: "test-secret", token: null, expect: null },
     { method: "GET", path: "/api/copilot", secret: "test-secret", token: null, expect: null },
   ];
 
@@ -74,8 +75,9 @@ async function main() {
   ok = stratPass && ok;
 
   const copilotNoAuth = await request("POST", "/api/copilot", { body: { query: "nifty outlook" } });
-  const copilotPass = devAllowsWrite ? copilotNoAuth.status === 200 : copilotNoAuth.status === expectBlocked;
-  console.log(`${copilotPass ? "PASS" : "FAIL"} live POST /api/copilot unauth => ${copilotNoAuth.status}`);
+  // Public research assistant — always allowed without Bearer token
+  const copilotPass = copilotNoAuth.status === 200 || copilotNoAuth.status === 503;
+  console.log(`${copilotPass ? "PASS" : "FAIL"} live POST /api/copilot unauth => ${copilotNoAuth.status} (public Q&A)`);
   ok = copilotPass && ok;
 
   const prefsNoAuth = await request("POST", "/api/ipo-alerts/preferences", { body: { newIpo: false } });
