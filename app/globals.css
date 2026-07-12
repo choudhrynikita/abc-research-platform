@@ -2994,11 +2994,155 @@ th {
 .stock-card-foot {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid var(--border);
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.stock-card-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.03));
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.stock-card-evidence strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-card-evidence .evidence-na {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* Institutional strategy dossier */
+.strategy-dossier {
+  margin-top: 12px;
+  padding: 14px 16px;
+}
+
+.strategy-dossier.glass-card {
+  box-shadow: none;
+}
+
+.dossier-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dossier-head h4 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+}
+
+.dossier-confidence {
+  margin-bottom: 14px;
+}
+
+.dossier-section {
+  margin-bottom: 12px;
+}
+
+.dossier-section p {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.dossier-meta,
+.dossier-note,
+.dossier-disclaimer,
+.dossier-policy,
+.dossier-bt-na {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 6px 0 0;
+}
+
+.dossier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dossier-grid h5,
+.dossier-grid h6 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.dossier-factor-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.bullish-label { color: var(--green) !important; }
+.bearish-label { color: var(--red) !important; }
+
+.dossier-plan small {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.dossier-plan strong {
+  display: block;
+  font-size: 0.84rem;
+  margin-top: 2px;
+}
+
+.dossier-compact {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dossier-compact-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.backtest-stats .stats-grid {
+  margin-bottom: 10px;
+}
+
+.backtest-unavailable {
+  padding: 8px 0;
+}
+
+.dossier-expand .strategy-dossier {
+  margin-top: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.confidence-disclaimer {
+  margin: 6px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 .metric-na {

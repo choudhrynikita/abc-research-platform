@@ -87,12 +87,39 @@ export default function StockCard({ stock, rank }) {
         </div>
       )}
 
+      {(stock.confidence?.score != null || stock.backtest) && (
+        <div className="stock-card-evidence">
+          {stock.confidence?.score != null && (
+            <span title={stock.confidence.methodology || stock.confidence.disclaimer}>
+              Conviction{" "}
+              <strong>{stock.confidence.score}</strong>
+              <small>/100</small>
+            </span>
+          )}
+          {stock.backtest?.available === true && stock.backtest.winRate != null ? (
+            <span title="Mechanical SMA/RSI rule on verified OHLCV — not a guarantee">
+              Rule hit rate <strong>{stock.backtest.winRate}%</strong>
+              <small> · {stock.backtest.samples} trades</small>
+            </span>
+          ) : (
+            <span className="evidence-na" title={stock.backtest?.reason || undefined}>
+              Backtest: Data Unavailable
+            </span>
+          )}
+        </div>
+      )}
+
       {rec?.conviction && (
         <footer className="stock-card-foot">
           <span>
             Conviction: <strong>{rec.conviction}</strong>
           </span>
           <span>Horizon: {rec.horizon ?? "—"}</span>
+          {rec.riskRewardRatio != null && (
+            <span>
+              R:R <strong>{rec.riskRewardRatio}:1</strong>
+            </span>
+          )}
         </footer>
       )}
     </article>

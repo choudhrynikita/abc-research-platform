@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PayoffChart from "../nifty-strategy/PayoffChart";
+import StrategyDossierPanel from "../StrategyDossierPanel";
 
 const DATA_UNAVAILABLE = "Data Unavailable";
 
@@ -437,6 +438,16 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
               </div>
             </div>
           </ExpandSection>
+
+          {(strategy.dossier || strategy.backtest || strategy.confidenceDetail) && (
+            <ExpandSection title="Institutional Dossier & Backtest" defaultOpen>
+              <StrategyDossierPanel
+                dossier={strategy.dossier}
+                confidence={strategy.confidenceDetail || strategy.dossier?.confidence}
+                backtest={strategy.backtest || strategy.dossier?.backtest}
+              />
+            </ExpandSection>
+          )}
         </div>
       )}
 

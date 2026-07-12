@@ -6,6 +6,7 @@ import ProChart from "../charts/ProChart";
 import MetricValue, { extractValue, DATA_UNAVAILABLE } from "./MetricValue";
 import FundamentalsPanel from "./FundamentalsPanel";
 import TechnicalAnalysisPanel from "./TechnicalAnalysisPanel";
+import StrategyDossierPanel from "../StrategyDossierPanel";
 
 function fieldText(field) {
   if (field == null) return null;
@@ -465,6 +466,13 @@ export default function StockDetail({ symbol }) {
                     ))}
                   </ul>
                 </div>
+              )}
+              {(top50Stock?.dossier || top50Stock?.confidence || top50Stock?.backtest) && (
+                <StrategyDossierPanel
+                  dossier={top50Stock.dossier}
+                  confidence={top50Stock.confidence || top50Stock.dossier?.confidence}
+                  backtest={top50Stock.backtest || top50Stock.dossier?.backtest}
+                />
               )}
               <TechnicalAnalysisPanel technical={tech} priceMetrics={report.priceMetrics} />
               <FundamentalsPanel
