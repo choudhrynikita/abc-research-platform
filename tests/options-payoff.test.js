@@ -206,6 +206,32 @@ describe("Short Straddle", () => {
   });
 });
 
+describe("Naked Short Put", () => {
+  it("has finite max loss (not unlimited) ≈ strike − premium", () => {
+    const r = analyzeStrategyPayoff({
+      strikes: [{ action: "SELL", type: "PE", strike: 100, premium: 4 }],
+      spot: 100,
+    });
+    assert.equal(r.available, true);
+    assert.equal(r.maxLossUnlimited, false);
+    // Max loss as S→0: premium − intrinsic = 4 − 100 = −96 → loss magnitude 96
+    assert.equal(r.maxLoss, 96);
+    assert.equal(r.maxProfit, 4);
+  });
+});
+
+describe("Naked Short Call", () => {
+  it("has unlimited max loss", () => {
+    const r = analyzeStrategyPayoff({
+      strikes: [{ action: "SELL", type: "CE", strike: 100, premium: 4 }],
+      spot: 100,
+    });
+    assert.equal(r.maxLossUnlimited, true);
+    assert.equal(r.maxLoss, null);
+    assert.equal(r.maxProfit, 4);
+  });
+});
+
 describe("enrichStrategyWithPayoff", () => {
   it("overwrites incorrect target-based maxReward", () => {
     const strategy = {

@@ -1,6 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import MarketOverviewBar from "./MarketOverviewBar";
+import MarketMoversPanel from "./MarketMoversPanel";
+import SectorHeatmap from "./SectorHeatmap";
+import StockCard from "./StockCard";
+import TerminalExport from "../TerminalExport";
+import InteractivePriceChart from "../charts/InteractivePriceChart";
+
+function formatRefreshTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleTimeString();
+}
 
 function IntegrityPanel({ data }) {
   const [open, setOpen] = useState(true);
@@ -9,9 +22,14 @@ function IntegrityPanel({ data }) {
   const total = (data.top50 || []).length;
   return (
     <div className="integrity-panel glass-card">
-      <button type="button" className="expand-head" onClick={() => setOpen((v) => !v)}>
+      <button
+        type="button"
+        className="expand-head"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
         <h4>Data Integrity</h4>
-        <span>{open ? "▾" : "▸"}</span>
+        <span aria-hidden>{open ? "▾" : "▸"}</span>
       </button>
       {open && (
         <>
@@ -33,12 +51,7 @@ function IntegrityPanel({ data }) {
     </div>
   );
 }
-import MarketOverviewBar from "./MarketOverviewBar";
-import MarketMoversPanel from "./MarketMoversPanel";
-import SectorHeatmap from "./SectorHeatmap";
-import StockCard from "./StockCard";
-import TerminalExport from "../TerminalExport";
-import InteractivePriceChart from "../charts/InteractivePriceChart";
+
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "buy", label: "Buy" },
@@ -134,7 +147,7 @@ export default function Nifty500Dashboard() {
           </button>
           <TerminalExport module="nifty500" />
           <span className="freshness-pill">
-            Updated {new Date(data?.dataIntegrity?.refreshedAt).toLocaleTimeString()}
+            Updated {formatRefreshTime(data?.dataIntegrity?.refreshedAt)}
           </span>
         </div>
       </header>
@@ -154,26 +167,41 @@ export default function Nifty500Dashboard() {
       <MarketMoversPanel movers={movers} />
 
       <div className="terminal-toolbar glass-card">
+        <label className="visually-hidden" htmlFor="nifty500-search">
+          Search ticker or company
+        </label>
         <input
+          id="nifty500-search"
           type="search"
           className="terminal-search"
           placeholder="Search ticker or company…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search ticker or company"
         />
-        <select value={sector} onChange={(e) => setSector(e.target.value)} className="terminal-select">
+        <label className="visually-hidden" htmlFor="nifty500-sector">
+          Filter by sector
+        </label>
+        <select
+          id="nifty500-sector"
+          value={sector}
+          onChange={(e) => setSector(e.target.value)}
+          className="terminal-select"
+          aria-label="Filter by sector"
+        >
           <option value="all">All Sectors</option>
           {(data?.filters?.sectors || []).map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
-        <div className="filter-chips">
+        <div className="filter-chips" role="group" aria-label="Recommendation filters">
           {FILTERS.map((f) => (
             <button
               key={f.id}
               type="button"
               className={`chip${filter === f.id ? " active" : ""}`}
               onClick={() => setFilter(f.id)}
+              aria-pressed={filter === f.id}
             >
               {f.label}
             </button>

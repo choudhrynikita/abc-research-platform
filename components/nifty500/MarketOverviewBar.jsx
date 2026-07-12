@@ -30,7 +30,20 @@ export default function MarketOverviewBar({ data }) {
         <IndexTile item={indices.nifty50} />
         <IndexTile item={indices.banknifty} />
         <IndexTile item={indices.finnifty} />
-        <IndexTile item={indices.vix} />
+        {/* VIX is an index level, not a rupee price — avoid ₹ prefix */}
+        {indices.vix && (
+          <div className="idx-tile glass-card">
+            <span className="idx-label">{indices.vix.label || "India VIX"}</span>
+            <strong className="idx-price">
+              <MetricValue value={indices.vix.price} type="number" decimals={2} />
+            </strong>
+            <span className={`idx-chg ${indices.vix.changePercent == null ? "" : indices.vix.changePercent >= 0 ? "up" : "down"}`}>
+              {indices.vix.changePercent != null
+                ? `${indices.vix.changePercent >= 0 ? "+" : ""}${indices.vix.changePercent.toFixed(2)}%`
+                : "—"}
+            </span>
+          </div>
+        )}
       </div>
       {breadth && (
         <div className="breadth-strip glass-card">

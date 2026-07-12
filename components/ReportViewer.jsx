@@ -145,7 +145,16 @@ export default function ReportViewer({ payload, meta }) {
       {resolveChartSymbol(report) && (
         <ProChart symbol={resolveChartSymbol(report)} />
       )}
-      {report.type === "fiidii" && <FiiDiiDashboard report={report} />}
+      {report.type === "fiidii" && (
+        <FiiDiiDashboard
+          history={report.history || []}
+          summary={
+            typeof report.summary === "string"
+              ? report.summary
+              : report.sections?.[0]?.content || null
+          }
+        />
+      )}
       {report.type === "ipo" && report.subscriptionHistory?.length > 0 && (
         <SubscriptionChart history={report.subscriptionHistory} />
       )}

@@ -41,8 +41,17 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
           <Link
             key={item.href}
             href={item.href}
-            className={`nav-item${pathname === item.href ? " active" : ""}`}
+            className={`nav-item${
+              pathname === item.href || (item.href !== "/" && pathname?.startsWith(`${item.href}/`))
+                ? " active"
+                : ""
+            }`}
             onClick={onNavigate}
+            aria-current={
+              pathname === item.href || (item.href !== "/" && pathname?.startsWith(`${item.href}/`))
+                ? "page"
+                : undefined
+            }
           >
             {item.label}
           </Link>

@@ -348,6 +348,26 @@ export default function StockDetail({ symbol }) {
     );
   }
 
+  // Treat available:false payloads as explicit unavailable (never render empty metric shells as success)
+  if (report.available === false) {
+    return (
+      <div className="error-panel terminal-error" role="alert">
+        <p>Live Data Currently Unavailable</p>
+        <p className="error-detail">
+          {report.message || report.error || report.reason || "Source does not provide complete research for this symbol."}
+        </p>
+        <div className="error-actions">
+          <button type="button" className="btn btn-primary" onClick={loadResearch}>
+            Retry
+          </button>
+          <Link href="/nifty500" className="btn btn-secondary">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const tech = report.technicalAnalysis || {};
   const fund = report.fundamentalAnalysis || {};
   const valn = report.valuationAnalysis || report.fundamentals?.valuation || {};
