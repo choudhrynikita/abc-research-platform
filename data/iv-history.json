@@ -1,4 +1,159 @@
 {
-  "symbols": {},
-  "updatedAt": null
+  "symbols": {
+    "NIFTY": {
+      "source": "NSE India option-chain-v3 API (NIFTY)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 9.41,
+          "atmStrike": 24200,
+          "expiry": "14-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:40.339Z",
+          "source": "NSE India option-chain-v3 API (NIFTY)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:40.339Z"
+    },
+    "TCS": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 25.69,
+          "atmStrike": 2060,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.386Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.386Z"
+    },
+    "RELIANCE": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 22.16,
+          "atmStrike": 1310,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.462Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.462Z"
+    },
+    "SBIN": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 20.98,
+          "atmStrike": 1040,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.520Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.520Z"
+    },
+    "BHARTIARTL": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 17.52,
+          "atmStrike": 1920,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.877Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.877Z"
+    },
+    "MARUTI": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 23.38,
+          "atmStrike": 13900,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.908Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.908Z"
+    },
+    "HDFCBANK": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 20.93,
+          "atmStrike": 825,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.954Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.954Z"
+    },
+    "ICICIBANK": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 20.72,
+          "atmStrike": 1400,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:34.990Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:34.990Z"
+    },
+    "INFY": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 31.34,
+          "atmStrike": 1070,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:35.080Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:35.080Z"
+    },
+    "ITC": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 18.34,
+          "atmStrike": 282,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:35.201Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:35.201Z"
+    },
+    "LT": {
+      "source": "NSE India option-chain-v3 API (Equity)",
+      "series": [
+        {
+          "date": "2026-07-12",
+          "iv": 20.48,
+          "atmStrike": 3950,
+          "expiry": "28-Jul-2026",
+          "recordedAt": "2026-07-12T12:00:35.327Z",
+          "source": "NSE India option-chain-v3 API (Equity)"
+        }
+      ],
+      "updatedAt": "2026-07-12T12:00:35.327Z"
+    }
+  },
+  "updatedAt": "2026-07-12T12:00:40.339Z"
 }

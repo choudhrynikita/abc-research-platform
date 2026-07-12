@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-12T12:07:13.124Z",
+  "portfolios": [
+    {
+      "id": "default",
+      "name": "Core Equity Portfolio",
+      "currency": "INR",
+      "note": "Sample starter holdings — replace with your verified cost basis. P&L never estimated when price is missing.",
+      "createdAt": "2026-07-12T00:00:00.000Z",
+      "updatedAt": "2026-07-12T12:07:13.124Z",
+      "holdings": [
+        {
+          "id": "h-sample-1",
+          "symbol": "RELIANCE.NS",
+          "quantity": 10,
+          "avgCost": 2500,
+          "notes": "Sample holding — edit or remove",
+          "addedAt": "2026-07-12T00:00:00.000Z",
+          "updatedAt": "2026-07-12T00:00:00.000Z"
+        },
+        {
+          "id": "h-sample-2",
+          "symbol": "TCS.NS",
+          "quantity": 5,
+          "avgCost": 3800,
+          "notes": "Sample holding — edit or remove",
+          "addedAt": "2026-07-12T00:00:00.000Z",
+          "updatedAt": "2026-07-12T00:00:00.000Z"
+        },
+        {
+          "id": "h-sample-3",
+          "symbol": "HDFCBANK.NS",
+          "quantity": 15,
+          "avgCost": 1600,
+          "notes": "Sample holding — edit or remove",
+          "addedAt": "2026-07-12T00:00:00.000Z",
+          "updatedAt": "2026-07-12T00:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,13 @@
 [
   {
+    "id": "audit-1783857637790",
+    "timestamp": "2026-07-12T12:00:37.790Z",
+    "type": "research_report",
+    "symbol": "RELIANCE.NS",
+    "confidence": 70,
+    "signal": "NEUTRAL"
+  },
+  {
     "id": "audit-1782655987583",
     "timestamp": "2026-06-28T14:13:07.583Z",
     "type": "research_report",

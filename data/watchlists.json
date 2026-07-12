@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-12T12:07:13.097Z",
+  "lists": [
+    {
+      "id": "default",
+      "name": "Primary Watchlist",
+      "symbols": [
+        "RELIANCE.NS",
+        "TCS.NS",
+        "HDFCBANK.NS",
+        "INFY.NS",
+        "ICICIBANK.NS",
+        "SBIN.NS",
+        "BHARTIARTL.NS",
+        "LT.NS"
+      ],
+      "createdAt": "2026-07-12T00:00:00.000Z",
+      "updatedAt": "2026-07-12T12:07:13.097Z"
+    }
+  ]
+}

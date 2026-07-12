@@ -6,6 +6,8 @@ import CopilotPanel from "./CopilotPanel";
 
 const NAV = [
   { href: "/nifty500", label: "Top 50 Stocks to Buy" },
+  { href: "/watchlist", label: "Watchlists" },
+  { href: "/portfolio", label: "Portfolio Analysis" },
   { href: "/fiidii", label: "FII & DII Intelligence" },
   { href: "/research", label: "AI Research Engine" },
   { href: "/nifty-strategy", label: "NIFTY Strategy Center" },

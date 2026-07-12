@@ -13,6 +13,7 @@
     "start": "next start -p 4000",
     "lint": "next lint",
     "test": "node --test tests/**/*.test.js",
+    "build:constituents": "node scripts/build-nifty500-constituents.js",
     "legacy:server": "node server.js"
   },
   "dependencies": {

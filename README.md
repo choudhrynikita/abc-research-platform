@@ -38,13 +38,23 @@ Writable JSON stores use `/tmp/abc-data` on Vercel (seeded from `data/` on cold 
 
 | Route | Module |
 |-------|--------|
-| `/nifty500` | NIFTY 500 Dashboard |
+| `/nifty500` | Top 50 Stocks (full NIFTY 500 universe screen) |
+| `/watchlist` | Watchlists (verified live quotes) |
+| `/portfolio` | Portfolio Analysis (verified P&L) |
 | `/fiidii` | FII & DII Intelligence |
 | `/research` | AI Research Mode |
 | `/nifty-strategy` | NIFTY Strategy Center |
 | `/fno` | Equity F&O Center |
 | `/ipo` | IPO Intelligence Center |
 | `/reports` | Downloadable Reports |
+
+### NIFTY 500 constituents
+
+Seed file: `data/nifty500-constituents.json` (official NSE NIFTY 500 list).
+
+```bash
+npm run build:constituents
+```
 
 ## AI Research Copilot
 
