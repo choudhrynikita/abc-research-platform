@@ -24,7 +24,8 @@ const { SYSTEM_PROMPT, ASSISTANT_PREAMBLE } = require("../lib/financial-intellig
 
 describe("financial-intelligence policy", () => {
   it("uses canonical unavailable messages", () => {
-    assert.equal(MESSAGES.UNAVAILABLE_CURRENT, "Verified data is currently unavailable.");
+    assert.equal(MESSAGES.UNAVAILABLE_CURRENT, "Live Data Currently Unavailable");
+    assert.equal(MESSAGES.UNAVAILABLE_GENERAL, "Data Unavailable");
     assert.match(assistantPolicyPreamble(), /hallucination/i);
   });
 

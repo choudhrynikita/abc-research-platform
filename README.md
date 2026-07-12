@@ -46,6 +46,20 @@ Writable JSON stores use `/tmp/abc-data` on Vercel (seeded from `data/` on cold 
 | `/ipo` | IPO Intelligence Center |
 | `/reports` | Downloadable Reports |
 
+## AI Research Copilot
+
+Public endpoint (no `API_SECRET` required):
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/copilot` | Verified-data Q&A |
+| `GET` | `/api/copilot/suggestions` | Suggested queries + engine status |
+| `GET` | `/api/copilot/status` | Readiness (no secrets) |
+
+**UI:** Top bar search (`Ctrl/Cmd+K`), sidebar panel, and full modal.
+
+**Data policy:** Answers are built from Yahoo Finance + NSE FII/DII + ABC technical models only. Optional `XAI_API_KEY` polishes prose; it never invents numbers. Missing metrics show **Data Unavailable**.
+
 ## Data Integrity
 
 The platform never hallucinates financial data. Unverified metrics display explicit unavailability messages with source and freshness metadata.

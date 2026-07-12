@@ -4,12 +4,11 @@ const PUBLIC_PATHS = new Set(["/api", "/api/health"]);
 
 /**
  * Write/mutation endpoints requiring Bearer API_SECRET in production.
- * /api/copilot is a public research Q&A endpoint (no platform mutation).
+ * Research Q&A (copilot, strategy-assistant) is public — no platform mutation.
  */
 const MUTATION_PREFIXES = [
   "/api/strategies",
   "/api/ipo-alerts/preferences",
-  "/api/strategy-assistant",
 ];
 
 const PROTECTED_READ_PATHS = new Set(["/api/audit"]);

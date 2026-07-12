@@ -14,7 +14,7 @@ const NAV = [
   { href: "/reports", label: "Report Archive" },
 ];
 
-export default function Sidebar({ open = false, onNavigate, onClose }) {
+export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopilot }) {
   const pathname = usePathname();
 
   return (
@@ -48,6 +48,9 @@ export default function Sidebar({ open = false, onNavigate, onClose }) {
           </Link>
         ))}
       </nav>
+      <button type="button" className="sidebar-open-copilot" onClick={onOpenCopilot}>
+        <span aria-hidden>✦</span> Expand AI Copilot
+      </button>
       <CopilotPanel compact />
     </aside>
   );

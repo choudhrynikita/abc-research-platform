@@ -22,13 +22,16 @@ const SHORT_TITLES = {
   "/reports": "Reports",
 };
 
-export default function TopBar({ pathname, onMenuToggle, sidebarOpen }) {
+export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopilot }) {
   const [theme, setTheme] = useState("dark");
+  const [modKey, setModKey] = useState("Ctrl");
 
   useEffect(() => {
     const saved = localStorage.getItem("abc-theme") || "dark";
     setTheme(saved);
     document.documentElement.dataset.theme = saved;
+    const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || "");
+    setModKey(isMac ? "⌘" : "Ctrl");
   }, []);
 
   function toggleTheme() {
@@ -56,7 +59,32 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen }) {
         <span className="topbar-title-full">{title}</span>
         <span className="topbar-title-short">{shortTitle}</span>
       </h1>
+
+      <button
+        type="button"
+        className="topbar-copilot-search"
+        onClick={onOpenCopilot}
+        aria-label="Open AI Research Copilot"
+      >
+        <span className="topbar-copilot-icon" aria-hidden>
+          ✦
+        </span>
+        <span className="topbar-copilot-placeholder">
+          Ask AI Copilot — stocks, NIFTY, FII/DII…
+        </span>
+        <kbd className="topbar-copilot-kbd">{modKey}+K</kbd>
+      </button>
+
       <div className="topbar-actions">
+        <button
+          type="button"
+          className="btn btn-primary btn-sm topbar-copilot-btn"
+          onClick={onOpenCopilot}
+          aria-label="Open AI Research Copilot"
+        >
+          <span className="theme-label-full">AI Copilot</span>
+          <span className="theme-label-short">AI</span>
+        </button>
         <button className="btn btn-ghost btn-sm" type="button" onClick={toggleTheme}>
           <span className="theme-label-full">{theme === "dark" ? "Light" : "Dark"}</span>
           <span className="theme-label-short">{theme === "dark" ? "☀" : "☾"}</span>

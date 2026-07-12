@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 const FALLBACK_SUGGESTIONS = [
   "Analyze RELIANCE fundamentals and technicals",
@@ -93,10 +93,10 @@ function friendlyError(json, status) {
   if (!json && !status) return "AI service is temporarily unavailable. Please try again later.";
   const msg = json?.message || json?.error || "";
   if (/not configured|API_SECRET|authentication not configured/i.test(msg)) {
-    return "The AI service configuration was incomplete on the server. This has been fixed for research queries — please retry. If the issue persists, contact the administrator.";
+    return "The AI service configuration is incomplete. Verify the required environment variables and restart the application.";
   }
   if (status === 401 || status === 403) {
-    return "You are not authorized for this action. Research Copilot should be available without a token — please refresh and try again.";
+    return "You are not authorized for this action. Research Copilot is available without a token — please refresh and try again.";
   }
   if (status === 503 || status >= 500) {
     return "Live financial data could not be retrieved at this time. Please try again later.";
@@ -104,19 +104,87 @@ function friendlyError(json, status) {
   if (status === 400) {
     return msg || "Please enter a valid research question.";
   }
+  if (status === 429) {
+    return "Too many requests. Please wait a moment and try again.";
+  }
   return msg || "AI service is temporarily unavailable. Please try again later.";
 }
 
 /**
- * Institutional AI Copilot search panel (sidebar + expandable).
+ * Institutional AI Research Copilot.
+ * @param {"sidebar"|"modal"} variant
+ * @param {boolean} open - for modal: whether visible
+ * @param {() => void} onClose - for modal close
+ * @param {string} initialQuery - optional prefilled query when opened
  */
-export default function CopilotPanel({ compact = false }) {
-  const [query, setQuery] = useState("");
+export default function CopilotPanel({
+  compact = false,
+  variant = "sidebar",
+  open = true,
+  onClose,
+  initialQuery = "",
+}) {
+  const isModal = variant === "modal";
+  const [query, setQuery] = useState(initialQuery);
   const [answer, setAnswer] = useState(null);
   const [meta, setMeta] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [expanded, setExpanded] = useState(!compact);
+  const [expanded, setExpanded] = useState(!compact || isModal);
+  const [suggestions, setSuggestions] = useState(FALLBACK_SUGGESTIONS);
+  const [engineReady, setEngineReady] = useState(true);
+  const inputRef = useRef(null);
+  const dialogRef = useRef(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (initialQuery) setQuery(initialQuery);
+  }, [initialQuery]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/copilot/suggestions");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (cancelled) return;
+        if (Array.isArray(json.suggestions) && json.suggestions.length) {
+          setSuggestions(json.suggestions);
+        }
+        if (typeof json.available === "boolean") setEngineReady(json.available);
+      } catch {
+        /* keep fallbacks */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isModal && open) {
+      const t = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [isModal, open]);
+
+  useEffect(() => {
+    if (!isModal || !open) return undefined;
+    function onKey(e) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose?.();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [isModal, open, onClose]);
 
   const ask = useCallback(
     async (override) => {
@@ -130,23 +198,33 @@ export default function CopilotPanel({ compact = false }) {
       setError(null);
       setAnswer(null);
       setMeta(null);
+      setExpanded(true);
 
       let lastErr = null;
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 55_000);
           const res = await fetch("/api/copilot", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ query: q }),
+            signal: controller.signal,
           });
-          const json = await res.json();
+          clearTimeout(timer);
+          let json = null;
+          try {
+            json = await res.json();
+          } catch {
+            json = null;
+          }
           if (!res.ok) {
             throw Object.assign(new Error(friendlyError(json, res.status)), {
               status: res.status,
               payload: json,
             });
           }
-          const text = json.answer || json.message;
+          const text = json?.answer || json?.message;
           if (!text) {
             throw new Error("Live financial data could not be retrieved at this time.");
           }
@@ -161,12 +239,18 @@ export default function CopilotPanel({ compact = false }) {
             suggestions: json.suggestions,
             symbol: json.symbol,
             companyName: json.companyName,
+            cached: json.cached,
           });
-          setExpanded(true);
+          if (Array.isArray(json.suggestions) && json.suggestions.length) {
+            setSuggestions(json.suggestions);
+          }
           setLoading(false);
           return;
         } catch (e) {
           lastErr = e;
+          if (e?.name === "AbortError") {
+            lastErr = new Error("Request timed out. Please try a shorter query or retry shortly.");
+          }
           if (attempt === 0) await new Promise((r) => setTimeout(r, 600));
         }
       }
@@ -176,30 +260,70 @@ export default function CopilotPanel({ compact = false }) {
     [query]
   );
 
-  const suggestions = meta?.suggestions?.length ? meta.suggestions : FALLBACK_SUGGESTIONS;
+  const chips = meta?.suggestions?.length ? meta.suggestions : suggestions;
 
-  return (
-    <div className={`copilot-panel${expanded ? " expanded" : ""}${compact ? " compact" : ""}`}>
+  if (isModal && !open) return null;
+
+  const panel = (
+    <div
+      className={`copilot-panel${expanded || isModal ? " expanded" : ""}${compact && !isModal ? " compact" : ""}${isModal ? " modal-variant" : ""}`}
+      ref={dialogRef}
+      role={isModal ? "dialog" : undefined}
+      aria-modal={isModal ? true : undefined}
+      aria-labelledby={isModal ? titleId : undefined}
+    >
       <div className="copilot-panel-head">
         <div>
-          <h4>AI Research Copilot</h4>
-          <p className="copilot-sub">Verified market data only · never fabricates numbers</p>
+          <h4 id={titleId}>
+            <span className="copilot-badge" aria-hidden>
+              AI
+            </span>{" "}
+            Research Copilot
+          </h4>
+          <p className="copilot-sub">
+            Verified market data only · never fabricates numbers
+            {engineReady ? (
+              <span className="copilot-status-dot ready" title="Engine ready" />
+            ) : (
+              <span className="copilot-status-dot" title="Checking status" />
+            )}
+          </p>
         </div>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm copilot-expand-btn"
-          onClick={() => setExpanded((v) => !v)}
-          aria-expanded={expanded}
-        >
-          {expanded ? "▾" : "▸"}
-        </button>
+        <div className="copilot-head-actions">
+          {!isModal && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm copilot-expand-btn"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              aria-label={expanded ? "Collapse copilot" : "Expand copilot"}
+            >
+              {expanded ? "▾" : "▸"}
+            </button>
+          )}
+          {isModal && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={onClose}
+              aria-label="Close AI Copilot"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="copilot-search-row">
+        <label className="visually-hidden" htmlFor={isModal ? "copilot-modal-input" : "copilot-sidebar-input"}>
+          Research question
+        </label>
         <input
+          id={isModal ? "copilot-modal-input" : "copilot-sidebar-input"}
+          ref={inputRef}
           type="search"
           className="copilot-input"
-          placeholder="Ask: Analyze TCS, NIFTY outlook, FII/DII…"
+          placeholder="Ask: Analyze TCS, NIFTY outlook, FII/DII, What is RSI…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -210,6 +334,8 @@ export default function CopilotPanel({ compact = false }) {
           }}
           aria-label="AI Copilot question"
           disabled={loading}
+          autoComplete="off"
+          spellCheck={false}
         />
         <button
           type="button"
@@ -221,9 +347,9 @@ export default function CopilotPanel({ compact = false }) {
         </button>
       </div>
 
-      {expanded && (
+      {(expanded || isModal) && (
         <div className="copilot-suggestions" aria-label="Suggested queries">
-          {suggestions.slice(0, 4).map((s) => (
+          {chips.slice(0, isModal ? 8 : 4).map((s) => (
             <button
               key={s}
               type="button"
@@ -240,7 +366,7 @@ export default function CopilotPanel({ compact = false }) {
       {loading && (
         <div className="copilot-loading" role="status" aria-live="polite">
           <div className="terminal-spinner sm" />
-          <p>Fetching verified data &amp; building answer…</p>
+          <p>Fetching verified data and building answer…</p>
           <div className="copilot-skeleton" aria-hidden>
             <span />
             <span />
@@ -263,31 +389,46 @@ export default function CopilotPanel({ compact = false }) {
           <div className="copilot-answer-body">{renderAnswer(answer)}</div>
           {meta && (
             <footer className="copilot-meta">
-              {meta.confidence != null && (
-                <span>Confidence {meta.confidence}%</span>
-              )}
-              {meta.dataType && <span>{meta.dataType}</span>}
+              {meta.confidence != null && <span>Confidence {meta.confidence}%</span>}
+              {meta.dataType && <span className="copilot-dtype">{String(meta.dataType).replace(/_/g, " ")}</span>}
               {meta.llm?.used && <span>xAI polish</span>}
-              {meta.fetchedAt && (
-                <span>{new Date(meta.fetchedAt).toLocaleString()}</span>
-              )}
+              {meta.cached && <span>Cached</span>}
+              {meta.fetchedAt && <span>{new Date(meta.fetchedAt).toLocaleString()}</span>}
               {meta.symbol && <span>{meta.symbol}</span>}
             </footer>
           )}
           {meta?.sources?.length > 0 && (
-            <p className="copilot-sources">
-              Sources: {meta.sources.join(" · ")}
-            </p>
+            <p className="copilot-sources">Sources: {meta.sources.join(" · ")}</p>
           )}
         </div>
       )}
 
-      {!answer && !loading && !error && expanded && (
+      {!answer && !loading && !error && (expanded || isModal) && (
         <p className="copilot-empty">
-          Ask about a stock, NIFTY outlook, FII/DII flows, sectors, or financial definitions.
-          Missing data shows as Data Unavailable — never invented.
+          Ask about a stock, NIFTY outlook, FII/DII flows, sectors, valuations, or financial definitions.
+          Missing data shows as <strong>Data Unavailable</strong> — never invented.
+          {isModal && (
+            <>
+              {" "}
+              <kbd className="copilot-kbd">Esc</kbd> to close · <kbd className="copilot-kbd">Enter</kbd> to ask.
+            </>
+          )}
         </p>
       )}
+    </div>
+  );
+
+  if (!isModal) return panel;
+
+  return (
+    <div className="copilot-modal-root" role="presentation">
+      <button
+        type="button"
+        className="copilot-modal-backdrop"
+        aria-label="Close AI Copilot"
+        onClick={onClose}
+      />
+      <div className="copilot-modal-shell">{panel}</div>
     </div>
   );
 }

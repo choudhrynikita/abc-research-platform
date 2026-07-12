@@ -4,6 +4,7 @@ const {
   classifyIntent,
   extractSymbols,
   answerCopilotQuery,
+  getCopilotStatus,
   SUGGESTED_QUERIES,
 } = require("../lib/copilot-engine");
 const { requiresMutationAuth } = require("../lib/api-auth");
@@ -13,8 +14,22 @@ describe("copilot auth posture", () => {
     assert.equal(requiresMutationAuth("POST", "/api/copilot"), false);
   });
 
+  it("does not require mutation auth for strategy-assistant Q&A", () => {
+    assert.equal(requiresMutationAuth("POST", "/api/strategy-assistant"), false);
+  });
+
   it("still protects strategy writes", () => {
     assert.equal(requiresMutationAuth("POST", "/api/strategies"), true);
+  });
+});
+
+describe("copilot status", () => {
+  it("reports public engine readiness without secrets", () => {
+    const status = getCopilotStatus();
+    assert.equal(status.available, true);
+    assert.equal(status.public, true);
+    assert.equal(status.llmOptional, true);
+    assert.ok(status.engine.includes("copilot"));
   });
 });
 
@@ -26,6 +41,7 @@ describe("copilot intent + symbol extraction", () => {
     assert.equal(classifyIntent("banking sector performance"), "sector");
     assert.equal(classifyIntent("Compare TCS with peers"), "competitors");
     assert.equal(classifyIntent("Analyze RELIANCE valuation"), "valuation");
+    assert.equal(classifyIntent("What is free cash flow?"), "definition_fundamental");
   });
 
   it("extracts tickers and aliases without inventing peers", () => {
@@ -59,5 +75,29 @@ describe("copilot help path", () => {
     assert.equal(res.ok, true);
     assert.match(res.body.answer, /RSI|Relative Strength/i);
     assert.ok(!/\bRSI at \d+\.\d+\b/.test(res.body.answer) || res.body.answer.includes("Educational"));
+  });
+
+  it("answers PEG definition without treating PEG as a ticker", async () => {
+    assert.equal(classifyIntent("What is PEG?"), "definition_fundamental");
+    assert.equal(extractSymbols("What is PEG?").length, 0);
+    const res = await answerCopilotQuery("What is PEG?");
+    assert.equal(res.ok, true);
+    assert.match(res.body.answer, /PEG/i);
+    assert.ok(!res.body.symbol || res.body.symbol === null);
+  });
+
+  it("does not invent a default stock for ambiguous queries", async () => {
+    const res = await answerCopilotQuery("tell me something interesting");
+    assert.equal(res.ok, true);
+    assert.equal(res.body.intent, "help");
+    assert.ok(!res.body.symbol);
+  });
+
+  it("caches repeated educational answers", async () => {
+    const a = await answerCopilotQuery("What is MACD?");
+    const b = await answerCopilotQuery("What is MACD?");
+    assert.equal(a.ok, true);
+    assert.equal(b.ok, true);
+    assert.equal(b.body.cached, true);
   });
 });

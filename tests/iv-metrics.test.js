@@ -70,7 +70,7 @@ describe("IV Rank", () => {
     const history = buildHistory([12, 14, 16, 18, 20]);
     const rank = computeIvRank(18, history, 252);
     assert.equal(rank.available, false);
-    assert.match(rank.display, /Verified data unavailable/);
+    assert.match(rank.display, /Data Unavailable|Verified data unavailable/i);
     assert.ok(rank.reason.includes(String(MIN_HISTORY_POINTS)));
   });
 

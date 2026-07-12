@@ -80,6 +80,9 @@ function testAuthModule() {
   const copilotPublic = !requiresMutationAuth("POST", "/api/copilot");
   console.log(`${copilotPublic ? "PASS" : "FAIL"} copilot is public (no mutation auth)`);
   ok = copilotPublic && ok;
+  const strategyAssistantPublic = !requiresMutationAuth("POST", "/api/strategy-assistant");
+  console.log(`${strategyAssistantPublic ? "PASS" : "FAIL"} strategy-assistant is public (no mutation auth)`);
+  ok = strategyAssistantPublic && ok;
 
   process.env.API_SECRET = prevSecret;
   process.env.NODE_ENV = prevNode;

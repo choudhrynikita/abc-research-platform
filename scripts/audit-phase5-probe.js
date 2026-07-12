@@ -104,12 +104,22 @@ async function main() {
     ["PATCH", "/api/strategies/abc"],
     ["DELETE", "/api/strategies/abc"],
     ["POST", "/api/ipo-alerts/preferences"],
-    ["POST", "/api/copilot"],
   ];
   for (const [method, path] of protectedWrites) {
     const needs = requiresMutationAuth(method, path);
     console.log(`${needs ? "PASS" : "FAIL"} requiresMutationAuth ${method} ${path}`);
     ok = needs && ok;
+  }
+
+  const publicResearch = [
+    ["POST", "/api/copilot"],
+    ["POST", "/api/strategy-assistant"],
+    ["GET", "/api/copilot/suggestions"],
+  ];
+  for (const [method, path] of publicResearch) {
+    const needs = requiresMutationAuth(method, path);
+    console.log(`${!needs ? "PASS" : "FAIL"} public research ${method} ${path}`);
+    ok = !needs && ok;
   }
 
   const readOnly = [
