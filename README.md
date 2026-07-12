@@ -39,10 +39,8 @@ Writable JSON stores use `/tmp/abc-data` on Vercel (seeded from `data/` on cold 
 | Route | Module |
 |-------|--------|
 | `/nifty500` | Top 50 Stocks (full NIFTY 500 universe screen) |
-| `/watchlist` | Watchlists (verified live quotes) |
-| `/portfolio` | Portfolio Analysis (verified P&L) |
 | `/fiidii` | FII & DII Intelligence |
-| `/research` | AI Research Mode |
+| `/research` | AI Research Engine |
 | `/nifty-strategy` | NIFTY Strategy Center |
 | `/fno` | Equity F&O Center |
 | `/ipo` | IPO Intelligence Center |
@@ -56,7 +54,7 @@ Seed file: `data/nifty500-constituents.json` (official NSE NIFTY 500 list).
 npm run build:constituents
 ```
 
-Top 50 uses multi-phase screening with memory + persistent cache (`?refresh=true` forces rebuild). Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` on Vercel for durable portfolio/watchlist/top50 cache.
+Top 50 uses multi-phase screening with memory + persistent cache (`?refresh=true` forces rebuild). Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` on Vercel for durable Top 50 cache and other JSON stores.
 
 On Vercel, **fast mode** screens ~120 liquid names by default (Hobby-friendly). Set `ABC_TOP50_FULL=1` for the full NIFTY 500 screen (recommended with Pro `maxDuration` + warm cache).
 
@@ -69,13 +67,6 @@ On Vercel, **fast mode** screens ~120 liquid names by default (Hobby-friendly). 
 Strategies attach either:
 1. **Synthetic multi-leg** (Black–Scholes premiums from verified HV/IV + underlying path) — clearly labeled *not* exchange premium history, or
 2. **Underlying directional proxy** when legs are incomplete.
-
-### Portfolio CSV & broker
-
-- Export: `GET /api/portfolios/export`
-- Import: `POST /api/portfolios/:id/import` with `{ "csv": "symbol,quantity,avgCost\\n..." }`
-- Optional Kite: `BROKER_PROVIDER=kite`, `KITE_API_KEY`, `KITE_ACCESS_TOKEN` → `POST /api/broker/sync-holdings`
-- Without keys, CSV only — positions are never invented.
 
 ## AI Research Copilot
 

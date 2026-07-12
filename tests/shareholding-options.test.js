@@ -3,7 +3,6 @@ const assert = require("node:assert/strict");
 
 const { parseShpXbrl } = require("../lib/shareholding");
 const { backtestSyntheticMultiLeg, bsPremium } = require("../lib/options-synthetic-backtest");
-const { getBrokerConfig } = require("../lib/broker-adapter");
 const { mergeShareholding } = require("../lib/fundamentals");
 
 describe("parseShpXbrl", () => {
@@ -73,14 +72,6 @@ describe("synthetic multi-leg backtest", () => {
     } else {
       assert.ok(bt.reason);
     }
-  });
-});
-
-describe("broker adapter", () => {
-  it("reports not configured without secrets", () => {
-    const cfg = getBrokerConfig();
-    assert.equal(cfg.liveSyncAvailable, false);
-    assert.ok(cfg.instructions.length >= 3);
   });
 });
 

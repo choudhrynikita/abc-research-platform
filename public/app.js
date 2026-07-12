@@ -175,7 +175,7 @@ function renderSummary(data) {
 
 function renderTable(data) {
   if (data.length === 0) {
-    els.body.innerHTML = `<tr class="loading-row"><td colspan="12">No symbols in watchlist. Add one above.</td></tr>`;
+    els.body.innerHTML = `<tr class="loading-row"><td colspan="12">No symbols tracked. Add one above.</td></tr>`;
     return;
   }
 

@@ -1125,13 +1125,34 @@ body.sidebar-open {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 14px;
   flex: 1;
+  min-height: 0;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-group-label {
+  margin: 0 0 2px;
+  padding: 0 12px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  opacity: 0.85;
 }
 
 a.nav-item {
   text-decoration: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   width: 100%;
   text-align: left;
   font: inherit;
@@ -1139,7 +1160,7 @@ a.nav-item {
 
 .nav-item {
   text-align: left;
-  padding: 12px 14px;
+  padding: 10px 14px;
   min-height: 44px;
   border: none;
   border-radius: 10px;
@@ -1147,6 +1168,20 @@ a.nav-item {
   color: var(--text-muted);
   font: inherit;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-item-label {
+  font-size: 0.92rem;
+  font-weight: 550;
+  line-height: 1.25;
+}
+
+.nav-item-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  opacity: 0.9;
+  line-height: 1.2;
 }
 
 .nav-item:hover {
@@ -1154,9 +1189,23 @@ a.nav-item {
   color: var(--text);
 }
 
+.nav-item:hover .nav-item-hint {
+  color: var(--text-muted);
+}
+
 .nav-item.active {
   background: var(--accent-soft);
   color: var(--text);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.nav-item.active .nav-item-hint {
+  color: var(--text-muted);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .main {
@@ -7225,159 +7274,7 @@ th {
   }
 }
 
-/* Watchlist & Portfolio */
-.watchlist-terminal,
-.portfolio-terminal {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.wl-breadth,
-.pf-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  padding: 14px 16px;
-}
-
-.wl-breadth small,
-.pf-summary small {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-.wl-breadth strong,
-.pf-summary strong {
-  font-size: 1.05rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.wl-add-form,
-.pf-add-form {
-  padding: 14px 16px;
-}
-
-.wl-add-form label,
-.pf-add-form label {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.wl-add-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.wl-add-row input,
-.pf-form-grid input {
-  flex: 1;
-  min-width: 160px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
-  color: var(--text);
-  font-family: inherit;
-}
-
-.pf-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  align-items: end;
-}
-
-.pf-form-grid label {
-  margin: 0;
-}
-
-.pf-form-grid label input {
-  width: 100%;
-  margin-top: 4px;
-}
-
-.wl-table-wrap {
-  padding: 0;
-  overflow-x: auto;
-}
-
-.wl-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.wl-table th,
-.wl-table td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-
-.wl-table th {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.wl-table .up { color: var(--green); }
-.wl-table .down { color: var(--red); }
-
-.wl-table a {
-  color: var(--accent, #6cb6ff);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.wl-table a:hover {
-  text-decoration: underline;
-}
-
-.wl-meta,
-.pf-policy {
-  padding: 10px 14px 14px;
-  margin: 0;
-}
-
-.pf-sub {
-  font-size: 0.72rem;
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-.pf-na-hint {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.pf-sectors {
-  padding: 14px 16px;
-}
-
-.pf-sector-list {
-  list-style: none;
-  margin: 10px 0 0;
-  padding: 0;
-}
-
-.pf-sector-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.86rem;
-}
-
+/* Shared UI utilities */
 .btn-ghost {
   background: transparent;
   border: 1px solid var(--border);
@@ -7399,22 +7296,6 @@ th {
   padding: 12px 16px;
   border-color: var(--red);
   color: var(--red);
-}
-
-.pf-import {
-  padding: 14px 16px;
-}
-
-.pf-import input[type="file"] {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.pf-broker-sync {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
 }
 
 a.btn {

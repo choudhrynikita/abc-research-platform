@@ -292,7 +292,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
                 title="Max profit / capital when both finite"
               />
               <Metric
-                label="Portfolio Exposure"
+                label="Strategy Exposure"
                 value={
                   ps.portfolioExposure != null
                     ? fmtRs(ps.portfolioExposure)
