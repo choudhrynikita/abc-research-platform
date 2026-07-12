@@ -56,6 +56,14 @@ Seed file: `data/nifty500-constituents.json` (official NSE NIFTY 500 list).
 npm run build:constituents
 ```
 
+Top 50 uses multi-phase screening with memory + persistent cache (`?refresh=true` forces rebuild). Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` on Vercel for durable portfolio/watchlist/top50 cache.
+
+### Portfolio CSV
+
+- Export: `GET /api/portfolios/export`
+- Import: `POST /api/portfolios/:id/import` with `{ "csv": "symbol,quantity,avgCost\\n..." }`
+- Live broker APIs are **not** linked; import cost basis from broker exports only.
+
 ## AI Research Copilot
 
 Public endpoint (no `API_SECRET` required):

@@ -98,10 +98,23 @@ export default function WatchlistTerminal() {
             Live quotes from Yahoo Finance only. Missing prices show Data Unavailable — never estimated.
           </p>
         </div>
-        <button type="button" className="btn btn-secondary" onClick={() => load(listId)} disabled={loading}>
-          Refresh
-        </button>
+        <div className="terminal-hero-actions">
+          <a className="btn btn-secondary btn-sm" href={`/api/watchlists/export?id=${encodeURIComponent(listId)}`}>
+            Export CSV
+          </a>
+          <button type="button" className="btn btn-secondary" onClick={() => load(listId)} disabled={loading}>
+            Refresh
+          </button>
+        </div>
       </header>
+      {data?.persistence && (
+        <p className="panel-sub glass-card" style={{ padding: "10px 14px", margin: 0 }}>
+          Storage mode: <strong>{data.persistence.storageMode}</strong>
+          {data.persistence.brokerLink && (
+            <> · {data.persistence.brokerLink.reason}</>
+          )}
+        </p>
+      )}
 
       {data?.breadth && (
         <div className="wl-breadth glass-card">

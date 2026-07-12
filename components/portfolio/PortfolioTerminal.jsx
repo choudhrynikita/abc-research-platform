@@ -102,12 +102,30 @@ export default function PortfolioTerminal() {
           <h1>{data?.portfolio?.name || "Core Equity Portfolio"}</h1>
           <p className="panel-sub">
             P&amp;L = verified live price × quantity − user cost basis. Missing prices are never
-            estimated.
+            estimated. Broker CSV import supported — live broker APIs require separate keys.
           </p>
+          {data?.persistence && (
+            <p className="panel-sub">
+              Storage: <strong>{data.persistence.storageMode}</strong>
+              {data.persistence.storageMode === "vercel-tmp" &&
+                " — set Vercel KV for permanent multi-instance storage"}
+            </p>
+          )}
         </div>
-        <button type="button" className="btn btn-secondary" onClick={() => load(portfolioId)} disabled={loading}>
-          Refresh
-        </button>
+        <div className="terminal-hero-actions">
+          <a className="btn btn-secondary btn-sm" href={`/api/portfolios/export?id=${encodeURIComponent(portfolioId)}`}>
+            Export CSV
+          </a>
+          <a
+            className="btn btn-secondary btn-sm"
+            href={`/api/portfolios/export-analysis?id=${encodeURIComponent(portfolioId)}`}
+          >
+            Export analysis
+          </a>
+          <button type="button" className="btn btn-secondary" onClick={() => load(portfolioId)} disabled={loading}>
+            Refresh
+          </button>
+        </div>
       </header>
 
       {summary && (
@@ -197,6 +215,44 @@ export default function PortfolioTerminal() {
           </button>
         </div>
       </form>
+
+      <div className="pf-import glass-card">
+        <h3>Import broker CSV</h3>
+        <p className="panel-sub">
+          Headers: symbol, quantity (qty), avgCost (avg price). Imports cost basis only — not a live
+          broker connection. Live P&amp;L still uses Yahoo verified prices.
+        </p>
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          disabled={busy}
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            setBusy(true);
+            setError(null);
+            try {
+              const text = await file.text();
+              const res = await fetch(
+                `/api/portfolios/${encodeURIComponent(portfolioId)}/import`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ csv: text, replace: false }),
+                }
+              );
+              const json = await res.json();
+              if (!res.ok) throw new Error(json.error || "Import failed");
+              await load(portfolioId);
+            } catch (err) {
+              setError(err.message);
+            } finally {
+              setBusy(false);
+              e.target.value = "";
+            }
+          }}
+        />
+      </div>
 
       {error && (
         <div className="glass-card error-banner" role="alert">

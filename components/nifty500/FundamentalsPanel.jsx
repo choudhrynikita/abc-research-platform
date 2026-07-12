@@ -37,7 +37,7 @@ const GROUPS = [
     metrics: [
       { key: "roe", label: "ROE", type: "ratio", decimals: 1, definition: "Return on equity" },
       { key: "roa", label: "ROA", type: "ratio", decimals: 1, definition: "Return on assets" },
-      { key: "roce", label: "ROCE", type: "ratio", decimals: 1, definition: "Not provided by Yahoo — never estimated" },
+      { key: "roce", label: "ROCE", type: "ratio", decimals: 1, definition: "EBIT ÷ Capital Employed when Yahoo statements provide both — never invented" },
       { key: "grossMargin", label: "Gross Margin", type: "ratio", decimals: 1, definition: "Gross profit margin" },
       { key: "operatingMargin", label: "Operating Margin", type: "ratio", decimals: 1, definition: "Operating profit margin" },
       { key: "netMargin", label: "Net Profit Margin", type: "ratio", decimals: 1, definition: "Net profit margin" },
@@ -75,12 +75,10 @@ const GROUPS = [
 
 /** Fields we intentionally call out (no reliable source). */
 const UNSUPPORTED = [
-  { key: "roce", label: "ROCE", reason: "ROCE is not provided by the Yahoo Finance feed and is never estimated." },
   { key: "deliveryPercent", label: "Delivery %", reason: "Requires NSE exchange delivery feed." },
-  { key: "institutionalHolding", label: "Institutional Holding", reason: "Requires NSE/BSE shareholding feed." },
-  { key: "promoterHolding", label: "Promoter Holding", reason: "Requires NSE/BSE shareholding feed." },
-  { key: "fiiHolding", label: "FII Holdings", reason: "Requires NSE/BSE shareholding feed." },
-  { key: "diiHolding", label: "DII Holdings", reason: "Requires NSE/BSE shareholding feed." },
+  { key: "promoterHolding", label: "Promoter Holding", reason: "Requires NSE/BSE shareholding feed (Yahoo does not provide NSE promoter categories)." },
+  { key: "fiiHolding", label: "FII Holdings", reason: "Requires NSE/BSE shareholding feed — never estimated." },
+  { key: "diiHolding", label: "DII Holdings", reason: "Requires NSE/BSE shareholding feed — never estimated." },
   { key: "intrinsicValue", label: "Intrinsic Value", reason: "Requires documented DCF with verified inputs — never estimated." },
   { key: "faceValue", label: "Face Value", reason: "Requires exchange master / ISIN feed." },
 ];

@@ -2,7 +2,7 @@
   "framework": "nextjs",
   "functions": {
     "app/api/[[...slug]]/route.js": {
-      "maxDuration": 60
+      "maxDuration": 300
     }
   }
 }

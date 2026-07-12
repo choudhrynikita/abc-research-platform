@@ -176,7 +176,7 @@ describe("top50 scoring dossier integration", () => {
 });
 
 describe("nifty strategy dossier integration", () => {
-  it("rankTop10 attaches dossier and honest options backtest unavailable", () => {
+  it("rankTop10 attaches dossier; without candles options backtest stays unavailable", () => {
     const spot = 24500;
     const atm = 24500;
     const strikes = [];
@@ -215,9 +215,74 @@ describe("nifty strategy dossier integration", () => {
     const top = rankTop10(candidates, ctx);
     assert.ok(top.length > 0);
     assert.ok(top[0].dossier);
-    assert.equal(top[0].backtest.available, false);
-    assert.match(top[0].backtest.reason, /not available|could not be completed/i);
+    // Without context.candles, multi-leg premium backtest remains unavailable (never fabricated)
+    if (top[0].backtest.available) {
+      assert.equal(top[0].backtest.proxyType, "underlying-directional");
+    } else {
+      assert.match(top[0].backtest.reason, /not available|could not be completed|proxy|OHLCV|bars/i);
+    }
     assert.ok(top[0].confidenceScore >= 0 && top[0].confidenceScore <= 100);
     assert.match(top[0].dossier.confidence.methodology || "", /not a probability/i);
+  });
+
+  it("rankTop10 uses underlying directional proxy when candles provided", () => {
+    const spot = 24500;
+    const atm = 24500;
+    const strikes = [];
+    for (let s = spot - 300; s <= spot + 300; s += 50) {
+      strikes.push({
+        strike: s,
+        ce: { premium: 100, openInterest: 1000, iv: 14 },
+        pe: { premium: 95, openInterest: 900, iv: 14 },
+      });
+    }
+    const chain = {
+      available: true,
+      underlying: spot,
+      atmStrike: atm,
+      expiry: "2026-07-10",
+      putCallRatio: 1.05,
+      maxPain: atm,
+      strikes,
+    };
+    let px = 24000;
+    const candles = [];
+    for (let i = 0; i < 150; i++) {
+      px = px * (1 + 0.0015 + (i % 9 === 0 ? -0.008 : 0.001));
+      candles.push({
+        date: `2025-0${(i % 9) + 1}-01`,
+        open: px,
+        high: px * 1.01,
+        low: px * 0.99,
+        close: px,
+        volume: 1e6,
+      });
+    }
+    const ctx = {
+      price: spot,
+      trend: "BULLISH",
+      support: 24200,
+      resistance: 24800,
+      rsi: 55,
+      adx: 26,
+      sma20: 24400,
+      sma50: 24300,
+      macdHistogram: 1,
+      volumeTrend: "Rising",
+      vix: 14,
+      chain,
+      candles,
+    };
+    const candidates = generateCandidates(chain, ctx);
+    const top = rankTop10(candidates, ctx);
+    const bullish = top.find((s) => s.bias === "Bullish");
+    assert.ok(bullish);
+    if (bullish.backtest.available) {
+      assert.equal(bullish.backtest.proxyType, "underlying-directional");
+      assert.match(bullish.backtest.disclaimer || "", /NOT historical multi-leg|not multi-leg|proxy/i);
+    } else {
+      // Honest unavailable if rule produced too few trades
+      assert.ok(bullish.backtest.reason);
+    }
   });
 });

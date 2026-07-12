@@ -13,8 +13,12 @@ const {
   removeWatchlistSymbol,
   upsertHolding,
   removeHolding,
+  exportPortfolioCsv,
+  importPortfolioCsv,
+  getPersistenceInfo,
 } = require("../lib/portfolio-engine");
 const { mapPool } = require("../lib/async-pool");
+const { backtestDirectionalProxy } = require("../lib/strategy-dossier");
 
 describe("normalizeSymbol", () => {
   it("appends .NS for bare NSE tickers", () => {
@@ -87,6 +91,49 @@ describe("constituents universe", () => {
     assert.ok(data.length >= 450, `expected >=450 constituents, got ${data.length}`);
     assert.ok(data.every((r) => r.symbol && r.name && r.sector));
     assert.ok(data.some((r) => r.symbol === "RELIANCE.NS"));
+  });
+});
+
+describe("portfolio CSV", () => {
+  it("exports and re-imports cost basis without inventing prices", async () => {
+    const exp = await exportPortfolioCsv("default");
+    assert.equal(exp.ok, true);
+    assert.match(exp.csv, /symbol,quantity,avgCost/);
+    const imp = await importPortfolioCsv(
+      "default",
+      "symbol,quantity,avgCost\nWIPRO.NS,3,400\n",
+      { replace: false }
+    );
+    assert.equal(imp.ok, true);
+    assert.ok(imp.imported >= 1);
+    await removeHolding("default", "WIPRO.NS");
+  });
+
+  it("reports persistence mode and no broker link", () => {
+    const info = getPersistenceInfo();
+    assert.ok(info.storageMode);
+    assert.equal(info.brokerLink.available, false);
+  });
+});
+
+describe("options directional proxy backtest", () => {
+  it("labels proxy and refuses short history", () => {
+    const short = backtestDirectionalProxy(
+      Array.from({ length: 20 }, (_, i) => ({
+        close: 100 + i,
+        high: 101 + i,
+        low: 99 + i,
+        date: `2025-01-${String(i + 1).padStart(2, "0")}`,
+      })),
+      "Bullish"
+    );
+    assert.equal(short.available, false);
+    assert.match(short.reason || short.disclaimer || "", /proxy|bars|Awaiting/i);
+  });
+
+  it("neutral bias stays unavailable", () => {
+    const n = backtestDirectionalProxy([], "Neutral");
+    assert.equal(n.available, false);
   });
 });
 

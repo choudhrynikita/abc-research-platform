@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+/** Allow full-universe Top 50 screen on Vercel Pro (Hobby caps at 60s; cache mitigates cold starts). */
+export const maxDuration = 300;
 
 const { handleApi } = require("../../../lib/api-handlers");
 
