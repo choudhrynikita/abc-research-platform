@@ -7411,6 +7411,12 @@ th {
   color: var(--text-muted);
 }
 
+.pf-broker-sync {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
 a.btn {
   display: inline-flex;
   align-items: center;

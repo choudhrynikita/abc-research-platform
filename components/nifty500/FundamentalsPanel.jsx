@@ -55,6 +55,19 @@ const GROUPS = [
     ],
   },
   {
+    id: "ownership",
+    title: "Shareholding (NSE filings)",
+    description: "Promoter / FII / DII / public from NSE SHP when available — never estimated",
+    metrics: [
+      { key: "promoterHolding", label: "Promoter %", type: "ratio", decimals: 1, definition: "Promoter & promoter group from NSE SHP" },
+      { key: "fiiChange", label: "FII / FPI %", type: "ratio", decimals: 1, definition: "Foreign institutions from NSE SHP XBRL" },
+      { key: "diiChange", label: "DII %", type: "ratio", decimals: 1, definition: "Domestic institutions from NSE SHP XBRL" },
+      { key: "mutualFundHolding", label: "Mutual Funds %", type: "ratio", decimals: 1, definition: "Mutual funds / UTI from NSE SHP or Yahoo" },
+      { key: "institutionalHolding", label: "Institutional %", type: "ratio", decimals: 1, definition: "Domestic + foreign institutions when disclosed" },
+      { key: "publicHolding", label: "Public %", type: "ratio", decimals: 1, definition: "Public shareholding from NSE SHP" },
+    ],
+  },
+  {
     id: "balance",
     title: "Balance Sheet & Cash",
     description: "Leverage and cash-flow strength from Yahoo",
@@ -76,9 +89,6 @@ const GROUPS = [
 /** Fields we intentionally call out (no reliable source). */
 const UNSUPPORTED = [
   { key: "deliveryPercent", label: "Delivery %", reason: "Requires NSE exchange delivery feed." },
-  { key: "promoterHolding", label: "Promoter Holding", reason: "Requires NSE/BSE shareholding feed (Yahoo does not provide NSE promoter categories)." },
-  { key: "fiiHolding", label: "FII Holdings", reason: "Requires NSE/BSE shareholding feed — never estimated." },
-  { key: "diiHolding", label: "DII Holdings", reason: "Requires NSE/BSE shareholding feed — never estimated." },
   { key: "intrinsicValue", label: "Intrinsic Value", reason: "Requires documented DCF with verified inputs — never estimated." },
   { key: "faceValue", label: "Face Value", reason: "Requires exchange master / ISIN feed." },
 ];

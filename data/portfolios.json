@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-12T12:15:56.167Z",
+  "updatedAt": "2026-07-12T12:27:14.642Z",
   "portfolios": [
     {
       "id": "default",
@@ -8,7 +8,7 @@
       "currency": "INR",
       "note": "Sample starter holdings — replace with your verified cost basis. P&L never estimated when price is missing.",
       "createdAt": "2026-07-12T00:00:00.000Z",
-      "updatedAt": "2026-07-12T12:15:56.167Z",
+      "updatedAt": "2026-07-12T12:27:14.641Z",
       "holdings": [
         {
           "id": "h-sample-1",

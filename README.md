@@ -58,11 +58,24 @@ npm run build:constituents
 
 Top 50 uses multi-phase screening with memory + persistent cache (`?refresh=true` forces rebuild). Set `KV_REST_API_URL` / `KV_REST_API_TOKEN` on Vercel for durable portfolio/watchlist/top50 cache.
 
-### Portfolio CSV
+On Vercel, **fast mode** screens ~120 liquid names by default (Hobby-friendly). Set `ABC_TOP50_FULL=1` for the full NIFTY 500 screen (recommended with Pro `maxDuration` + warm cache).
+
+### Shareholding
+
+`GET /api/shareholding/RELIANCE` — promoter / FII / DII / public from **NSE Corporate Filings SHP** (+ XBRL category totals when present). Never estimated.
+
+### Options backtests
+
+Strategies attach either:
+1. **Synthetic multi-leg** (Black–Scholes premiums from verified HV/IV + underlying path) — clearly labeled *not* exchange premium history, or
+2. **Underlying directional proxy** when legs are incomplete.
+
+### Portfolio CSV & broker
 
 - Export: `GET /api/portfolios/export`
 - Import: `POST /api/portfolios/:id/import` with `{ "csv": "symbol,quantity,avgCost\\n..." }`
-- Live broker APIs are **not** linked; import cost basis from broker exports only.
+- Optional Kite: `BROKER_PROVIDER=kite`, `KITE_API_KEY`, `KITE_ACCESS_TOKEN` → `POST /api/broker/sync-holdings`
+- Without keys, CSV only — positions are never invented.
 
 ## AI Research Copilot
 

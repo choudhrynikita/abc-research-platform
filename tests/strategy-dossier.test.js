@@ -225,7 +225,7 @@ describe("nifty strategy dossier integration", () => {
     assert.match(top[0].dossier.confidence.methodology || "", /not a probability/i);
   });
 
-  it("rankTop10 uses underlying directional proxy when candles provided", () => {
+  it("rankTop10 uses synthetic or directional backtest when candles provided", () => {
     const spot = 24500;
     const atm = 24500;
     const strikes = [];
@@ -278,10 +278,14 @@ describe("nifty strategy dossier integration", () => {
     const bullish = top.find((s) => s.bias === "Bullish");
     assert.ok(bullish);
     if (bullish.backtest.available) {
-      assert.equal(bullish.backtest.proxyType, "underlying-directional");
-      assert.match(bullish.backtest.disclaimer || "", /NOT historical multi-leg|not multi-leg|proxy/i);
+      const isSynthetic = bullish.backtest.simulationType === "synthetic-bs-hv";
+      const isProxy = bullish.backtest.proxyType === "underlying-directional";
+      assert.ok(isSynthetic || isProxy);
+      assert.match(
+        bullish.backtest.disclaimer || "",
+        /SYNTHETIC|NOT historical multi-leg|not multi-leg|proxy/i
+      );
     } else {
-      // Honest unavailable if rule produced too few trades
       assert.ok(bullish.backtest.reason);
     }
   });

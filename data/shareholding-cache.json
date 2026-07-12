@@ -1,0 +1,92 @@
+{
+  "symbols": {
+    "RELIANCE": {
+      "available": true,
+      "symbol": "RELIANCE",
+      "companyName": "Reliance Industries Limited",
+      "asOf": "31-MAR-2026",
+      "filingDate": "21-APR-2026",
+      "xbrlUrl": "https://nsearchives.nseindia.com/corporate/xbrl/SHP_1655961_21042026012504_WEB.xml",
+      "source": "NSE India Corporate Filings Shareholding Pattern",
+      "fetchedAt": "2026-07-12T12:26:26.835Z",
+      "promoter": {
+        "available": true,
+        "value": 0.5,
+        "display": 50,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp)",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.832Z",
+        "lastUpdated": "2026-07-12T12:26:26.832Z",
+        "freshness": "Fresh"
+      },
+      "public": {
+        "available": true,
+        "value": 0.5,
+        "display": 50,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp)",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.834Z",
+        "lastUpdated": "2026-07-12T12:26:26.834Z",
+        "freshness": "Fresh"
+      },
+      "fii": {
+        "available": true,
+        "value": 0.1867,
+        "display": 18.67,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp) · InstitutionsForeign",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.834Z",
+        "lastUpdated": "2026-07-12T12:26:26.834Z",
+        "freshness": "Fresh"
+      },
+      "dii": {
+        "available": true,
+        "value": 0.2055,
+        "display": 20.55,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp) · InstitutionsDomestic",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.834Z",
+        "lastUpdated": "2026-07-12T12:26:26.834Z",
+        "freshness": "Fresh"
+      },
+      "mutualFunds": {
+        "available": true,
+        "value": 0.0978,
+        "display": 9.78,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp) · MutualFundsOrUTI",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.834Z",
+        "lastUpdated": "2026-07-12T12:26:26.834Z",
+        "freshness": "Fresh"
+      },
+      "institutional": {
+        "available": true,
+        "value": 0.3922,
+        "display": 39.22,
+        "unit": "percent",
+        "source": "NSE SHP XBRL archive (in-bse-shp) · Domestic+Foreign institutions",
+        "asOf": "31-MAR-2026",
+        "collectedAt": "2026-07-12T12:26:26.834Z",
+        "lastUpdated": "2026-07-12T12:26:26.834Z",
+        "freshness": "Fresh"
+      },
+      "insiders": {
+        "available": false,
+        "value": null,
+        "display": "Data Unavailable",
+        "reason": "Insider % is Yahoo-only when majorHoldersBreakdown exists"
+      },
+      "message": "Verified from NSE shareholding filings. Category totals from SHP XBRL when available; otherwise promoter/public from master API only.",
+      "policy": {
+        "zeroHallucination": true,
+        "note": "Never estimates missing FII/DII/promoter from residual math when not disclosed."
+      }
+    }
+  },
+  "updatedAt": "2026-07-12T12:26:26.835Z"
+}

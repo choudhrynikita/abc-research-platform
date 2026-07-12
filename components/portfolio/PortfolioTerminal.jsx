@@ -252,6 +252,43 @@ export default function PortfolioTerminal() {
             }
           }}
         />
+        <div className="pf-broker-sync">
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                const res = await fetch("/api/broker/sync-holdings", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ portfolioId }),
+                });
+                const json = await res.json();
+                if (!res.ok) {
+                  throw new Error(
+                    json.error ||
+                      json.hint ||
+                      "Broker sync unavailable — configure Kite env or use CSV"
+                  );
+                }
+                await load(portfolioId);
+              } catch (err) {
+                setError(err.message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Sync from Kite (if configured)
+          </button>
+          <p className="panel-sub">
+            Optional: set BROKER_PROVIDER=kite, KITE_API_KEY, KITE_ACCESS_TOKEN. Without keys, use
+            CSV only — positions are never invented.
+          </p>
+        </div>
       </div>
 
       {error && (
