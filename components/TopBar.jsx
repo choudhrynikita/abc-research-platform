@@ -103,17 +103,20 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
     apiOk === false ? "API Issue" : session.label;
 
   return (
-    <header className="topbar">
+    <header className="topbar" role="banner">
       <button
         type="button"
         className="menu-btn"
-        aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+        aria-label={sidebarOpen ? "Close navigation menu" : "Open navigation menu"}
         aria-expanded={sidebarOpen}
+        aria-controls="app-sidebar"
         onClick={onMenuToggle}
       >
-        {sidebarOpen ? "✕" : "☰"}
+        <span className="menu-btn-icon" aria-hidden="true">
+          {sidebarOpen ? "✕" : "☰"}
+        </span>
       </button>
-      <h1>
+      <h1 className="topbar-title">
         <span className="topbar-title-full">{title}</span>
         <span className="topbar-title-short">{shortTitle}</span>
       </h1>
@@ -122,9 +125,9 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
         type="button"
         className="topbar-copilot-search"
         onClick={onOpenCopilot}
-        aria-label="Open AI Research Copilot"
+        aria-label="Open AI Research Copilot search"
       >
-        <span className="topbar-copilot-icon" aria-hidden>
+        <span className="topbar-copilot-icon" aria-hidden="true">
           ✦
         </span>
         <span className="topbar-copilot-placeholder">
@@ -150,7 +153,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         >
           <span className="theme-label-full">{theme === "dark" ? "Light" : "Dark"}</span>
-          <span className="theme-label-short" aria-hidden>
+          <span className="theme-label-short" aria-hidden="true">
             {theme === "dark" ? "☀" : "☾"}
           </span>
         </button>
@@ -158,8 +161,9 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
           className={`status-pill ${pillClass}`}
           title={apiOk === false ? "API health check failed" : `India cash session (IST): ${session.label}`}
           role="status"
+          aria-live="polite"
         >
-          <span className="status-dot" />
+          <span className="status-dot" aria-hidden="true" />
           <span className="status-label">{statusLabel}</span>
         </div>
       </div>
