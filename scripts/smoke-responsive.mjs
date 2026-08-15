@@ -32,12 +32,19 @@ async function assertViewport(page, vp) {
 
   const mobile = isMobileNavViewport(vp.width);
 
-  // Open drawer on mobile so nav items are measurable
+  // Open drawer on mobile so nav items are measurable.
+  // visibility:visible flips immediately; the 0.22s transform still needs to finish.
   if (mobile) {
     const menu = page.locator(".menu-btn");
     await menu.waitFor({ state: "visible", timeout: 10_000 });
     await menu.click();
-    await page.locator("#app-sidebar.open").waitFor({ state: "visible", timeout: 10_000 });
+    await page.locator("#app-sidebar.open").waitFor({ state: "attached", timeout: 10_000 });
+    await page.waitForFunction(() => {
+      const el = document.getElementById("app-sidebar");
+      if (!el || !el.classList.contains("open")) return false;
+      const r = el.getBoundingClientRect();
+      return r.left >= -2 && r.right > 40 && r.width > 40;
+    }, { timeout: 10_000 });
   } else {
     await page.locator("#app-sidebar").waitFor({ state: "visible", timeout: 10_000 });
   }
