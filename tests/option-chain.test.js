@@ -79,6 +79,23 @@ describe("option chain parsing", () => {
     assert.equal(mixed.maxPain, 24500);
   });
 
+  it("reads official lot size from CE/PE marketLot (not records.lotSize)", () => {
+    const chain = analyzeChain({
+      records: {
+        underlyingValue: 24500,
+        expiryDates: ["18-Aug-2026"],
+        data: [
+          {
+            strikePrice: 24500,
+            CE: { lastPrice: 80, openInterest: 10, impliedVolatility: 12, marketLot: 65 },
+            PE: { lastPrice: 70, openInterest: 10, impliedVolatility: 13, marketLot: 65 },
+          },
+        ],
+      },
+    }, "NSE test");
+    assert.equal(chain.lotSize, 65);
+  });
+
   it("rejects zero IV in leg parsing", () => {
     const data = {
       records: {

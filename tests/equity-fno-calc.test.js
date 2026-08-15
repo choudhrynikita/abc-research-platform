@@ -82,6 +82,10 @@ describe("equity strategy max profit/loss", () => {
     assert.equal(s.maxRewardLot, 1750);
     assert.equal(s.riskRewardRatio, roundish(70 / 30));
     assert.ok(s.payoff.breakEvens.length >= 1);
+    // T2 was debit×3=90, above width 100? 90 < 100 but above 80% of max value (30+56=86)
+    assert.ok(s.targets.t2 <= 86.01, `t2 ${s.targets.t2} must be capped at 80% of max profit`);
+    assert.ok(s.targets.t1 <= 65.01, `t1 ${s.targets.t1} must be capped at 50% of max profit`);
+    assert.ok(s.targets.t2 <= 30 + 70, "management target cannot exceed structure value");
   });
 
   it("credit put spread: max profit = credit, defined max loss", () => {

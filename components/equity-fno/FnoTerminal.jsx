@@ -10,6 +10,7 @@ import MarketStatusBanner from "../MarketStatusBanner";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
 import StrategyAssistant from "../strategy/StrategyAssistant";
+import { fetchDashboardJson } from "../terminal-fetch";
 
 function ExecutiveSummary({ summary, refreshedAt, marketStatus }) {
   if (!summary) return null;
@@ -105,10 +106,8 @@ export default function FnoTerminal() {
     else setLoading(true);
     setError(null);
 
-    fetch("/api/equity-fno/dashboard")
-      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => {
-        if (!ok) throw new Error(j.message || j.error || "Failed to load");
+    fetchDashboardJson("/api/equity-fno/dashboard")
+      .then((j) => {
         setData(j);
         setSelected((prev) => {
           const first = j.top10?.[0] || null;

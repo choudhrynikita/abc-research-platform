@@ -2,6 +2,28 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+function slimForAssistant(strategy) {
+  if (!strategy) return strategy;
+  const { payoff, backtest, dossier, ...rest } = strategy;
+  if (payoff) {
+    const { payoffCurve, ...payoffRest } = payoff;
+    rest.payoff = payoffRest;
+  }
+  if (backtest) {
+    const { trades, syntheticAttempt, ...bt } = backtest;
+    rest.backtest = bt;
+  }
+  if (dossier) {
+    const { backtest: dbt, ...dRest } = dossier;
+    if (dbt) {
+      const { trades, syntheticAttempt, ...slimBt } = dbt;
+      dRest.backtest = slimBt;
+    }
+    rest.dossier = dRest;
+  }
+  return rest;
+}
+
 function renderMarkdownLite(text) {
   if (!text) return null;
   return text.split("\n\n").map((block, i) => {
@@ -66,7 +88,7 @@ export default function StrategyAssistant({
         body: JSON.stringify({
           prefetch: true,
           module,
-          strategy,
+          strategy: slimForAssistant(strategy),
           marketContext,
           derivativesIntel,
           refreshedAt,
@@ -114,7 +136,7 @@ export default function StrategyAssistant({
         body: JSON.stringify({
           query,
           module,
-          strategy,
+          strategy: slimForAssistant(strategy),
           marketContext,
           derivativesIntel,
           refreshedAt,

@@ -10,6 +10,7 @@ import MarketStatusBanner from "../MarketStatusBanner";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
 import StrategyAssistant from "../strategy/StrategyAssistant";
+import { fetchDashboardJson } from "../terminal-fetch";
 
 function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
   if (!summary) return null;
@@ -119,10 +120,8 @@ export default function StrategyTerminal() {
     else setLoading(true);
     setError(null);
 
-    fetch("/api/nifty-strategy/dashboard")
-      .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
-      .then(({ ok, j }) => {
-        if (!ok) throw new Error(j.message || j.error || "Failed to load strategy dashboard");
+    fetchDashboardJson("/api/nifty-strategy/dashboard")
+      .then((j) => {
         setData(j);
         const first = j.top10?.[0];
         setSelected((prev) => {
