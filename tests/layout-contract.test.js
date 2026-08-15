@@ -7,10 +7,11 @@ const { NAV_GROUPS, NAV_HREFS, SIDEBAR_LAYOUT, isActivePath } = require("../lib/
 const CSS_PATH = path.join(__dirname, "..", "app", "globals.css");
 
 describe("nav-config", () => {
-  it("exposes exactly seven primary modules and no watchlist/portfolio", () => {
-    assert.equal(NAV_HREFS.length, 7);
+  it("exposes exactly eight primary modules and no watchlist/portfolio", () => {
+    assert.equal(NAV_HREFS.length, 8);
     assert.deepEqual(NAV_HREFS, [
       "/nifty500",
+      "/news",
       "/fiidii",
       "/ipo",
       "/research",

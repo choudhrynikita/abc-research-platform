@@ -54,6 +54,7 @@ Writable JSON stores use `/tmp/abc-data` on Vercel (seeded from `data/` on cold 
 | Route | Module |
 |-------|--------|
 | `/nifty500` | Top 50 Stocks (full NIFTY 500 universe screen) |
+| `/news` | Market News (live headlines + impact / action notes) |
 | `/fiidii` | FII & DII Intelligence |
 | `/research` | AI Research Engine |
 | `/nifty-strategy` | NIFTY Strategy Center |

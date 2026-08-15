@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 const TITLES = {
   "/nifty500": "Top 50 Stocks to Buy",
+  "/news": "Market News Desk",
   "/fiidii": "FII & DII Intelligence",
   "/research": "AI Research Engine",
   "/nifty-strategy": "NIFTY Strategy Center",
@@ -14,6 +15,7 @@ const TITLES = {
 
 const SHORT_TITLES = {
   "/nifty500": "Top 50",
+  "/news": "News",
   "/fiidii": "FII / DII",
   "/research": "Research",
   "/nifty-strategy": "Strategy",
