@@ -4,7 +4,7 @@
  * Dashboard fetch with a hard timeout and non-JSON (gateway) error handling.
  * Strategy/F&O terminals previously hung on the spinner or showed a raw parse error.
  */
-export async function fetchDashboardJson(url, { timeoutMs = 120000 } = {}) {
+export async function fetchDashboardJson(url, { timeoutMs = 90000 } = {}) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {

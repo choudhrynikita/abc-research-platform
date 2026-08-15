@@ -10,3 +10,4 @@ out/
 Thumbs.db
 tmp-*.json
 data/option-chain-cache.json
+data/dashboard-cache.json

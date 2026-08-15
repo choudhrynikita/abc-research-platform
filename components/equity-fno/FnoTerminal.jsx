@@ -11,6 +11,7 @@ import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
 import StrategyAssistant from "../strategy/StrategyAssistant";
 import { fetchDashboardJson } from "../terminal-fetch";
+import ChartErrorBoundary from "../ChartErrorBoundary";
 
 function ExecutiveSummary({ summary, refreshedAt, marketStatus }) {
   if (!summary) return null;
@@ -106,7 +107,7 @@ export default function FnoTerminal() {
     else setLoading(true);
     setError(null);
 
-    fetchDashboardJson("/api/equity-fno/dashboard")
+    fetchDashboardJson(isRefresh ? "/api/equity-fno/dashboard?refresh=1" : "/api/equity-fno/dashboard")
       .then((j) => {
         setData(j);
         setSelected((prev) => {
@@ -207,13 +208,15 @@ export default function FnoTerminal() {
 
       <FnoInsightPanel insights={data?.insights} backtest={data?.backtest} />
 
-      <FnoCharts
-        key={chartKey}
-        {...chartProps}
-        chartContext={data?.chartContext}
-        marketStatus={data?.marketStatus}
-        derivativesIntel={derivativesIntel}
-      />
+      <ChartErrorBoundary fallback="Price charts could not render. Ranked strategies below are still valid.">
+        <FnoCharts
+          key={chartKey}
+          {...chartProps}
+          chartContext={data?.chartContext}
+          marketStatus={data?.marketStatus}
+          derivativesIntel={derivativesIntel}
+        />
+      </ChartErrorBoundary>
 
       <section className="strategy-list-section">
         <div className="section-head">
@@ -247,19 +250,21 @@ export default function FnoTerminal() {
         )}
       </section>
 
-      <StrategyAssistant
-        strategy={selected}
-        marketContext={{
-          ...data?.marketContext,
-          price: selected?.stockMarketContext?.price ?? data?.marketContext?.price,
-          trend: selected?.stockMarketContext?.trend ?? data?.marketContext?.marketTrend,
-          support: selected?.stockMarketContext?.support,
-          resistance: selected?.stockMarketContext?.resistance,
-        }}
-        derivativesIntel={derivativesIntel}
-        module="equity-fno"
-        refreshedAt={data?.refreshedAt}
-      />
+      <ChartErrorBoundary fallback="Strategy assistant could not load. Use the cards above for verified payoffs.">
+        <StrategyAssistant
+          strategy={selected}
+          marketContext={{
+            ...data?.marketContext,
+            price: selected?.stockMarketContext?.price ?? data?.marketContext?.price,
+            trend: selected?.stockMarketContext?.trend ?? data?.marketContext?.marketTrend,
+            support: selected?.stockMarketContext?.support,
+            resistance: selected?.stockMarketContext?.resistance,
+          }}
+          derivativesIntel={derivativesIntel}
+          module="equity-fno"
+          refreshedAt={data?.refreshedAt}
+        />
+      </ChartErrorBoundary>
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} title="Equity Derivatives Intelligence" />
 

@@ -11,6 +11,7 @@ import TerminalRefreshBar from "../TerminalRefreshBar";
 import DerivativesIntelligencePanel from "../DerivativesIntelligencePanel";
 import StrategyAssistant from "../strategy/StrategyAssistant";
 import { fetchDashboardJson } from "../terminal-fetch";
+import ChartErrorBoundary from "../ChartErrorBoundary";
 
 function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
   if (!summary) return null;
@@ -120,7 +121,7 @@ export default function StrategyTerminal() {
     else setLoading(true);
     setError(null);
 
-    fetchDashboardJson("/api/nifty-strategy/dashboard")
+    fetchDashboardJson(isRefresh ? "/api/nifty-strategy/dashboard?refresh=1" : "/api/nifty-strategy/dashboard")
       .then((j) => {
         setData(j);
         const first = j.top10?.[0];
@@ -202,16 +203,18 @@ export default function StrategyTerminal() {
 
       <StrategyInsightPanel insights={data?.insights} backtest={data?.backtest} />
 
-      <StrategyCharts
-        key={chartKey}
-        symbol={data?.chartSymbol || "^NSEI"}
-        technicals={data?.indicators}
-        chainHeatmap={data?.chainHeatmap}
-        marketContext={data?.marketContext}
-        chartContext={data?.chartContext}
-        marketStatus={data?.marketStatus}
-        derivativesIntel={derivativesIntel}
-      />
+      <ChartErrorBoundary fallback="Price charts could not render. Ranked strategies below are still valid.">
+        <StrategyCharts
+          key={chartKey}
+          symbol={data?.chartSymbol || "^NSEI"}
+          technicals={data?.indicators}
+          chainHeatmap={data?.chainHeatmap}
+          marketContext={data?.marketContext}
+          chartContext={data?.chartContext}
+          marketStatus={data?.marketStatus}
+          derivativesIntel={derivativesIntel}
+        />
+      </ChartErrorBoundary>
 
       <section className="strategy-list-section">
         <div className="section-head">
@@ -249,13 +252,15 @@ export default function StrategyTerminal() {
         )}
       </section>
 
-      <StrategyAssistant
-        strategy={selected}
-        marketContext={data?.marketContext}
-        derivativesIntel={derivativesIntel}
-        module="nifty-strategy"
-        refreshedAt={data?.refreshedAt}
-      />
+      <ChartErrorBoundary fallback="Strategy assistant could not load. Use the cards above for verified payoffs.">
+        <StrategyAssistant
+          strategy={selected}
+          marketContext={data?.marketContext}
+          derivativesIntel={derivativesIntel}
+          module="nifty-strategy"
+          refreshedAt={data?.refreshedAt}
+        />
+      </ChartErrorBoundary>
 
       <DerivativesIntelligencePanel intelligence={derivativesIntel} />
 
