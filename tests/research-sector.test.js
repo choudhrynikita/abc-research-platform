@@ -38,6 +38,14 @@ describe("sector benchmark", () => {
     const roce = bm.rows.find((r) => r.metric === "ROCE");
     assert.equal(roce.company, null);
     assert.equal(roce.sectorAvg, null);
+    const withRoce = buildSectorBenchmark(
+      { peRatio: 20, roe: 0.15, roce: 0.18, marketCap: 1e12 },
+      { avgPe: 22, avgRoe: 0.12, avgRoce: 0.14, peerCount: 3, available: true },
+      { sectorAvgChange1m: 1.5, subjectMonthly: 2.1 }
+    );
+    const roceRow = withRoce.rows.find((r) => r.metric === "ROCE");
+    assert.equal(roceRow.company, 0.18);
+    assert.equal(roceRow.sectorAvg, 0.14);
   });
 });
 

@@ -121,7 +121,7 @@ export default function PeerComparisonPanel({ data }) {
         </table>
       </div>
       <p className="panel-sub">
-        ROCE omitted (not provided by Yahoo). Shareholding not shown for peers (requires exchange feed).
+        ROCE shown only when EBIT and capital employed are both on Yahoo statements. Peer shareholding uses NSE SHP when disclosed.
       </p>
     </section>
   );
