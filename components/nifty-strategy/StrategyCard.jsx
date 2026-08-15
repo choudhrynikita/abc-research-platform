@@ -106,6 +106,9 @@ function MetricCell({ label, value, className = "", title }) {
 function formatMaxProfit(strategy) {
   const p = strategy.payoff;
   if (p?.maxProfitUnlimited) return "Unlimited";
+  if (strategy.type === "Long PE" && (strategy.maxReward != null || p?.maxProfit != null)) {
+    return `₹${fmt(strategy.maxReward ?? p.maxProfit)} if spot→0`;
+  }
   if (strategy.maxReward != null) return `₹${fmt(strategy.maxReward)}`;
   if (p?.maxProfit != null) return `₹${fmt(p.maxProfit)}`;
   return DATA_UNAVAILABLE;

@@ -20,6 +20,12 @@ function fmtRs(v, d = 2) {
 
 function formatMaxProfit(s, preferLot = true) {
   if (s.payoff?.maxProfitUnlimited || s.positionSizing?.maxProfitUnlimited) return "Unlimited";
+  if (s.type === "Long PE") {
+    const v = preferLot
+      ? s.maxRewardLot ?? s.positionSizing?.maxProfitLot
+      : s.maxReward ?? s.payoff?.maxProfit;
+    if (v != null) return `${fmtRs(v)} if spot→0`;
+  }
   if (preferLot && s.maxRewardLot != null) return fmtRs(s.maxRewardLot);
   if (preferLot && s.positionSizing?.maxProfitLot != null) return fmtRs(s.positionSizing.maxProfitLot);
   if (s.maxReward != null) return `${fmtRs(s.maxReward)} / unit`;

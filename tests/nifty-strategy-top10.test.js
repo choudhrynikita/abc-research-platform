@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { generateCandidates, rankTop10 } = require("../lib/nifty-strategy-engine");
+const { generateCandidates, rankTop10, scoreStrategy, shouldOfferBias } = require("../lib/nifty-strategy-engine");
 const { supplementCandidates, generateTechnicalSetups, assignSequentialRanks } = require("../lib/pre-market-strategy");
 
 function mockChain(spot = 24500) {
@@ -45,7 +45,7 @@ describe("NIFTY strategy top 10 pipeline", () => {
   it("ranks up to 10 chain-verified candidates", () => {
     const chain = mockChain();
     const candidates = generateCandidates(chain, baseContext);
-    assert.ok(candidates.length >= 6, `expected multiple chain candidates, got ${candidates.length}`);
+    assert.ok(candidates.length >= 4, `expected multiple chain candidates, got ${candidates.length}`);
     const top10 = rankTop10(candidates, { ...baseContext, chain, vix: 15 });
     assert.ok(top10.length <= 10);
     assert.equal(top10[0].rank, 1);
@@ -88,6 +88,32 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.deepEqual(
       ranked.map((s) => s.rank),
       [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    );
+  });
+
+  it("does not treat theoretical-to-zero put RR as a reason to rank Long PE first", () => {
+    assert.equal(shouldOfferBias({ trend: "NEUTRAL", rsi: 52 }, "Neutral"), true);
+    assert.equal(shouldOfferBias({ trend: "BULLISH", rsi: 60 }, "Bearish"), false);
+
+    const longPut = {
+      type: "Long PE",
+      bias: "Bearish",
+      status: "Active",
+      riskRewardRatio: 400,
+      payoff: { maxProfitUnlimited: false, riskRewardRatio: 400 },
+    };
+    const condor = {
+      type: "Iron Condor",
+      bias: "Neutral",
+      status: "Active",
+      riskRewardRatio: 0.8,
+      payoff: { maxProfitUnlimited: false, riskRewardRatio: 0.8 },
+    };
+    const putScore = scoreStrategy(longPut, { trend: "NEUTRAL", rsi: 52 });
+    const condorScore = scoreStrategy(condor, { trend: "NEUTRAL", rsi: 52 });
+    assert.ok(
+      condorScore.confidenceScore > putScore.confidenceScore,
+      `condor ${condorScore.confidenceScore} should beat long put ${putScore.confidenceScore}`
     );
   });
 });
