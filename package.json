@@ -13,6 +13,9 @@
     "start": "next start -p 4000",
     "lint": "next lint",
     "test": "node --test tests/**/*.test.js",
+    "smoke": "node scripts/smoke-routes.js",
+    "test:responsive": "node scripts/smoke-responsive.mjs",
+    "test:ci": "npm run lint && npm test && npm run build",
     "build:constituents": "node scripts/build-nifty500-constituents.js",
     "legacy:server": "node server.js"
   },
@@ -33,6 +36,7 @@
   },
   "devDependencies": {
     "eslint": "^9.28.0",
-    "eslint-config-next": "^15.3.3"
+    "eslint-config-next": "^15.3.3",
+    "playwright": "^1.52.0"
   }
 }

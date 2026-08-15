@@ -93,6 +93,32 @@ const UNSUPPORTED = [
   { key: "faceValue", label: "Face Value", reason: "Requires exchange master / ISIN feed." },
 ];
 
+/** Top 50 uses *Holding aliases; research payloads keep shareholding.promoter / .fii. */
+const SHAREHOLDING_ALIASES = {
+  promoterHolding: "promoter",
+  fiiChange: "fii",
+  diiChange: "dii",
+  mutualFundHolding: "mutualFunds",
+  institutionalHolding: "institutional",
+  publicHolding: "public",
+};
+
+function pickShareholdingField(source, key) {
+  const sh = source?.shareholding || source?.fundamentals?.shareholding;
+  if (!sh) return null;
+  if (sh[key] != null) return sh[key];
+  const nested = SHAREHOLDING_ALIASES[key];
+  return nested && sh[nested] != null ? sh[nested] : null;
+}
+
+function applyShareholdingAliases(layer, out) {
+  const sh = layer?.shareholding;
+  if (!sh || typeof sh !== "object") return;
+  for (const [alias, srcKey] of Object.entries(SHAREHOLDING_ALIASES)) {
+    if (out[alias] == null && sh[srcKey] != null) out[alias] = sh[srcKey];
+  }
+}
+
 function pickField(source, key) {
   if (!source) return null;
   if (source[key] != null) return source[key];
@@ -100,6 +126,8 @@ function pickField(source, key) {
   if (source.valuation?.[key] != null) return source.valuation[key];
   if (source.fundamentalAnalysis?.[key] != null) return source.fundamentalAnalysis[key];
   if (source.valuationAnalysis?.[key] != null) return source.valuationAnalysis[key];
+  const fromSh = pickShareholdingField(source, key);
+  if (fromSh != null) return fromSh;
   return null;
 }
 
@@ -119,6 +147,8 @@ function mergeSources(...sources) {
     assignLayer(src.valuationAnalysis);
     assignLayer(src.fundamentals?.valuation);
     assignLayer(src.fundamentals?.fundamentalAnalysis);
+    applyShareholdingAliases(src, out);
+    applyShareholdingAliases(src.fundamentals, out);
   }
   return out;
 }

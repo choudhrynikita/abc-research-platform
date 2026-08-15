@@ -6,7 +6,9 @@ import ProChart from "../charts/ProChart";
 import MetricValue, { extractValue, DATA_UNAVAILABLE } from "./MetricValue";
 import FundamentalsPanel from "./FundamentalsPanel";
 import TechnicalAnalysisPanel from "./TechnicalAnalysisPanel";
+import ShareholdingGrid from "./ShareholdingGrid";
 import StrategyDossierPanel from "../StrategyDossierPanel";
+import PeerComparisonPanel from "../research/PeerComparisonPanel";
 
 function fieldText(field) {
   if (field == null) return null;
@@ -74,34 +76,7 @@ function OverviewBlock({ report }) {
   );
 }
 
-function ShareholdingPanel({ shareholding }) {
-  const sh = shareholding || {};
-  const rows = [
-    { label: "Promoter Holdings", key: "promoter" },
-    { label: "FII Holdings", key: "fii" },
-    { label: "DII Holdings", key: "dii" },
-    { label: "Institutional Holdings", key: "institutional" },
-    { label: "Mutual Fund Holdings", key: "mutualFunds" },
-    { label: "Public", key: "public" },
-  ];
-  return (
-    <section className="glass-card detail-section">
-      <h3>Shareholding Pattern</h3>
-      <p className="panel-sub">
-        {sh.message ||
-          "Requires NSE/BSE shareholding feed. Values are never estimated."}
-      </p>
-      <div className="tech-grid">
-        {rows.map((r) => (
-          <div key={r.key} className="tech-tile">
-            <small>{r.label}</small>
-            <strong className="metric-na">{DATA_UNAVAILABLE}</strong>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
+
 
 function FinancialStatementsPanel({ statements, historical }) {
   const annual = statements?.annualResults || historical?.income3y || [];
@@ -252,7 +227,6 @@ const TABS = [
 
 export default function StockDetail({ symbol }) {
   const [report, setReport] = useState(null);
-  const [top50Stock, setTop50Stock] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tab, setTab] = useState("overview");
@@ -264,7 +238,7 @@ export default function StockDetail({ symbol }) {
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const r = await fetch(`/api/research/${encodeURIComponent(symbol)}`);
+        const r = await fetch(`/api/research/terminal/${encodeURIComponent(symbol)}`);
         const j = await r.json();
         if (!r.ok && j.available === false) {
           setReport(j);
@@ -293,29 +267,6 @@ export default function StockDetail({ symbol }) {
   useEffect(() => {
     loadResearch();
   }, [loadResearch]);
-
-  // Optional overlay: recommendation context from Top 50 (non-blocking, never blocks primary research)
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/nifty500/top50")
-      .then((r) => r.json())
-      .then((top50Res) => {
-        if (cancelled) return;
-        const match = top50Res?.top50?.find(
-          (s) =>
-            s.symbol === symbol ||
-            s.symbol === `${symbol}.NS` ||
-            s.symbol?.replace(".NS", "") === symbol?.replace(".NS", "")
-        );
-        setTop50Stock(match || null);
-      })
-      .catch(() => {
-        if (!cancelled) setTop50Stock(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [symbol]);
 
   if (loading) {
     return (
@@ -373,12 +324,21 @@ export default function StockDetail({ symbol }) {
   const fund = report.fundamentalAnalysis || {};
   const valn = report.valuationAnalysis || report.fundamentals?.valuation || {};
   const ai = report.aiConclusion || {};
-  const rec = top50Stock?.recommendation;
+  const exec = report.executiveSummary || {};
+  const decision = report.investmentDecision || {};
+  const recAction = exec.recommendation || decision.recommendation || null;
+  const recClass = /buy/i.test(recAction || "")
+    ? "buy"
+    : /hold|watch/i.test(recAction || "")
+      ? "watch"
+      : "na";
   const fundAvailable =
-    report.fundamentals?.available === true ||
-    report.fundamentalsAvailable === true ||
-    top50Stock?.fundamentalsAvailable === true;
-  const chg = top50Stock?.changePercent;
+    report.fundamentals?.available === true || report.fundamentalsAvailable === true;
+  const prevClose = report.priceMetrics?.previousClose;
+  const chg =
+    report.price != null && prevClose != null && Number(prevClose) !== 0
+      ? Number((((Number(report.price) - Number(prevClose)) / Number(prevClose)) * 100).toFixed(2))
+      : null;
 
   return (
     <div className="stock-detail">
@@ -413,12 +373,12 @@ export default function StockDetail({ symbol }) {
           </div>
         </div>
         <div className="detail-hero-right">
-          <div className={`rec-badge large ${rec?.action === "BUY" ? "buy" : rec?.action === "WATCH" ? "watch" : "na"}`}>
-            {rec?.action ?? tech.trend ?? "—"}
+          <div className={`rec-badge large ${recClass}`}>
+            {recAction ?? tech.trend ?? "—"}
           </div>
-          {top50Stock?.buyScore != null && (
+          {exec.overallRating != null && (
             <span className="buy-score large">
-              Buy Score <strong>{top50Stock.buyScore.toFixed(0)}</strong>
+              Model Score <strong>{Number(exec.overallRating).toFixed(0)}</strong>
             </span>
           )}
           <button type="button" className="btn btn-secondary btn-sm" onClick={loadResearch}>
@@ -457,35 +417,30 @@ export default function StockDetail({ symbol }) {
           {tab === "overview" && (
             <>
               <OverviewBlock report={report} />
-              {rec?.reasons?.length > 0 && (
+              {(exec.keyStrengths?.length > 0 || decision.opportunities?.length > 0) && (
                 <div className="glass-card detail-section">
                   <h3>Why this stock is recommended</h3>
                   <ul className="reason-list">
-                    {rec.reasons.map((r) => (
-                      <li key={r}>{r}</li>
+                    {(exec.keyStrengths || decision.opportunities || []).map((r) => (
+                      <li key={typeof r === "string" ? r : r.text}>{typeof r === "string" ? r : r.text}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {(top50Stock?.dossier || top50Stock?.confidence || top50Stock?.backtest) && (
+              {(report.dossier || report.confidence || report.backtest) && (
                 <StrategyDossierPanel
-                  dossier={top50Stock.dossier}
-                  confidence={top50Stock.confidence || top50Stock.dossier?.confidence}
-                  backtest={top50Stock.backtest || top50Stock.dossier?.backtest}
+                  dossier={report.dossier}
+                  confidence={report.confidence || report.dossier?.confidence}
+                  backtest={report.backtest || report.dossier?.backtest}
                 />
               )}
               <TechnicalAnalysisPanel technical={tech} priceMetrics={report.priceMetrics} />
               <FundamentalsPanel
                 title="Fundamental Snapshot"
-                stock={top50Stock}
                 fundamentals={report.fundamentals || fund}
                 valuation={valn}
                 available={fundAvailable}
-                source={
-                  report.fundamentals?.source ||
-                  top50Stock?.fundamentalsSource ||
-                  "Yahoo Finance quoteSummary API"
-                }
+                source={report.fundamentals?.source || "Yahoo Finance quoteSummary API"}
                 compact
               />
             </>
@@ -509,18 +464,15 @@ export default function StockDetail({ symbol }) {
             <>
               <FundamentalsPanel
                 title="Detailed Fundamental Analysis"
-                stock={top50Stock}
                 fundamentals={report.fundamentals || fund}
                 valuation={valn}
                 available={fundAvailable}
-                source={
-                  report.fundamentals?.source ||
-                  top50Stock?.fundamentalsSource ||
-                  "Yahoo Finance quoteSummary API"
-                }
+                source={report.fundamentals?.source || "Yahoo Finance quoteSummary API"}
               />
               <DividendPanel dividend={report.fundamentals?.dividend} valuation={valn} />
-              <ShareholdingPanel shareholding={report.fundamentals?.shareholding} />
+              <ShareholdingGrid
+                shareholding={report.fundamentals?.shareholding || report.shareholding}
+              />
             </>
           )}
 
@@ -531,32 +483,7 @@ export default function StockDetail({ symbol }) {
             />
           )}
 
-          {report.competitorComparison?.available && tab === "overview" && (
-            <div className="glass-card detail-section">
-              <h3>Peer Comparison</h3>
-              <p className="panel-sub">{report.competitorComparison.message}</p>
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      {report.competitorComparison.table?.headers?.map((h) => (
-                        <th key={h}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.competitorComparison.table?.rows?.map((row, i) => (
-                      <tr key={i}>
-                        {row.map((cell, j) => (
-                          <td key={j}>{cell ?? DATA_UNAVAILABLE}</td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          {tab === "overview" && <PeerComparisonPanel data={report.competitorComparison} />}
         </section>
 
         <aside className="detail-aside">
@@ -569,7 +496,6 @@ export default function StockDetail({ symbol }) {
                 <MetricValue
                   value={
                     tech.fiftyTwoWeekHigh ??
-                    top50Stock?.fiftyTwoWeekHigh ??
                     valn.fiftyTwoWeekHigh ??
                     report.priceMetrics?.fiftyTwoWeekHigh
                   }
@@ -581,7 +507,6 @@ export default function StockDetail({ symbol }) {
                 <MetricValue
                   value={
                     tech.fiftyTwoWeekLow ??
-                    top50Stock?.fiftyTwoWeekLow ??
                     valn.fiftyTwoWeekLow ??
                     report.priceMetrics?.fiftyTwoWeekLow
                   }
@@ -598,15 +523,15 @@ export default function StockDetail({ symbol }) {
               </div>
               <div>
                 <small>Market Cap</small>
-                <MetricValue value={top50Stock?.marketCap ?? valn.marketCap} type="cr" />
+                <MetricValue value={valn.marketCap} type="cr" />
               </div>
               <div>
                 <small>Enterprise Value</small>
                 <MetricValue value={valn.enterpriseValue} type="cr" />
               </div>
               <div>
-                <small>1Y Return</small>
-                <MetricValue value={top50Stock?.oneYearReturn} type="pct" />
+                <small>1M Return</small>
+                <MetricValue value={report.relativeStrength?.stockReturn1m} type="pct" />
               </div>
               <div>
                 <small>Intrinsic Value</small>
@@ -620,39 +545,44 @@ export default function StockDetail({ symbol }) {
             <p className="panel-sub">Model opinion based on verified inputs — not investment advice</p>
             <div className="ai-insight-block">
               <span>Conviction</span>
-              <strong>{rec?.conviction ?? ai.confidenceLabel ?? DATA_UNAVAILABLE}</strong>
+              <strong>
+                {exec.confidenceLevel ??
+                  decision.confidenceScore ??
+                  ai.confidenceLabel ??
+                  DATA_UNAVAILABLE}
+              </strong>
             </div>
             <div className="ai-insight-block">
               <span>Horizon</span>
-              <strong>{rec?.horizon ?? DATA_UNAVAILABLE}</strong>
+              <strong>{decision.horizon ?? DATA_UNAVAILABLE}</strong>
             </div>
             <div className="ai-insight-block">
               <span>Entry Zone</span>
-              <MetricValue value={rec?.entryZone ?? tech.support} type="price" label="Entry" />
+              <MetricValue value={decision.entryZone ?? tech.support} type="price" label="Entry" />
             </div>
             <div className="ai-insight-block">
               <span>Stop Loss</span>
-              <MetricValue value={rec?.stopLoss} type="price" label="Stop" />
+              <MetricValue value={decision.stopLoss} type="price" label="Stop" />
             </div>
             <div className="ai-insight-block">
               <span>Target 1</span>
-              <MetricValue value={rec?.targets?.t1 ?? tech.resistance} type="price" label="T1" />
+              <MetricValue value={decision.targets?.t1 ?? tech.resistance} type="price" label="T1" />
             </div>
             <div className="ai-insight-block">
               <span>Target 2</span>
-              <MetricValue value={rec?.targets?.t2} type="price" label="T2" />
+              <MetricValue value={decision.targets?.t2} type="price" label="T2" />
             </div>
             <div className="ai-insight-block">
               <span>Target 3</span>
-              <MetricValue value={rec?.targets?.t3} type="price" label="T3" />
+              <MetricValue value={decision.targets?.t3} type="price" label="T3" />
             </div>
           </div>
 
-          {rec?.risks?.length > 0 && (
+          {decision.risks?.length > 0 && (
             <div className="glass-card detail-section risks-panel">
               <h3>Risks</h3>
               <ul>
-                {rec.risks.map((r) => (
+                {decision.risks.map((r) => (
                   <li key={r}>{r}</li>
                 ))}
               </ul>

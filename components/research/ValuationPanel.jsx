@@ -47,7 +47,7 @@ export default function ValuationPanel({ valuation, summary, fundamentals }) {
         />
         <Cell label="ROE" value={v.roe ?? fund.roe} type="ratio" />
         <Cell label="ROA" value={v.roa ?? fund.roa} type="ratio" />
-        <Cell label="ROCE" value={v.roce ?? fund.roce} type="ratio" definition="Not provided by Yahoo — never estimated" />
+        <Cell label="ROCE" value={v.roce ?? fund.roce} type="ratio" definition="EBIT ÷ Capital Employed from verified Yahoo statements when both inputs exist" />
         <Cell label="Book Value / Share" value={v.bookValue} type="price" />
         <Cell label="Intrinsic Value" value={v.intrinsicValue} type="price" definition="Requires documented DCF" />
         <Cell label="52W High" value={v.fiftyTwoWeekHigh} type="price" />

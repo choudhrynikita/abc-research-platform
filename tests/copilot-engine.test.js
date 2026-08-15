@@ -5,6 +5,7 @@ const {
   extractSymbols,
   answerCopilotQuery,
   getCopilotStatus,
+  formatShareholdingMarkdown,
   SUGGESTED_QUERIES,
 } = require("../lib/copilot-engine");
 const { requiresMutationAuth } = require("../lib/api-auth");
@@ -99,5 +100,39 @@ describe("copilot help path", () => {
     assert.equal(a.ok, true);
     assert.equal(b.ok, true);
     assert.equal(b.body.cached, true);
+  });
+
+  it("describes ROCE as computed from verified statements, not always unavailable", async () => {
+    const res = await answerCopilotQuery("What is ROCE?");
+    assert.equal(res.ok, true);
+    assert.match(res.body.answer, /EBIT|capital employed/i);
+    assert.ok(!/does not provide a standard ROCE field/i.test(res.body.answer));
+  });
+});
+
+describe("formatShareholdingMarkdown", () => {
+  it("renders verified NSE percents and leaves missing categories unavailable", () => {
+    const md = formatShareholdingMarkdown({
+      available: true,
+      asOf: "31-Mar-2026",
+      source: "NSE Corporate Filings SHP",
+      message: "Verified from NSE shareholding filings.",
+      promoter: { available: true, value: 0.503 },
+      fii: { available: true, value: 0.22 },
+      dii: { available: false, reason: "DII not in this filing" },
+      public: { available: true, value: 0.277 },
+    });
+    assert.match(md, /50\.30%/);
+    assert.match(md, /22\.00%/);
+    assert.match(md, /27\.70%/);
+    assert.match(md, /DII not in this filing|Data Unavailable/);
+    assert.match(md, /31-Mar-2026/);
+    assert.match(md, /NSE Corporate Filings SHP/);
+  });
+
+  it("does not invent holdings when the block is missing", () => {
+    const md = formatShareholdingMarkdown(null);
+    assert.match(md, /Data Unavailable|Requires NSE/);
+    assert.ok(!/\d+\.\d+%/.test(md));
   });
 });

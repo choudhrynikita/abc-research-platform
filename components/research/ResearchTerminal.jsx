@@ -12,6 +12,7 @@ import InvestmentDecisionPanel from "./InvestmentDecisionPanel";
 import TerminalExport from "../TerminalExport";
 import TechnicalAnalysisPanel from "../nifty500/TechnicalAnalysisPanel";
 import FundamentalsPanel from "../nifty500/FundamentalsPanel";
+import ShareholdingGrid from "../nifty500/ShareholdingGrid";
 import { extractValue, formatMetric, DATA_UNAVAILABLE } from "../nifty500/MetricValue";
 
 const QUICK_SYMBOLS = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "MARUTI", "WIPRO", "SBIN"];
@@ -35,32 +36,7 @@ function scrollTo(id) {
   if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function ShareholdingBlock({ shareholding }) {
-  const sh = shareholding || {};
-  const rows = [
-    ["Promoter Holdings", sh.promoter],
-    ["FII Holdings", sh.fii],
-    ["DII Holdings", sh.dii],
-    ["Institutional Holdings", sh.institutional],
-    ["Mutual Fund Holdings", sh.mutualFunds],
-  ];
-  return (
-    <div className="research-subcard">
-      <h4>Shareholding Pattern</h4>
-      <p className="panel-sub">
-        {sh.message || "Requires NSE/BSE shareholding feed — never estimated."}
-      </p>
-      <div className="research-metric-grid compact">
-        {rows.map(([label]) => (
-          <div key={label} className="research-metric-tile">
-            <small>{label}</small>
-            <strong className="metric-na">{DATA_UNAVAILABLE}</strong>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+
 
 function StatementsBlock({ statements, historical }) {
   const annual = statements?.annualResults || historical?.income3y || [];
@@ -306,7 +282,10 @@ export default function ResearchTerminal() {
                   </p>
                 </div>
               )}
-              <ShareholdingBlock shareholding={data.shareholding} />
+              <ShareholdingGrid
+                shareholding={data.shareholding || data.fundamentals?.shareholding}
+                compact
+              />
               <StatementsBlock
                 statements={data.financialStatements}
                 historical={data.historicalFinancialTrends}

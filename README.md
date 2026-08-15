@@ -25,12 +25,27 @@ npm run build
 npm start
 ```
 
+## Quality gates
+
+```bash
+npm run lint          # ESLint
+npm test              # Unit + layout contracts + focus trap
+npm run test:ci       # lint + test + production build
+npm run smoke         # HTTP route smoke (server must be running)
+npm run test:responsive  # Playwright multi-viewport matrix (server + chromium)
+```
+
+CI runs on every push/PR to `main` via GitHub Actions (`.github/workflows/ci.yml`).
+
 ## Deploy to Vercel
 
-1. Push this repository to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Framework preset: **Next.js** (auto-detected)
-4. Deploy — no environment variables required for basic operation
+Full steps: **[DEPLOYMENT.md](./DEPLOYMENT.md)**.
+
+1. Push this repository to GitHub  
+2. Import the project in [Vercel](https://vercel.com)  
+3. Framework preset: **Next.js** (auto-detected)  
+4. Deploy — no environment variables required for basic operation  
+5. Production URL appears under Vercel → Project → **Domains** (often `https://abc-research-platform.vercel.app`)
 
 Writable JSON stores use `/tmp/abc-data` on Vercel (seeded from `data/` on cold start).
 
@@ -78,7 +93,7 @@ Public endpoint (no `API_SECRET` required):
 | `GET` | `/api/copilot/suggestions` | Suggested queries + engine status |
 | `GET` | `/api/copilot/status` | Readiness (no secrets) |
 
-**UI:** Top bar search (`Ctrl/Cmd+K`), sidebar panel, and full modal.
+**UI:** Top bar search (`Ctrl/Cmd+K`), sidebar CTA, and full modal.
 
 **Data policy:** Answers are built from Yahoo Finance + NSE FII/DII + ABC technical models only. Optional `XAI_API_KEY` polishes prose; it never invents numbers. Missing metrics show **Data Unavailable**.
 

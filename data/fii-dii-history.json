@@ -1,5 +1,16 @@
 [
   {
+    "date": "14-Aug-2026",
+    "fiiNet": 508.12,
+    "diiNet": 356.4,
+    "fiiBuy": 12854.44,
+    "fiiSell": 12346.32,
+    "diiBuy": 14295.49,
+    "diiSell": 13939.09,
+    "recordedAt": "2026-08-15T11:11:32.350Z",
+    "source": "NSE India fiidiiTradeReact API"
+  },
+  {
     "date": "10-Jul-2026",
     "fiiNet": 2603.72,
     "diiNet": 2019.68,

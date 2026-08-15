@@ -2,52 +2,34 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { forwardRef } from "react";
+import { NAV_GROUPS, isActivePath } from "../lib/nav-config";
 
 /**
  * Primary product navigation.
  * Compact AI Copilot lives in the top bar + modal — not embedded here —
  * so menu items never fight for height or overlap.
+ *
+ * On mobile (≤900px), Shell applies a focus trap while the drawer is open.
  */
-const NAV_GROUPS = [
-  {
-    label: "Markets",
-    items: [
-      { href: "/nifty500", label: "Top 50 Stocks", hint: "Multi-factor equity screen", icon: "◆" },
-      { href: "/fiidii", label: "FII & DII Flows", hint: "Institutional money flow", icon: "⇄" },
-      { href: "/ipo", label: "IPO Intelligence", hint: "Primary market research", icon: "◎" },
-    ],
-  },
-  {
-    label: "Research",
-    items: [
-      { href: "/research", label: "AI Research Engine", hint: "Stock deep-dive terminal", icon: "✦" },
-      { href: "/nifty-strategy", label: "NIFTY Strategy", hint: "Index options strategies", icon: "△" },
-      { href: "/fno", label: "Equity F&O Center", hint: "Derivatives desk", icon: "▣" },
-    ],
-  },
-  {
-    label: "Archive",
-    items: [
-      { href: "/reports", label: "Report Archive", hint: "Exports and history", icon: "☰" },
-    ],
-  },
-];
-
-function isActive(pathname, href) {
-  if (!pathname || !href) return false;
-  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
-}
-
-export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopilot }) {
+const Sidebar = forwardRef(function Sidebar(
+  { open = false, onNavigate, onClose, onOpenCopilot, mobileDrawer = false },
+  ref
+) {
   const pathname = usePathname();
+  // On desktop the drawer is always "open" visually; aria-hidden only when
+  // mobile drawer is closed so assistive tech ignores off-canvas content.
+  const ariaHidden = mobileDrawer && !open ? true : undefined;
 
   return (
     <aside
+      ref={ref}
       id="app-sidebar"
       className={`sidebar${open ? " open" : ""}`}
       aria-label="Main navigation"
-      aria-hidden={open ? undefined : undefined}
+      aria-hidden={ariaHidden}
       data-open={open ? "true" : "false"}
+      data-mobile-drawer={mobileDrawer ? "true" : "false"}
     >
       <div className="sidebar-header-row">
         <div className="sidebar-brand">
@@ -64,6 +46,7 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
           className="sidebar-close-btn"
           aria-label="Close navigation menu"
           onClick={onClose}
+          tabIndex={ariaHidden ? -1 : undefined}
         >
           <span aria-hidden="true">✕</span>
         </button>
@@ -71,13 +54,18 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
 
       <nav className="sidebar-nav" aria-label="Primary modules">
         {NAV_GROUPS.map((group) => (
-          <div key={group.label} className="nav-group" role="group" aria-labelledby={`nav-group-${group.label}`}>
+          <div
+            key={group.label}
+            className="nav-group"
+            role="group"
+            aria-labelledby={`nav-group-${group.label}`}
+          >
             <p className="nav-group-label" id={`nav-group-${group.label}`}>
               {group.label}
             </p>
             <ul className="nav-group-list">
               {group.items.map((item) => {
-                const active = isActive(pathname, item.href);
+                const active = isActivePath(pathname, item.href);
                 return (
                   <li key={item.href} className="nav-group-item">
                     <Link
@@ -86,6 +74,7 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       title={item.hint}
+                      tabIndex={ariaHidden ? -1 : undefined}
                     >
                       <span className="nav-item-icon" aria-hidden="true">
                         {item.icon}
@@ -109,6 +98,7 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
           className="sidebar-copilot-cta"
           onClick={onOpenCopilot}
           aria-label="Open AI Research Copilot"
+          tabIndex={ariaHidden ? -1 : undefined}
         >
           <span className="sidebar-copilot-cta-icon" aria-hidden="true">
             ✦
@@ -122,4 +112,6 @@ export default function Sidebar({ open = false, onNavigate, onClose, onOpenCopil
       </div>
     </aside>
   );
-}
+});
+
+export default Sidebar;
