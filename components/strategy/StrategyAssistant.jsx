@@ -49,7 +49,7 @@ function InsightList({ title, items }) {
   if (!items?.length) return null;
   return (
     <div className="assistant-insight-block">
-      <h5>{title}</h5>
+        <h4>{title}</h4>
       <ul>
         {items.map((item) => (
           <li key={item}>{item}</li>
@@ -255,6 +255,7 @@ export default function StrategyAssistant({
             <input
               type="text"
               className="assistant-input"
+              aria-label="Ask the derivatives strategist a question"
               placeholder="Ask about risk, Greeks, IV, strikes, exits, calculations…"
               value={input}
               onChange={(e) => setInput(e.target.value)}

@@ -17,6 +17,7 @@ export default function IpoTerminal() {
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState("open");
   const [error, setError] = useState(null);
+  const [lastVerifiedAt, setLastVerifiedAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
 
@@ -44,7 +45,14 @@ export default function IpoTerminal() {
       .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
       .then(({ ok, j }) => {
         if (!ok) throw new Error(j.message || j.error || "Failed to load");
+        if (j.available === false) {
+          setDashboard(null);
+          setLastVerifiedAt(j.lastVerifiedAt || j._meta?.lastUpdated || null);
+          setError(j.message || "NSE IPO data is temporarily unavailable. Retry shortly.");
+          return;
+        }
         setDashboard(j);
+        setLastVerifiedAt(j.refreshedAt || j._meta?.lastUpdated || null);
         const first = j.sections?.open?.[0] || j.sections?.upcoming?.[0] || j.sections?.listed?.[0];
         if (first) setSelected(first);
       })
@@ -72,8 +80,13 @@ export default function IpoTerminal() {
   if (error && !dashboard) {
     return (
       <div className="strategy-error glass-card">
-        <p>IPO data unavailable.</p>
+        <p>NSE IPO data is temporarily unavailable.</p>
         <p className="error-detail">{error}</p>
+        <p className="panel-sub">
+          {lastVerifiedAt
+            ? `Last verified snapshot: ${new Date(lastVerifiedAt).toLocaleString()}`
+            : "No verified IPO snapshot is available in this session."}
+        </p>
         <button className="btn btn-primary" type="button" onClick={loadDashboard}>Retry</button>
       </div>
     );
@@ -98,7 +111,7 @@ export default function IpoTerminal() {
           <div><small>Open</small><strong>{counts.open ?? 0}</strong></div>
           <div><small>Upcoming</small><strong>{counts.upcoming ?? 0}</strong></div>
           <div><small>Listed 30D</small><strong>{counts.listed ?? 0}</strong></div>
-          <div><small>Updated</small><strong>{dashboard?.refreshedAt ? new Date(dashboard.refreshedAt).toLocaleString() : "—"}</strong></div>
+          <div><small>Updated</small><strong>{dashboard?.refreshedAt ? new Date(dashboard.refreshedAt).toLocaleString() : "Not published by NSE"}</strong></div>
         </div>
       </section>
 
@@ -118,7 +131,7 @@ export default function IpoTerminal() {
           </div>
           <div className="ipo-card-list">
             {list.length === 0 ? (
-              <p className="ipo-empty">No IPOs in this category — awaiting NSE feed.</p>
+              <p className="ipo-empty">No IPOs are currently published by NSE in this category.</p>
             ) : (
               list.map((ipo) => (
                 <IpoCard

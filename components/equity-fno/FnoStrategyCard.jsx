@@ -4,7 +4,7 @@ import { useState } from "react";
 import PayoffChart from "../nifty-strategy/PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
 
-const DATA_UNAVAILABLE = "Data Unavailable";
+const DATA_UNAVAILABLE = "Awaiting verified option premiums";
 
 function fmt(v, d = 2) {
   if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
@@ -81,7 +81,9 @@ function Metric({ label, value, className = "", title }) {
 
 export default function FnoStrategyCard({ strategy, selected, onSelect }) {
   const net = strategy.premiums?.net ?? strategy.payoff?.netPremium;
-  const isCredit = net != null && net < 0;
+  const ps = strategy.positionSizing || {};
+  const netPerLot = ps.premiumPerLot ?? (net != null && ps.lotSize != null ? net * ps.lotSize : null);
+  const isCredit = netPerLot != null && netPerLot < 0;
   const statusCls =
     strategy.status === "Active"
       ? "active"
@@ -91,7 +93,6 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           ? "wait"
           : "avoid";
   const a = strategy.analytics || {};
-  const ps = strategy.positionSizing || {};
   const rr = strategy.riskRewardRatio ?? ps.riskRewardRatio;
 
   return (
@@ -124,13 +125,13 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
 
       <div className="strategy-metrics-row strategy-metrics-risk equity-risk-grid">
         <Metric
-          label="Net Premium"
-          title="Verified NSE debit paid or credit received (per unit)"
+          label="Net Premium / Lot"
+          title="Verified NSE debit paid or credit received, multiplied by the official lot size"
           value={
-            net != null
-              ? `${isCredit ? "Credit " : "Debit "}${fmtRs(Math.abs(net))}${
+            netPerLot != null
+              ? `${isCredit ? "Credit " : "Debit "}${fmtRs(Math.abs(netPerLot))}${
                   strategy.mode === "pre-market" ? " ref." : ""
-                } /u`
+                }`
               : strategy.mode === "pre-market"
                 ? "Trigger at open"
                 : DATA_UNAVAILABLE
@@ -246,7 +247,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
                       ? Number(leg.strike).toLocaleString("en-IN")
                       : DATA_UNAVAILABLE}
                   </td>
-                  <td>{leg.premium != null ? fmtRs(leg.premium) : DATA_UNAVAILABLE}</td>
+                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit` : DATA_UNAVAILABLE}</td>
                 </tr>
               ))}
             </tbody>

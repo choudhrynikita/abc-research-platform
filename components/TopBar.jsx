@@ -2,6 +2,21 @@
 
 import { useEffect, useState } from "react";
 
+const THEME_KEY = "abc-theme";
+const DEFAULT_THEME = "light";
+
+function normalizeTheme(value) {
+  return value === "dark" ? "dark" : DEFAULT_THEME;
+}
+
+function readStoredTheme() {
+  try {
+    return normalizeTheme(localStorage.getItem(THEME_KEY));
+  } catch {
+    return DEFAULT_THEME;
+  }
+}
+
 const TITLES = {
   "/nifty500": "Top 50 Stocks to Buy",
   "/news": "Market News Desk",
@@ -52,20 +67,32 @@ function computeMarketSession() {
 }
 
 export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopilot }) {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(DEFAULT_THEME);
   const [modKey, setModKey] = useState("Ctrl");
   const [session, setSession] = useState({ mode: "unknown", label: "…" });
   const [apiOk, setApiOk] = useState(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("abc-theme") || "dark";
-    setTheme(saved);
-    document.documentElement.dataset.theme = saved;
+    const applyTheme = (value) => {
+      const next = normalizeTheme(value);
+      setTheme(next);
+      document.documentElement.dataset.theme = next;
+    };
+
+    applyTheme(readStoredTheme());
+    const onStorage = (event) => {
+      if (event.key === THEME_KEY) applyTheme(event.newValue);
+    };
+    window.addEventListener("storage", onStorage);
+
     const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || "");
     setModKey(isMac ? "⌘" : "Ctrl");
     setSession(computeMarketSession());
     const t = setInterval(() => setSession(computeMarketSession()), 60_000);
-    return () => clearInterval(t);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      clearInterval(t);
+    };
   }, []);
 
   useEffect(() => {
@@ -87,8 +114,12 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    localStorage.setItem("abc-theme", next);
     document.documentElement.dataset.theme = next;
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // The DOM still updates when storage is unavailable.
+    }
   }
 
   const { full: title, short: shortTitle } = resolveTitle(pathname);
@@ -149,7 +180,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
           <span className="theme-label-short">AI</span>
         </button>
         <button
-          className="btn btn-ghost btn-sm"
+          className={`btn btn-ghost btn-sm theme-toggle ${theme === "dark" ? "theme-toggle-dark" : "theme-toggle-light"}`}
           type="button"
           onClick={toggleTheme}
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}

@@ -4,10 +4,10 @@ import { useState } from "react";
 import PayoffChart from "./PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
 
-const DATA_UNAVAILABLE = "Data Unavailable";
+const PREMIUMS_UNAVAILABLE = "Awaiting verified option premiums";
 
 function fmt(v, digits = 2) {
-  if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
+  if (v == null || Number.isNaN(Number(v))) return PREMIUMS_UNAVAILABLE;
   return typeof v === "number"
     ? v.toLocaleString("en-IN", { maximumFractionDigits: digits })
     : String(v);
@@ -32,7 +32,7 @@ function ConfidenceGauge({ score, factors }) {
     <div className="confidence-gauge">
       <div className="gauge-head">
         <span>Strategy Confidence</span>
-        <strong style={{ color }}>{score != null ? `${score}%` : DATA_UNAVAILABLE}</strong>
+        <strong style={{ color }}>{score != null ? `${score}%` : PREMIUMS_UNAVAILABLE}</strong>
       </div>
       <p className="confidence-disclaimer">
         Composite signal strength — not a guaranteed success rate
@@ -52,7 +52,7 @@ function ConfidenceGauge({ score, factors }) {
 }
 
 function LegsTable({ strikes }) {
-  if (!strikes?.length) return <p className="na-text">{DATA_UNAVAILABLE}</p>;
+  if (!strikes?.length) return <p className="na-text">{PREMIUMS_UNAVAILABLE}</p>;
   return (
     <table className="legs-table">
       <thead>
@@ -70,9 +70,9 @@ function LegsTable({ strikes }) {
               {leg.action}
             </td>
             <td>{leg.type}</td>
-            <td>{leg.strike != null ? Number(leg.strike).toLocaleString("en-IN") : DATA_UNAVAILABLE}</td>
+            <td>{leg.strike != null ? Number(leg.strike).toLocaleString("en-IN") : PREMIUMS_UNAVAILABLE}</td>
             <td>
-              {leg.premium != null ? `₹${fmt(leg.premium)}` : DATA_UNAVAILABLE}
+              {leg.premium != null ? `₹${fmt(leg.premium)}` : PREMIUMS_UNAVAILABLE}
             </td>
           </tr>
         ))}
@@ -111,7 +111,7 @@ function formatMaxProfit(strategy) {
   }
   if (strategy.maxReward != null) return `₹${fmt(strategy.maxReward)}`;
   if (p?.maxProfit != null) return `₹${fmt(p.maxProfit)}`;
-  return DATA_UNAVAILABLE;
+  return PREMIUMS_UNAVAILABLE;
 }
 
 function formatMaxLoss(strategy) {
@@ -119,7 +119,7 @@ function formatMaxLoss(strategy) {
   if (p?.maxLossUnlimited) return "Unlimited";
   if (strategy.maxRisk != null) return `₹${fmt(strategy.maxRisk)}`;
   if (p?.maxLoss != null) return `₹${fmt(p.maxLoss)}`;
-  return DATA_UNAVAILABLE;
+  return PREMIUMS_UNAVAILABLE;
 }
 
 function formatBreakEven(strategy) {
@@ -127,7 +127,7 @@ function formatBreakEven(strategy) {
     strategy.payoff?.breakEvenDisplay ||
     strategy.positionSizing?.breakEven ||
     null;
-  return be || DATA_UNAVAILABLE;
+  return be || PREMIUMS_UNAVAILABLE;
 }
 
 export default function StrategyCard({ strategy, marketContext, selected, onSelect }) {
@@ -149,7 +149,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           <h4>{strategy.name}</h4>
           <span className="strategy-type-pill">{strategy.type}</span>
           <span className="strategy-expiry">
-            {strategy.expiryType} · {strategy.expiry ?? DATA_UNAVAILABLE}
+            {strategy.expiryType} · {strategy.expiry ?? PREMIUMS_UNAVAILABLE}
           </span>
           {strategy.modeLabel && strategy.mode === "pre-market" && (
             <span className="strategy-mode-label">{strategy.modeLabel}</span>
@@ -169,7 +169,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
                 }`
               : strategy.mode === "pre-market"
                 ? "Trigger at open"
-                : DATA_UNAVAILABLE
+                : PREMIUMS_UNAVAILABLE
           }
         />
         <MetricCell
@@ -197,7 +197,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
               ? `${rr}:1`
               : strategy.structuralRiskNote
                 ? "At trigger"
-                : DATA_UNAVAILABLE
+                : PREMIUMS_UNAVAILABLE
           }
         />
       </div>
@@ -220,7 +220,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
               ? strategy.stopLoss
               : strategy.stopLoss != null
                 ? `₹${fmt(strategy.stopLoss)}`
-                : DATA_UNAVAILABLE}
+                : PREMIUMS_UNAVAILABLE}
           </strong>
         </div>
         <div>
@@ -230,7 +230,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
               ? strategy.targets.t1
               : strategy.targets?.t1 != null
                 ? `₹${fmt(strategy.targets.t1)}`
-                : DATA_UNAVAILABLE}
+                : PREMIUMS_UNAVAILABLE}
           </strong>
         </div>
         <div>
@@ -240,7 +240,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
               ? strategy.targets.t2
               : strategy.targets?.t2 != null
                 ? `₹${fmt(strategy.targets.t2)}`
-                : DATA_UNAVAILABLE}
+                : PREMIUMS_UNAVAILABLE}
           </strong>
         </div>
       </div>
@@ -298,14 +298,14 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
                 Net premium:{" "}
                 {netPrem != null
                   ? `${isCredit ? "Received" : "Paid"} ₹${fmt(Math.abs(netPrem))} per unit`
-                  : DATA_UNAVAILABLE}
+                  : PREMIUMS_UNAVAILABLE}
               </li>
               <li>
-                Risk-reward: {rr != null ? `${rr}:1` : DATA_UNAVAILABLE}
+                Risk-reward: {rr != null ? `${rr}:1` : PREMIUMS_UNAVAILABLE}
                 {strategy.payoff?.returnOnRisk != null &&
                   ` · Return on risk ${strategy.payoff.returnOnRisk}%`}
               </li>
-              <li>Bias: {strategy.bias ?? DATA_UNAVAILABLE}</li>
+              <li>Bias: {strategy.bias ?? PREMIUMS_UNAVAILABLE}</li>
               {strategy.payoff?.source && (
                 <li className="risk-source">{strategy.payoff.source}</li>
               )}
@@ -342,7 +342,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
                 ) : (
                   <p className="na-text">Exit rules pending.</p>
                 )}
-                <p className="plan-detail">Holding: {strategy.holdingPeriod ?? DATA_UNAVAILABLE}</p>
+                <p className="plan-detail">Holding: {strategy.holdingPeriod ?? PREMIUMS_UNAVAILABLE}</p>
               </div>
             </div>
           </ExpandSection>
@@ -364,7 +364,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           Updated{" "}
           {strategy.lastUpdated
             ? new Date(strategy.lastUpdated).toLocaleString()
-            : DATA_UNAVAILABLE}
+            : PREMIUMS_UNAVAILABLE}
         </span>
         <span className="bias-pill">{strategy.bias}</span>
       </footer>

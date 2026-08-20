@@ -13,7 +13,9 @@ import TerminalExport from "../TerminalExport";
 import TechnicalAnalysisPanel from "../nifty500/TechnicalAnalysisPanel";
 import FundamentalsPanel from "../nifty500/FundamentalsPanel";
 import ShareholdingGrid from "../nifty500/ShareholdingGrid";
-import { extractValue, formatMetric, DATA_UNAVAILABLE } from "../nifty500/MetricValue";
+import { extractValue, formatMetric } from "../nifty500/MetricValue";
+
+const YAHOO_NOT_SUPPLIED = "Not supplied by Yahoo Finance";
 
 const QUICK_SYMBOLS = ["RELIANCE", "TCS", "INFY", "HDFCBANK", "ICICIBANK", "MARUTI", "WIPRO", "SBIN"];
 
@@ -42,8 +44,8 @@ function StatementsBlock({ statements, historical }) {
   const annual = statements?.annualResults || historical?.income3y || [];
   const quarterly = statements?.quarterlyResults || [];
   const fmtCell = (v) => {
-    if (v == null || !Number.isFinite(Number(v))) return DATA_UNAVAILABLE;
-    return formatMetric(Number(v), "cr") ?? DATA_UNAVAILABLE;
+    if (v == null || !Number.isFinite(Number(v))) return YAHOO_NOT_SUPPLIED;
+    return formatMetric(Number(v), "cr") ?? YAHOO_NOT_SUPPLIED;
   };
 
   return (
@@ -62,7 +64,7 @@ function StatementsBlock({ statements, historical }) {
             <tbody>
               {annual.slice(0, 5).map((row, i) => (
                 <tr key={i}>
-                  <td>{row.period || row.year || DATA_UNAVAILABLE}</td>
+                  <td>{row.period || row.year || YAHOO_NOT_SUPPLIED}</td>
                   <td>{fmtCell(row.revenue)}</td>
                   <td>{fmtCell(row.netIncome ?? row.pat)}</td>
                 </tr>
@@ -71,7 +73,7 @@ function StatementsBlock({ statements, historical }) {
           </table>
         </div>
       ) : (
-        <p className="metric-na">{DATA_UNAVAILABLE} — annual history not returned by source.</p>
+        <p className="metric-na">{YAHOO_NOT_SUPPLIED} — annual history not returned by source.</p>
       )}
       {quarterly.length > 0 && (
         <>
@@ -88,7 +90,7 @@ function StatementsBlock({ statements, historical }) {
               <tbody>
                 {quarterly.slice(0, 6).map((row, i) => (
                   <tr key={i}>
-                    <td>{row.period || DATA_UNAVAILABLE}</td>
+                    <td>{row.period || YAHOO_NOT_SUPPLIED}</td>
                     <td>{fmtCell(row.revenue)}</td>
                     <td>{fmtCell(row.netIncome)}</td>
                   </tr>

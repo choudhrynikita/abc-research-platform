@@ -20,7 +20,7 @@ function ExpandBlock({ title, children, defaultOpen = false }) {
 }
 
 function UnavailBlock({ message }) {
-  return <p className="ipo-unavail">{message || "Awaiting official verified data."}</p>;
+  return <p className="ipo-unavail">{message || "Not supplied by NSE IPO feed; requires verified DRHP/RHP filings."}</p>;
 }
 
 export default function IpoDetailView({ data, loading }) {
@@ -103,8 +103,8 @@ export default function IpoDetailView({ data, loading }) {
 
       <ExpandBlock title="Prospectus Information">
         <div className="prospectus-grid">
-          <div><small>Lead Managers</small><strong>{data.prospectus?.leadManagers || "—"}</strong></div>
-          <div><small>Registrar</small><strong>{data.prospectus?.registrar || "—"}</strong></div>
+          <div><small>Lead Managers</small><strong>{data.prospectus?.leadManagers || "Not published by NSE"}</strong></div>
+          <div><small>Registrar</small><strong>{data.prospectus?.registrar || "Not published by NSE"}</strong></div>
         </div>
         <p className="ipo-note">{data.prospectus?.message}</p>
       </ExpandBlock>

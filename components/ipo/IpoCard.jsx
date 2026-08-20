@@ -6,9 +6,20 @@ function recClass(status) {
   return "upcoming";
 }
 
+const NSE_NOT_PUBLISHED = "Not published by NSE";
+
 function fmtSub(metric) {
-  if (!metric?.available) return "Awaiting official verified data.";
+  if (!metric?.available) return NSE_NOT_PUBLISHED;
   return metric.display;
+}
+
+function display(value) {
+  return value == null || value === "" ? NSE_NOT_PUBLISHED : value;
+}
+
+function displayAmount(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return `₹${value.toLocaleString()}`;
+  return value == null || value === "" ? NSE_NOT_PUBLISHED : value;
 }
 
 export default function IpoCard({ ipo, onSelect, selected }) {
@@ -27,7 +38,7 @@ export default function IpoCard({ ipo, onSelect, selected }) {
         <div className="ipo-identity">
           <h4>{ipo.companyName}</h4>
           <span className="ipo-symbol">{ipo.symbol}</span>
-          <span className={`ipo-type-pill ${ipo.ipoType?.toLowerCase()}`}>{ipo.ipoType || "—"}</span>
+          <span className={`ipo-type-pill ${ipo.ipoType?.toLowerCase()}`}>{display(ipo.ipoType)}</span>
         </div>
         <span className={`ipo-status-badge ${recClass(ipo.category)}`}>
           {ipo.category === "open" ? "Open" : ipo.category === "listed" ? "Listed" : "Upcoming"}
@@ -35,18 +46,18 @@ export default function IpoCard({ ipo, onSelect, selected }) {
       </header>
 
       <div className="ipo-meta-grid">
-        <div><small>Industry</small><strong>{ipo.industry || "—"}</strong></div>
-        <div><small>Issue Size</small><strong>{ipo.issueSize || "—"}</strong></div>
-        <div><small>Price Band</small><strong>{ipo.priceBand || "—"}</strong></div>
-        <div><small>Lot Size</small><strong>{ipo.lotSize ?? "—"}</strong></div>
-        <div><small>Min Investment</small><strong>{ipo.minInvestment != null ? `₹${ipo.minInvestment.toLocaleString()}` : "—"}</strong></div>
-        <div><small>Exchange</small><strong>{ipo.exchange || "NSE"}</strong></div>
+        <div><small>Industry</small><strong>{display(ipo.industry)}</strong></div>
+        <div><small>Issue Size</small><strong>{display(ipo.issueSize)}</strong></div>
+        <div><small>Price Band</small><strong>{display(ipo.priceBand)}</strong></div>
+        <div><small>Lot Size</small><strong>{display(ipo.lotSize)}</strong></div>
+        <div><small>Min Investment</small><strong>{displayAmount(ipo.minInvestment)}</strong></div>
+        <div><small>Exchange</small><strong>{display(ipo.exchange || "NSE")}</strong></div>
       </div>
 
       <div className="ipo-dates-row">
-        <div><small>Open</small><strong>{ipo.openDate || "—"}</strong></div>
-        <div><small>Close</small><strong>{ipo.closeDate || "—"}</strong></div>
-        <div><small>Listing</small><strong>{ipo.listingDate || "—"}</strong></div>
+        <div><small>Open</small><strong>{display(ipo.openDate)}</strong></div>
+        <div><small>Close</small><strong>{display(ipo.closeDate)}</strong></div>
+        <div><small>Listing</small><strong>{display(ipo.listingDate)}</strong></div>
         <div><small>Subscription</small><strong className="sub-val">{fmtSub(sub)}</strong></div>
       </div>
 
@@ -57,7 +68,7 @@ export default function IpoCard({ ipo, onSelect, selected }) {
       )}
 
       <footer className="ipo-card-foot">
-        <span>Updated {ipo.lastUpdated ? new Date(ipo.lastUpdated).toLocaleString() : "—"}</span>
+        <span>Updated {ipo.lastUpdated ? new Date(ipo.lastUpdated).toLocaleString() : NSE_NOT_PUBLISHED}</span>
       </footer>
     </article>
   );

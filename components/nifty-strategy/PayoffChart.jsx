@@ -5,10 +5,10 @@ import { Line } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, exportChartPng } from "@/lib/chart-setup";
 
-const DATA_UNAVAILABLE = "Data Unavailable";
+const PREMIUMS_UNAVAILABLE = "Awaiting verified option premiums";
 
 function fmtNum(v, d = 2) {
-  if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
+  if (v == null || Number.isNaN(Number(v))) return PREMIUMS_UNAVAILABLE;
   return Number(v).toLocaleString("en-IN", { maximumFractionDigits: d });
 }
 
@@ -109,7 +109,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
               label: (ctx) => {
                 if (ctx.dataset.label === "Break-even (0)") return null;
                 const v = ctx.parsed.y;
-                if (v == null) return DATA_UNAVAILABLE;
+                if (v == null) return PREMIUMS_UNAVAILABLE;
                 const sign = v > 0 ? "+" : "";
                 return `P/L: ₹ ${sign}${fmtNum(v)} per unit`;
               },
@@ -185,7 +185,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
     return (
       <div className="payoff-chart-panel glass-card">
         <h4>Expiry Payoff Diagram</h4>
-        <p className="metric-na">{DATA_UNAVAILABLE}</p>
+        <p className="metric-na">{PREMIUMS_UNAVAILABLE}</p>
         <p className="panel-sub">
           {payoff?.reason ||
             "Verified option premiums are required to calculate the payoff diagram. Values are never estimated."}
@@ -194,8 +194,8 @@ export default function PayoffChart({ strategy, height = 320 }) {
     );
   }
 
-  const maxP = payoff.maxProfitUnlimited ? "Unlimited" : payoff.maxProfit != null ? `₹ ${fmtNum(payoff.maxProfit)}` : DATA_UNAVAILABLE;
-  const maxL = payoff.maxLossUnlimited ? "Unlimited" : payoff.maxLoss != null ? `₹ ${fmtNum(payoff.maxLoss)}` : DATA_UNAVAILABLE;
+  const maxP = payoff.maxProfitUnlimited ? "Unlimited" : payoff.maxProfit != null ? `₹ ${fmtNum(payoff.maxProfit)}` : PREMIUMS_UNAVAILABLE;
+  const maxL = payoff.maxLossUnlimited ? "Unlimited" : payoff.maxLoss != null ? `₹ ${fmtNum(payoff.maxLoss)}` : PREMIUMS_UNAVAILABLE;
 
   return (
     <div className="payoff-chart-panel glass-card">
@@ -237,13 +237,13 @@ export default function PayoffChart({ strategy, height = 320 }) {
         </div>
         <div>
           <small>Break-even</small>
-          <strong>{payoff.breakEvenDisplay || DATA_UNAVAILABLE}</strong>
+          <strong>{payoff.breakEvenDisplay || PREMIUMS_UNAVAILABLE}</strong>
         </div>
         <div>
           <small>Net Premium</small>
           <strong>
             {payoff.netPremium == null
-              ? DATA_UNAVAILABLE
+              ? PREMIUMS_UNAVAILABLE
               : payoff.isCredit
                 ? `Credit ₹ ${fmtNum(Math.abs(payoff.netPremium))}`
                 : `Debit ₹ ${fmtNum(payoff.netPremium)}`}
@@ -251,7 +251,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
         </div>
         <div>
           <small>R:R</small>
-          <strong>{payoff.riskRewardRatio != null ? `${payoff.riskRewardRatio}:1` : DATA_UNAVAILABLE}</strong>
+          <strong>{payoff.riskRewardRatio != null ? `${payoff.riskRewardRatio}:1` : PREMIUMS_UNAVAILABLE}</strong>
         </div>
       </div>
 
@@ -259,7 +259,7 @@ export default function PayoffChart({ strategy, height = 320 }) {
         {chart ? (
           <Line ref={chartRef} data={chart.data} options={chart.options} />
         ) : (
-          <p className="chart-empty">{DATA_UNAVAILABLE}</p>
+          <p className="chart-empty">{PREMIUMS_UNAVAILABLE}</p>
         )}
       </div>
 

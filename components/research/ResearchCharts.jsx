@@ -13,6 +13,8 @@ import {
 } from "@/lib/chart-builders";
 import { volumeChartOptions } from "@/lib/chart-setup";
 
+const YAHOO_NOT_SUPPLIED = "Not supplied by Yahoo Finance";
+
 const RANGES = [
   { value: "3mo", label: "3M" },
   { value: "6mo", label: "6M" },
@@ -175,7 +177,7 @@ export default function ResearchCharts({ symbol, technicals }) {
       )}
       {error && !loading && (
         <div className="chart-empty-state">
-          <p className="metric-na">Data Unavailable</p>
+          <p className="metric-na">{YAHOO_NOT_SUPPLIED}</p>
           <p className="chart-error">{error}</p>
         </div>
       )}
@@ -201,14 +203,14 @@ export default function ResearchCharts({ symbol, technicals }) {
                 <Chart type="line" data={rsiChart} options={{ ...baseOptions, scales: { ...baseOptions.scales, y: { min: 0, max: 100, ticks: { color: chartTheme.tick } } } }} />
               </div>
             ) : (
-              <div className="research-chart-sub chart-na">RSI: Data Unavailable for this range</div>
+              <div className="research-chart-sub chart-na">RSI: {YAHOO_NOT_SUPPLIED} for this range</div>
             )}
             {macdChart ? (
               <div className="research-chart-sub chart-canvas-wrap">
                 <Chart type="line" data={macdChart} options={baseOptions} />
               </div>
             ) : (
-              <div className="research-chart-sub chart-na">MACD: Data Unavailable for this range</div>
+              <div className="research-chart-sub chart-na">MACD: {YAHOO_NOT_SUPPLIED} for this range</div>
             )}
           </div>
           <p className="chart-footnote">{candles.length} verified candles · Yahoo Finance Chart API · Range {range}</p>
@@ -216,7 +218,7 @@ export default function ResearchCharts({ symbol, technicals }) {
       )}
       {!loading && !error && !priceChart && (
         <div className="chart-empty-state">
-          <p className="metric-na">Data Unavailable</p>
+          <p className="metric-na">{YAHOO_NOT_SUPPLIED}</p>
           <p>Awaiting Latest Market Data</p>
         </div>
       )}

@@ -1,11 +1,13 @@
 "use client";
 
+const YAHOO_NOT_SUPPLIED = "Not supplied by Yahoo Finance";
+
 export default function RiskAnalysisPanel({ risk }) {
   if (!risk) {
     return (
       <section id="section-risk" className="research-section glass-card muted-section">
         <h3>Risk Analysis</h3>
-        <p className="metric-na">Data Unavailable</p>
+        <p className="metric-na">{YAHOO_NOT_SUPPLIED}</p>
       </section>
     );
   }

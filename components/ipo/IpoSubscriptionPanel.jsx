@@ -6,7 +6,7 @@ function SubGauge({ label, metric }) {
   return (
     <div className="sub-gauge">
       <small>{label}</small>
-      <strong>{metric?.available ? metric.display : "Awaiting official verified data."}</strong>
+        <strong>{metric?.available ? metric.display : "Not published by NSE"}</strong>
       {metric?.available && (
         <div className="gauge-bar"><div className="gauge-fill" style={{ width: `${pct}%` }} /></div>
       )}

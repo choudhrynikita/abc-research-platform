@@ -63,6 +63,10 @@ describe("financial-intelligence policy", () => {
 
     const timeout = mapApiFailure(new Error("request timeout"));
     assert.equal(timeout.code, "TIMEOUT");
+    const timedOut = mapApiFailure(new Error("upstream request timed out"));
+    assert.equal(timedOut.httpStatus, 504);
+    assert.equal(timedOut.code, "TIMEOUT");
+    assert.equal(timedOut.verified, false);
   });
 
   it("wraps verified fields with provenance metadata", () => {
