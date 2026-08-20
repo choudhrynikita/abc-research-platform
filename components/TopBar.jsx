@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AppIcon from "./AppIcon";
 
 const THEME_KEY = "abc-theme";
 const DEFAULT_THEME = "light";
@@ -146,7 +147,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
         onClick={onMenuToggle}
       >
         <span className="menu-btn-icon" aria-hidden="true">
-          {sidebarOpen ? "✕" : "☰"}
+          <AppIcon name={sidebarOpen ? "close" : "menu"} size={19} />
         </span>
       </button>
       <h1 className="topbar-title">
@@ -161,7 +162,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
         aria-label="Open AI Research Copilot search"
       >
         <span className="topbar-copilot-icon" aria-hidden="true">
-          ✦
+          <AppIcon name="sparkle" size={16} />
         </span>
         <span className="topbar-copilot-placeholder">
           Ask AI Copilot — stocks, NIFTY, FII/DII…
@@ -187,7 +188,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
         >
           <span className="theme-label-full">{theme === "dark" ? "Light" : "Dark"}</span>
           <span className="theme-label-short" aria-hidden="true">
-            {theme === "dark" ? "☀" : "☾"}
+            <AppIcon name={theme === "dark" ? "sun" : "moon"} size={15} />
           </span>
         </button>
         <div

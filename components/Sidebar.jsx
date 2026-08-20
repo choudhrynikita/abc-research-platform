@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { forwardRef } from "react";
 import { NAV_GROUPS, isActivePath } from "../lib/nav-config";
+import AppIcon from "./AppIcon";
 
 /**
  * Primary product navigation.
@@ -34,7 +35,7 @@ const Sidebar = forwardRef(function Sidebar(
       <div className="sidebar-header-row">
         <div className="sidebar-brand">
           <span className="logo-icon" aria-hidden="true">
-            ◈
+            <AppIcon name="brand" size={20} strokeWidth={1.7} />
           </span>
           <div className="sidebar-brand-text">
             <strong className="sidebar-brand-name">ABC Research</strong>
@@ -77,7 +78,7 @@ const Sidebar = forwardRef(function Sidebar(
                       tabIndex={ariaHidden ? -1 : undefined}
                     >
                       <span className="nav-item-icon" aria-hidden="true">
-                        {item.icon}
+                        <AppIcon name={item.icon} size={17} strokeWidth={1.8} />
                       </span>
                       <span className="nav-item-text">
                         <span className="nav-item-label">{item.label}</span>
@@ -101,7 +102,7 @@ const Sidebar = forwardRef(function Sidebar(
           tabIndex={ariaHidden ? -1 : undefined}
         >
           <span className="sidebar-copilot-cta-icon" aria-hidden="true">
-            ✦
+            <AppIcon name="sparkle" size={17} strokeWidth={1.8} />
           </span>
           <span className="sidebar-copilot-cta-text">
             <span className="sidebar-copilot-cta-title">AI Research Copilot</span>

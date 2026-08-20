@@ -8021,3 +8021,142 @@ html[data-theme="light"] .theme-toggle-dark, html[data-theme="dark"] .theme-togg
 html[data-theme="light"] .theme-toggle:hover, html[data-theme="dark"] .theme-toggle:hover {
   background: var(--bg-hover); color: var(--accent);
 }
+
+/* ── ABC interface polish layer ── */
+:root {
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-slow: 420ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-distance-sm: 4px;
+  --motion-distance-md: 12px;
+}
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
+
+.app-icon {
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.btn,
+.chip,
+.period-seg-btn,
+.nav-item,
+.sidebar-copilot-cta,
+.theme-toggle,
+.menu-btn,
+.topbar-copilot-search {
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+.btn:active,
+.chip:active,
+.period-seg-btn:active,
+.sidebar-copilot-cta:active,
+.theme-toggle:active,
+.menu-btn:active,
+.topbar-copilot-search:active {
+  transform: scale(0.97);
+}
+
+.nav-item {
+  position: relative;
+  isolation: isolate;
+}
+.nav-item::before {
+  content: "";
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0;
+  transform: scaleY(0.45);
+  transition: opacity var(--motion-normal) var(--ease-standard), transform var(--motion-normal) var(--ease-emphasized);
+}
+.nav-item.active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+.nav-item-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  transition: transform var(--motion-normal) var(--ease-emphasized), background-color var(--motion-normal) var(--ease-standard), color var(--motion-normal) var(--ease-standard);
+}
+.nav-item:hover .nav-item-icon,
+.nav-item.active .nav-item-icon {
+  transform: translateX(2px);
+}
+.nav-item.active .nav-item-icon {
+  background: var(--accent-soft);
+}
+
+.logo-icon,
+.sidebar-copilot-cta-icon,
+.topbar-copilot-icon,
+.menu-btn-icon {
+  display: grid;
+  place-items: center;
+}
+.logo-icon .app-icon {
+  color: currentColor;
+}
+.sidebar-copilot-cta-icon {
+  transition: transform var(--motion-slow) var(--ease-emphasized);
+}
+.sidebar-copilot-cta:hover .sidebar-copilot-cta-icon,
+.sidebar-copilot-cta:focus-visible .sidebar-copilot-cta-icon {
+  transform: rotate(8deg) scale(1.08);
+}
+
+.status-pill.live .status-dot {
+  animation: status-pulse 1.8s ease-in-out infinite;
+}
+@keyframes status-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--green-soft); }
+  50% { box-shadow: 0 0 0 5px transparent; }
+}
+
+.topbar-copilot-icon .app-icon {
+  transition: transform var(--motion-normal) var(--ease-emphasized);
+}
+.topbar-copilot-search:hover .topbar-copilot-icon,
+.topbar-copilot-search:focus-visible .topbar-copilot-icon {
+  transform: rotate(8deg) scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-pill.live .status-dot,
+  .sidebar-copilot-cta:hover .sidebar-copilot-cta-icon,
+  .sidebar-copilot-cta:focus-visible .sidebar-copilot-cta-icon {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    gap: 8px;
+  }
+  .topbar-copilot-search {
+    margin-inline: 2px;
+    padding-inline: 10px;
+  }
+  .topbar-actions {
+    gap: 6px;
+  }
+  .status-pill {
+    max-width: 42px;
+    overflow: hidden;
+  }
+}
