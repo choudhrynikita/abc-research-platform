@@ -85,15 +85,24 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
   const netPerLot = ps.premiumPerLot ?? (net != null && ps.lotSize != null ? net * ps.lotSize : null);
   const isCredit = netPerLot != null && netPerLot < 0;
   const statusCls =
-    strategy.status === "Active"
+    strategy.status === "Active" || strategy.status === "Live"
       ? "active"
-      : strategy.status === "Pre-Market"
-        ? "pre-market"
-        : strategy.status === "Wait"
-          ? "wait"
-          : "avoid";
+      : strategy.status === "Next Session"
+        ? "next-session"
+        : strategy.status === "This Week"
+          ? "this-week"
+          : strategy.status === "Week-Ahead"
+            ? "week-ahead"
+            : strategy.status === "Defer"
+              ? "defer"
+              : strategy.status === "Watch" || strategy.status === "Wait"
+                ? "wait"
+                : "avoid";
   const a = strategy.analytics || {};
   const rr = strategy.riskRewardRatio ?? ps.riskRewardRatio;
+  const isReferencePlan = strategy.mode !== "live";
+  const eligibility = strategy.eligibility;
+  const readyGateCount = eligibility?.gates?.filter((gate) => gate.state === "ready").length ?? 0;
 
   return (
     <article
@@ -118,7 +127,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         <span className="strategy-expiry">
           Monthly · {strategy.expiry ?? DATA_UNAVAILABLE}
         </span>
-        {strategy.modeLabel && strategy.mode === "pre-market" && (
+        {strategy.modeLabel && (
           <span className="strategy-mode-label">{strategy.modeLabel}</span>
         )}
       </div>
@@ -130,10 +139,10 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           value={
             netPerLot != null
               ? `${isCredit ? "Credit " : "Debit "}${fmtRs(Math.abs(netPerLot))}${
-                  strategy.mode === "pre-market" ? " ref." : ""
+                  isReferencePlan ? " ref." : ""
                 }`
-              : strategy.mode === "pre-market"
-                ? "Trigger at open"
+              : isReferencePlan
+                ? "Check when traded"
                 : DATA_UNAVAILABLE
           }
         />
@@ -221,6 +230,26 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           </strong>
         </div>
       </div>
+
+      {eligibility && (
+        <details className={`strategy-evidence${eligibility.decision === "DEFER" ? " defer" : ""}`} open={eligibility.decision === "DEFER"} onClick={(event) => event.stopPropagation()}>
+          <summary>
+            <span>Decision checks</span>
+            <strong>{eligibility.decision} · {readyGateCount}/{eligibility.gates.length} ready</strong>
+          </summary>
+          <div className="strategy-evidence-body">
+            <ul className="strategy-gate-list">
+              {eligibility.gates.map((gate) => (
+                <li key={gate.label} className={gate.state}>
+                  <strong>{gate.label}</strong><span>{gate.detail}</span>
+                </li>
+              ))}
+            </ul>
+            {eligibility.financial?.signals?.length > 0 && <p className="strategy-financial-note">Financial context: {eligibility.financial.signals.join(" · ")}</p>}
+            {eligibility.blockers?.length > 0 && <p className="strategy-defer-note">Do not act yet: {eligibility.blockers.join("; ")}</p>}
+          </div>
+        </details>
+      )}
 
       {strategy.premiumNote && (
         <p className="strategy-premium-note">{strategy.premiumNote}</p>

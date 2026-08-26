@@ -4,7 +4,7 @@ export default function MarketStatusBanner({ marketStatus, refreshedAt, source, 
   if (!marketStatus) return null;
 
   const isLive = marketStatus.mode === "live";
-  const modeCls = isLive ? "live" : "pre-market";
+  const modeCls = isLive ? "live" : "planning";
 
   return (
     <section className={`market-status-banner glass-card ${modeCls}`} role="status" aria-live="polite">
@@ -42,7 +42,7 @@ export default function MarketStatusBanner({ marketStatus, refreshedAt, source, 
 
       {!isLive && (
         <p className="msb-footnote">
-          Strategies labeled <em>Pre-Market</em> use the latest verified market close. Conditional triggers apply where Monday open premiums are unknown.
+          {marketStatus.planningNote || "Reference prices use the latest verified close. Confirm the premium and trigger when the planned session begins."}
         </p>
       )}
     </section>

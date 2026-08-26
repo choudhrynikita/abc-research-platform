@@ -99,7 +99,7 @@ describe("buildVerifiedSnapshot", () => {
   it("marks missing premiums as unverified", () => {
     const preMarket = {
       ...sampleStrategy,
-      mode: "pre-market",
+      mode: "planning",
       premiums: { net: null },
       strikes: [{ strike: 24500, type: "CE", action: "BUY", premium: null }],
       analytics: {},
@@ -211,8 +211,8 @@ describe("getSuggestedQuestions", () => {
 
 describe("getEducationalInsights", () => {
   it("includes limitations about verified data", () => {
-    const insights = getEducationalInsights({ type: "Iron Condor", mode: "pre-market" });
+    const insights = getEducationalInsights({ type: "Iron Condor", mode: "planning" });
     assert.ok(insights.limitations.some((l) => l.includes("verified")));
-    assert.ok(insights.limitations.some((l) => l.includes("Pre-market")));
+    assert.ok(insights.limitations.some((l) => l.includes("Reference plans")));
   });
 });

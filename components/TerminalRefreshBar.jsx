@@ -7,7 +7,7 @@ export default function TerminalRefreshBar({
   marketStatus,
   disabled,
 }) {
-  const mode = marketStatus?.mode === "live" ? "live" : "pre-market";
+  const mode = marketStatus?.mode === "live" ? "live" : "planning";
 
   return (
     <div className="terminal-refresh-bar glass-card" role="toolbar" aria-label="Data refresh controls">

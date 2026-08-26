@@ -194,7 +194,7 @@ export default function StrategyAssistant({
           <h3>{prefetch?.strategyContext?.name || strategy.name || strategy.companyName}</h3>
           <p className="panel-sub">
             {strategy.type} · {strategy.bias} · {strategy.expiry || "—"}
-            {strategy.mode === "pre-market" && " · Pre-market reference data"}
+            {strategy.mode !== "live" && " · reference plan based on the latest verified close"}
           </p>
         </div>
         <span className="assistant-badge">Verified data only</span>

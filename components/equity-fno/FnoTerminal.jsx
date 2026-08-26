@@ -25,19 +25,19 @@ function ExecutiveSummary({ summary, refreshedAt, marketStatus }) {
           <p className="terminal-eyebrow">Executive Summary</p>
           <h2>Equity F&O Strategy Center</h2>
           <p className="panel-sub">
-            {isLive ? "Top 10 equity options · live NSE verified data" : "Pre-market equity preparation · latest verified close"}
+            {isLive ? "Top 10 equity options · live NSE verified data" : `Equity plans for ${marketStatus?.planningDateLabel || "the next trading session"} · latest verified close`}
           </p>
         </div>
         <div className="exec-badges">
           <span className={`market-pill ${isLive ? "market-open" : "market-closed"}`}>
-            {isLive ? "Live Session" : "Pre-Market"}
+            {isLive ? "Live Session" : marketStatus?.strategyStateLabel || "Planning"}
           </span>
           <span className={`data-pill${summary.chainsStale > 0 ? " cached" : ""}`}>
             {summary.chainsVerified}/{summary.universeSize} Chains
           </span>
           <span className="data-pill">
             {summary.strategiesTotal ?? 0} Ranked
-            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Active` : ""}
+            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Ready to review` : ""}
           </span>
           <TerminalExport module="fno" />
         </div>
@@ -101,6 +101,7 @@ export default function FnoTerminal() {
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState(null);
   const [chartKey, setChartKey] = useState(0);
+  const [horizonFilter, setHorizonFilter] = useState("all");
 
   const load = useCallback((isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -176,6 +177,20 @@ export default function FnoTerminal() {
   }
 
   const top10 = data?.top10 || [];
+  const visibleStrategies = top10.filter((strategy) => {
+    if (horizonFilter === "all") return true;
+    if (horizonFilter === "defer") return strategy.eligibility?.decision === "DEFER" || strategy.eligibility?.decision === "WATCH";
+    if (horizonFilter === "live") return strategy.eligibility?.decision === "LIVE";
+    return strategy.status === horizonFilter;
+  });
+  const filterOptions = [
+    ["all", "All"],
+    ["live", "Live"],
+    ["Next Session", "Next Session"],
+    ["This Week", "This Week"],
+    ["Week-Ahead", "Week Ahead"],
+    ["defer", "Watch / Defer"],
+  ];
 
   return (
     <div className={`fno-terminal terminal-vertical${refreshing ? " is-refreshing" : ""}`}>
@@ -227,18 +242,35 @@ export default function FnoTerminal() {
               : ""}
             {data?.marketMode === "live"
               ? "Sorted by confidence score — trend, liquidity, OI, RS, volume & risk-reward"
-              : "Pre-market preparation — technical setups with conditional entry triggers"}
+              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next trading session"} — stock trend, financial context, contract quality and conditional entry checks`}
           </p>
+        </div>
+        <div className="strategy-horizon-filters" role="group" aria-label="Filter strategies by planning horizon">
+          {filterOptions.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`chip sm${horizonFilter === value ? " active" : ""}`}
+              onClick={() => setHorizonFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         {top10.length === 0 ? (
           <div className="strategy-empty glass-card">
-            <p>Building pre-market equity strategies from verified data…</p>
+            <p>Building equity strategy plans from verified data…</p>
             <p className="panel-sub">Technical &amp; market context loads from verified price feeds even when NSE chains are offline.</p>
             <button className="btn btn-primary" type="button" onClick={() => load(true)}>Refresh Data</button>
           </div>
+        ) : visibleStrategies.length === 0 ? (
+          <div className="strategy-empty glass-card">
+            <p>No strategies match this planning filter.</p>
+            <button className="btn btn-secondary" type="button" onClick={() => setHorizonFilter("all")}>Show All Strategies</button>
+          </div>
         ) : (
           <div className="strategy-grid">
-            {top10.map((s) => (
+            {visibleStrategies.map((s) => (
               <FnoStrategyCard
                 key={`${s.rank}-${s.symbol}-${s.type}`}
                 strategy={s}

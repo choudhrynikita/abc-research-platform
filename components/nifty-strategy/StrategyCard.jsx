@@ -15,13 +15,19 @@ function fmt(v, digits = 2) {
 
 function StatusBadge({ status }) {
   const cls =
-    status === "Active"
+    status === "Active" || status === "Live"
       ? "active"
-      : status === "Pre-Market"
-        ? "pre-market"
-        : status === "Wait"
-          ? "wait"
-          : "avoid";
+      : status === "Next Session"
+        ? "next-session"
+        : status === "This Week"
+          ? "this-week"
+          : status === "Week-Ahead"
+            ? "week-ahead"
+            : status === "Defer"
+              ? "defer"
+              : status === "Watch" || status === "Wait"
+                ? "wait"
+                : "avoid";
   return <span className={`strategy-status ${cls}`}>{status ?? "—"}</span>;
 }
 
@@ -134,6 +140,9 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
   const netPrem = strategy.premiums?.net ?? strategy.payoff?.netPremium;
   const isCredit = netPrem != null && netPrem < 0;
   const rr = strategy.riskRewardRatio ?? strategy.payoff?.riskRewardRatio;
+  const isReferencePlan = strategy.mode !== "live";
+  const eligibility = strategy.eligibility;
+  const readyGateCount = eligibility?.gates?.filter((gate) => gate.state === "ready").length ?? 0;
 
   return (
     <article
@@ -151,7 +160,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           <span className="strategy-expiry">
             {strategy.expiryType} · {strategy.expiry ?? PREMIUMS_UNAVAILABLE}
           </span>
-          {strategy.modeLabel && strategy.mode === "pre-market" && (
+          {strategy.modeLabel && (
             <span className="strategy-mode-label">{strategy.modeLabel}</span>
           )}
         </div>
@@ -165,10 +174,10 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           value={
             netPrem != null
               ? `${isCredit ? "Credit " : "Debit "}₹${fmt(Math.abs(netPrem))}${
-                  strategy.mode === "pre-market" ? " ref." : ""
+                  isReferencePlan ? " ref." : ""
                 }`
-              : strategy.mode === "pre-market"
-                ? "Trigger at open"
+              : isReferencePlan
+                ? "Check when traded"
                 : PREMIUMS_UNAVAILABLE
           }
         />
@@ -251,6 +260,25 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
 
       {strategy.premiumNote && (
         <p className="strategy-premium-note">{strategy.premiumNote}</p>
+      )}
+
+      {eligibility && (
+        <details className={`strategy-evidence${eligibility.decision === "DEFER" ? " defer" : ""}`} open={eligibility.decision === "DEFER"} onClick={(event) => event.stopPropagation()}>
+          <summary>
+            <span>Decision checks</span>
+            <strong>{eligibility.decision} · {readyGateCount}/{eligibility.gates.length} ready</strong>
+          </summary>
+          <div className="strategy-evidence-body">
+            <ul className="strategy-gate-list">
+              {eligibility.gates.map((gate) => (
+                <li key={gate.label} className={gate.state}>
+                  <strong>{gate.label}</strong><span>{gate.detail}</span>
+                </li>
+              ))}
+            </ul>
+            {eligibility.blockers?.length > 0 && <p className="strategy-defer-note">Do not act yet: {eligibility.blockers.join("; ")}</p>}
+          </div>
+        </details>
       )}
 
       {selected && (

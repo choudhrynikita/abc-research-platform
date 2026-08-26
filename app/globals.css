@@ -4663,7 +4663,7 @@ th {
   background: linear-gradient(135deg, var(--green-06), transparent);
 }
 
-.market-status-banner.pre-market {
+.market-status-banner.planning {
   border-left-color: var(--yellow);
   background: linear-gradient(135deg, var(--yellow-08), transparent);
 }
@@ -4693,7 +4693,7 @@ th {
   color: var(--green);
 }
 
-.msb-badge.pre-market {
+.msb-badge.planning {
   background: var(--yellow-15);
   color: var(--yellow);
 }
@@ -4766,6 +4766,74 @@ th {
   font-style: italic;
   line-height: 1.4;
 }
+
+.strategy-horizon-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0 4px;
+}
+
+.strategy-evidence {
+  margin: 12px 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.strategy-evidence.defer { border-color: color-mix(in srgb, var(--red) 35%, var(--border)); }
+
+.strategy-evidence summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.78rem;
+}
+
+.strategy-evidence summary::-webkit-details-marker { display: none; }
+.strategy-evidence summary strong { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.03em; }
+.strategy-evidence.defer summary strong { color: var(--red); }
+
+.strategy-evidence-body {
+  padding: 0 12px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.strategy-gate-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: grid;
+  gap: 7px;
+}
+
+.strategy-gate-list li {
+  display: grid;
+  grid-template-columns: minmax(104px, 0.75fr) minmax(0, 1.6fr);
+  gap: 10px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.strategy-gate-list li strong { color: var(--text); font-size: 0.73rem; }
+.strategy-gate-list li.ready strong::before { content: "● "; color: var(--green); }
+.strategy-gate-list li.partial strong::before,
+.strategy-gate-list li.reference strong::before { content: "● "; color: var(--yellow); }
+.strategy-gate-list li.blocked strong::before { content: "● "; color: var(--red); }
+
+.strategy-defer-note,
+.strategy-financial-note {
+  margin: 8px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+.strategy-defer-note { color: var(--red); }
 
 .data-pill {
   padding: 6px 12px;
@@ -6589,14 +6657,39 @@ th {
   color: var(--yellow);
 }
 
-.strategy-status.pre-market {
+.strategy-status.planning {
   background: var(--accent-12);
   color: var(--accent);
+}
+
+.strategy-status.next-session,
+.strategy-status.this-week,
+.strategy-status.week-ahead {
+  background: var(--accent-12);
+  color: var(--accent);
+}
+
+.strategy-status.defer {
+  background: var(--red-12);
+  color: var(--red);
 }
 
 .strategy-status.avoid {
   background: var(--red-12);
   color: var(--red);
+}
+
+@media (max-width: 640px) {
+  .strategy-horizon-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .strategy-horizon-filters::-webkit-scrollbar { display: none; }
+  .strategy-horizon-filters .chip { white-space: nowrap; }
+  .strategy-gate-list li { grid-template-columns: 1fr; gap: 2px; }
+  .strategy-evidence summary { align-items: flex-start; flex-direction: column; gap: 4px; }
 }
 
 .strategy-metrics-row,

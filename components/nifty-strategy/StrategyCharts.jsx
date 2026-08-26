@@ -356,7 +356,7 @@ export default function StrategyCharts({
               </span>
             )}
           </p>
-          {marketStatus?.mode === "pre-market" && (
+          {marketStatus?.isLive === false && (
             <p className="chart-session-banner">{chartContext?.note || "Charts reflect the latest completed trading session"}</p>
           )}
         </div>

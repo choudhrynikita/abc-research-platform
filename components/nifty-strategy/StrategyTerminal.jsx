@@ -34,12 +34,12 @@ function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
         </div>
         <div className="exec-badges">
           <span className={`market-pill ${isLive ? "market-open" : "market-closed"}`}>
-            {isLive ? "Live Session" : "Pre-Market"}
+            {isLive ? "Live Session" : marketStatus?.strategyStateLabel || "Planning"}
           </span>
           <span className={`data-pill${chainStatus?.stale ? " cached" : ""}`}>{chainLabel}</span>
           <span className="data-pill">
             {summary.strategiesTotal ?? 0} Ranked
-            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Active` : ""}
+            {summary.strategiesActive != null ? ` · ${summary.strategiesActive} Ready to review` : ""}
           </span>
           <TerminalExport module="nifty-strategy" />
         </div>
@@ -115,6 +115,7 @@ export default function StrategyTerminal() {
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState(null);
   const [chartKey, setChartKey] = useState(0);
+  const [horizonFilter, setHorizonFilter] = useState("all");
 
   const load = useCallback((isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -169,6 +170,20 @@ export default function StrategyTerminal() {
   }
 
   const top10 = data?.top10 || [];
+  const visibleStrategies = top10.filter((strategy) => {
+    if (horizonFilter === "all") return true;
+    if (horizonFilter === "defer") return strategy.eligibility?.decision === "DEFER" || strategy.eligibility?.decision === "WATCH";
+    if (horizonFilter === "live") return strategy.eligibility?.decision === "LIVE";
+    return strategy.status === horizonFilter;
+  });
+  const filterOptions = [
+    ["all", "All"],
+    ["live", "Live"],
+    ["Next Session", "Next Session"],
+    ["This Week", "This Week"],
+    ["Week-Ahead", "Week Ahead"],
+    ["defer", "Watch / Defer"],
+  ];
 
   return (
     <div className={`strategy-terminal terminal-vertical${refreshing ? " is-refreshing" : ""}`}>
@@ -225,21 +240,39 @@ export default function StrategyTerminal() {
               : ""}
             {data?.marketMode === "live"
               ? "Sorted by confidence score — live trend, volatility, OI, PCR, volume & risk-reward"
-              : "Pre-market preparation — sorted by technical alignment, OI structure & verified close data"}
+              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — technical fit, option structure, expiry risk and verified close data`}
           </p>
+        </div>
+
+        <div className="strategy-horizon-filters" role="group" aria-label="Filter strategies by planning horizon">
+          {filterOptions.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={`chip sm${horizonFilter === value ? " active" : ""}`}
+              onClick={() => setHorizonFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {top10.length === 0 ? (
           <div className="strategy-empty glass-card">
-            <p>Building pre-market strategies from verified price data…</p>
+            <p>Building strategy plans from verified price data…</p>
             <p className="panel-sub">
               {data?.chainStatus?.message || "Retry refresh — technical setups generate from verified close data."}
             </p>
             <button className="btn btn-primary" type="button" onClick={() => load(true)}>Refresh Data</button>
           </div>
+        ) : visibleStrategies.length === 0 ? (
+          <div className="strategy-empty glass-card">
+            <p>No strategies match this planning filter.</p>
+            <button className="btn btn-secondary" type="button" onClick={() => setHorizonFilter("all")}>Show All Strategies</button>
+          </div>
         ) : (
           <div className="strategy-grid">
-            {top10.map((s) => (
+            {visibleStrategies.map((s) => (
               <StrategyCard
                 key={`${s.rank}-${s.name}`}
                 strategy={s}
