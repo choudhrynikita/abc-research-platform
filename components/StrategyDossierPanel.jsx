@@ -35,6 +35,19 @@ function FactorList({ items, empty = DATA_UNAVAILABLE, className = "" }) {
   );
 }
 
+function formatPositionSizingGuidance(value) {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (typeof value !== "object") return String(value);
+  const parts = [];
+  if (value.breakEven != null) parts.push(`Break-even ${fmt(value.breakEven)}`);
+  if (value.premiumPerLot != null) parts.push(`Premium per lot ₹${fmt(value.premiumPerLot)}`);
+  if (value.lotSize != null) parts.push(`Lot size ${fmt(value.lotSize, 0)}`);
+  if (value.riskRewardRatio != null) parts.push(`R:R ${fmt(value.riskRewardRatio)}:1`);
+  if (value.returnOnRisk != null) parts.push(`Return on risk ${fmt(value.returnOnRisk)}%`);
+  return parts.length ? parts.join(" · ") : DATA_UNAVAILABLE;
+}
+
 /**
  * Institutional investment dossier — facts vs model opinion clearly labeled.
  * Never displays fabricated success rates; backtest section is honest about availability.
@@ -50,6 +63,7 @@ export default function StrategyDossierPanel({
   const conf = confidence || dossier?.confidence || dossier?.tradeConviction;
   const bt = backtest || dossier?.backtest;
   const score = conf?.score;
+  const positionSizingGuidance = formatPositionSizingGuidance(dossier?.positionSizingGuidance);
 
   if (compact) {
     return (
@@ -231,9 +245,9 @@ export default function StrategyDossierPanel({
             <strong>{dossier?.suitableInvestorProfile || DATA_UNAVAILABLE}</strong>
           </div>
         </div>
-        {dossier?.positionSizingGuidance && (
+        {positionSizingGuidance && (
           <p className="dossier-note">
-            <strong>Position sizing:</strong> {dossier.positionSizingGuidance}
+            <strong>Position sizing:</strong> {positionSizingGuidance}
           </p>
         )}
         {dossier?.capitalAllocationSuggestion && (

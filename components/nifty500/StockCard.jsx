@@ -3,6 +3,7 @@
 import Link from "next/link";
 import MetricValue from "./MetricValue";
 import { FundamentalsStrip } from "./FundamentalsPanel";
+import AddToBriefButton from "../research-brief/AddToBriefButton";
 
 function ScorePill({ label, value }) {
   const missing = value == null || Number.isNaN(value);
@@ -14,7 +15,7 @@ function ScorePill({ label, value }) {
   );
 }
 
-export default function StockCard({ stock, rank }) {
+export default function StockCard({ stock, rank, asOf }) {
   const chg = stock.changePercent;
   const chgCls = chg == null ? "" : chg >= 0 ? "up" : "down";
   const rec = stock.recommendation;
@@ -122,6 +123,12 @@ export default function StockCard({ stock, rank }) {
           )}
         </footer>
       )}
+      <div className="stock-card-actions">
+        <AddToBriefButton stock={stock} asOf={asOf} />
+        <Link href={`/nifty500/stock/${encodeURIComponent(stock.symbol)}`} className="stock-card-open-link">
+          Review evidence <span aria-hidden="true">→</span>
+        </Link>
+      </div>
     </article>
   );
 }

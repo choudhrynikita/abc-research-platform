@@ -40,6 +40,16 @@ try {
   dashboard.on("pageerror", (error) => dashboardErrors.push(error.message));
   await dashboard.goto(`${baseUrl}/nifty500`, { waitUntil: "domcontentloaded" });
   await dashboard.waitForTimeout(900);
+  const initialAddToBrief = dashboard.getByRole("button", { name: /Add .* to Research Brief/ }).first();
+  await initialAddToBrief.waitFor({ state: "visible", timeout: 60000 });
+  await initialAddToBrief.click();
+  await dashboard.goto(`${baseUrl}/brief`, { waitUntil: "domcontentloaded" });
+  await dashboard.locator(".brief-card").first().waitFor({ state: "visible" });
+  assert(await dashboard.locator(".brief-source-row").count() >= 1, "brief should retain source context");
+  assert(await dashboard.getByText("Action and confidence are captured model output").count() >= 1, "brief should label captured model output as non-advisory");
+  results.push("source-linked Research Brief snapshot");
+  await dashboard.goto(`${baseUrl}/nifty500`, { waitUntil: "domcontentloaded" });
+  await dashboard.waitForTimeout(700);
   const search = dashboard.locator("#nifty500-search");
   await search.fill("RELIANCE");
   await dashboard.waitForTimeout(250);
