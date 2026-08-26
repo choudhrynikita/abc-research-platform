@@ -1,5 +1,7 @@
 "use client";
 
+/** Signal Glass primary workspace: live signal cards retain explicit source, status, and time context. */
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import MarketOverviewBar from "./MarketOverviewBar";
 import MarketMoversPanel from "./MarketMoversPanel";
@@ -151,6 +153,25 @@ export default function Nifty500Dashboard() {
           </span>
         </div>
       </header>
+
+      <div className="signal-provenance-strip" aria-label="Market data provenance">
+        <div className="provenance-item">
+          <span className="provenance-mark nse">N</span>
+          <span><strong>NSE universe</strong><small>Constituent scope and exchange context</small></span>
+          <em>Source</em>
+        </div>
+        <div className="provenance-item">
+          <span className="provenance-mark yahoo">Y</span>
+          <span><strong>Yahoo Finance</strong><small>Price, technical, and OHLCV feed</small></span>
+          <em>Verified</em>
+        </div>
+        <div className="provenance-item">
+          <span className="provenance-mark model">A</span>
+          <span><strong>ABC scoring layer</strong><small>Interpretation remains separate from facts</small></span>
+          <em>Method</em>
+        </div>
+        <div className="provenance-freshness"><span /><small>Updated {formatRefreshTime(data?.dataIntegrity?.refreshedAt)}</small></div>
+      </div>
 
       <MarketOverviewBar data={data} />
 

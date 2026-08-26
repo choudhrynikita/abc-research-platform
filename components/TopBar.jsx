@@ -1,5 +1,7 @@
 "use client";
 
+/** Signal Glass top bar: calm workspace framing with visible operational context. */
+
 import { useEffect, useState } from "react";
 import AppIcon from "./AppIcon";
 
@@ -154,6 +156,7 @@ export default function TopBar({ pathname, onMenuToggle, sidebarOpen, onOpenCopi
         <span className="topbar-title-full">{title}</span>
         <span className="topbar-title-short">{shortTitle}</span>
       </h1>
+      <span className="topbar-route-context">Evidence-led workspace</span>
 
       <button
         type="button"

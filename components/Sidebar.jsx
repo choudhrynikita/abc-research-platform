@@ -1,5 +1,6 @@
 "use client";
 
+/** Signal Glass navigation: cobalt analysis, mint verification, and precise line instruments. */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { forwardRef } from "react";
@@ -39,7 +40,7 @@ const Sidebar = forwardRef(function Sidebar(
           </span>
           <div className="sidebar-brand-text">
             <strong className="sidebar-brand-name">ABC Research</strong>
-            <p className="sidebar-brand-tagline">Market Intelligence</p>
+            <p className="sidebar-brand-tagline">Evidence-Led Intelligence</p>
           </div>
         </div>
         <button

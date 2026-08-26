@@ -15,7 +15,7 @@ const selectors = [
 ];
 
 const expected = {
-  light: { bg: "rgb(245, 241, 232)", surface: "rgb(255, 253, 248)", ink: "rgb(40, 37, 31)", muted: "rgb(122, 110, 95)", border: "rgb(216, 207, 191)", accent: "rgb(182, 109, 44)", accentSoft: "rgba(182, 109, 44, 0.14)", green: "rgb(47, 125, 74)", red: "rgb(185, 74, 72)", yellow: "rgb(184, 120, 21)", onAccent: "rgb(255, 255, 255)" },
+  light: { bg: "rgb(244, 248, 244)", surface: "rgb(255, 255, 255)", ink: "rgb(29, 42, 38)", muted: "rgb(109, 123, 115)", border: "rgb(216, 227, 218)", accent: "rgb(53, 103, 199)", accentSoft: "rgba(53, 103, 199, 0.12)", green: "rgb(32, 128, 77)", red: "rgb(189, 92, 74)", yellow: "rgb(187, 122, 37)", onAccent: "rgb(255, 255, 255)" },
   dark: { bg: "rgb(15, 21, 24)", surface: "rgb(24, 33, 38)", ink: "rgb(237, 240, 235)", muted: "rgb(154, 169, 169)", border: "rgb(52, 75, 74)", accent: "rgb(230, 178, 90)", accentSoft: "rgba(230, 178, 90, 0.16)", green: "rgb(105, 196, 134)", red: "rgb(239, 139, 131)", yellow: "rgb(230, 178, 90)", onAccent: "rgb(255, 255, 255)" },
 };
 
