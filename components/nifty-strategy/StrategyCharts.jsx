@@ -440,7 +440,7 @@ export default function StrategyCharts({
 
           <div className="strategy-chart-stack deriv-charts">
             <div className="strategy-chart-sub chart-canvas-wrap">
-              <h5 className="chart-mini-title">Open Interest</h5>
+              <h4 className="chart-mini-title">Open Interest</h4>
               {oiBarChart ? (
                 <Chart type="bar" data={oiBarChart.data} options={oiBarChart.options} />
               ) : (
@@ -448,11 +448,11 @@ export default function StrategyCharts({
               )}
             </div>
             <div className="strategy-chart-sub chart-canvas-wrap">
-              <h5 className="chart-mini-title">Put–Call Ratio</h5>
+              <h4 className="chart-mini-title">Put–Call Ratio</h4>
               <PcrGauge pcr={pcr} />
             </div>
             <div className="strategy-chart-sub chart-canvas-wrap">
-              <h5 className="chart-mini-title">Implied Volatility</h5>
+              <h4 className="chart-mini-title">Implied Volatility</h4>
               {ivChart ? (
                 <Chart type="bar" data={ivChart.data} options={ivChart.options} />
               ) : (

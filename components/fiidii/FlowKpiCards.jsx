@@ -66,7 +66,7 @@ function formatCrClient(value, { signed = false } = {}) {
   return `₹ ${body} Cr`;
 }
 
-function FlowValue({ metric, signed = false }) {
+function FlowValue({ metric, signed = false, semantic = "net" }) {
   const available = metric?.available === true && metric?.value != null && Number.isFinite(Number(metric.value));
   if (!available) {
     return (
@@ -76,27 +76,25 @@ function FlowValue({ metric, signed = false }) {
     );
   }
   const n = Number(metric.value);
-  const cls = n > 0 ? "up" : n < 0 ? "down" : "flat";
+  const cls = semantic === "net" ? (n > 0 ? "up" : n < 0 ? "down" : "flat") : semantic;
   const text = metric.display || formatCrClient(n, { signed }) || DATA_UNAVAILABLE;
-  const arrow = n > 0 ? "▲" : n < 0 ? "▼" : "●";
+  const arrow = semantic === "net" ? (n > 0 ? "▲" : n < 0 ? "▼" : "●") : null;
   return (
     <strong className={`flow-value ${cls}`}>
-      <span className="flow-arrow" aria-hidden>
-        {arrow}
-      </span>
+      {arrow && <span className="flow-arrow" aria-hidden>{arrow}</span>}
       {text}
     </strong>
   );
 }
 
-function FlowMetricCard({ label, metricKey, metric, signed = false, accent }) {
+function FlowMetricCard({ label, metricKey, metric, signed = false, accent, semantic = "net" }) {
   return (
-    <div className={`flow-metric-card ${accent || ""}`}>
+    <div className={`flow-metric-card ${accent || ""} ${semantic}`}>
       <div className="flow-metric-label">
         <small>{label}</small>
         <MetricHelp metricKey={metricKey} />
       </div>
-      <FlowValue metric={metric} signed={signed} />
+      <FlowValue metric={metric} signed={signed} semantic={semantic} />
     </div>
   );
 }
@@ -110,22 +108,23 @@ function CategoryPanel({ title, subtitle, flow, change, accent }) {
           {subtitle && <p className="panel-sub">{subtitle}</p>}
         </div>
         {change?.available && (
-          <div className={`flow-change-pill ${change.value >= 0 ? "up" : "down"}`} title="Change vs prior comparable window (verified history only)">
-            <span>vs prior</span>
+          <div className={`flow-change-pill ${change.value >= 0 ? "up" : "down"}`} title="Change in net flow versus the prior comparable verified window">
+            <span>Net flow vs prior</span>
             <strong>
               {change.display || formatCrClient(change.value, { signed: true }) || DATA_UNAVAILABLE}
             </strong>
-            {change.pctDisplay && change.pctDisplay !== DATA_UNAVAILABLE && (
-              <small>{change.pctDisplay}</small>
+            {change.interpretation && (
+              <small>{change.interpretation}</small>
             )}
           </div>
         )}
       </header>
       <div className="flow-metric-row">
-        <FlowMetricCard label="Inflow" metricKey="inflow" metric={flow?.inflow} />
-        <FlowMetricCard label="Outflow" metricKey="outflow" metric={flow?.outflow} />
-        <FlowMetricCard label="Net Flow" metricKey="net" metric={flow?.net} signed accent="net" />
+        <FlowMetricCard label="Gross Buy" metricKey="inflow" metric={flow?.inflow} semantic="gross-buy" />
+        <FlowMetricCard label="Gross Sell" metricKey="outflow" metric={flow?.outflow} semantic="gross-sell" />
+        <FlowMetricCard label="Net Flow" metricKey="net" metric={flow?.net} signed accent="net" semantic="net" />
       </div>
+      <p className="flow-semantics">Gross buy and gross sell show turnover. Net flow is the directional measure: buy minus sell.</p>
     </article>
   );
 }
@@ -165,7 +164,7 @@ export default function FlowKpiCards({ periods, glossary, onPeriodChange, defaul
         <div className="flow-period-intro">
           <h3>Institutional Cash Market Flows</h3>
           <p className="panel-sub">
-            Switch period to view verified Inflow, Outflow, and Net Flow — never estimated
+            Gross buy, gross sell, and net flow from verified NSE sessions — never estimated
           </p>
         </div>
         <div className="period-segment" role="tablist" aria-label="Flow period">
@@ -253,20 +252,21 @@ export default function FlowKpiCards({ periods, glossary, onPeriodChange, defaul
                   <div
                     className={`flow-change-pill ${active.change.combinedNet.value >= 0 ? "up" : "down"}`}
                   >
-                    <span>vs prior</span>
+                    <span>Net flow vs prior</span>
                     <strong>{active.change.combinedNet.display}</strong>
                   </div>
                 )}
               </header>
               <div className="flow-metric-row three">
-                <FlowMetricCard label="Inflow" metricKey="inflow" metric={active.combined?.inflow} />
-                <FlowMetricCard label="Outflow" metricKey="outflow" metric={active.combined?.outflow} />
+                <FlowMetricCard label="Gross Buy" metricKey="inflow" metric={active.combined?.inflow} semantic="gross-buy" />
+                <FlowMetricCard label="Gross Sell" metricKey="outflow" metric={active.combined?.outflow} semantic="gross-sell" />
                 <FlowMetricCard
                   label="Net Flow"
                   metricKey="net"
                   metric={active.combined?.net}
                   signed
                   accent="net"
+                  semantic="net"
                 />
               </div>
             </article>
