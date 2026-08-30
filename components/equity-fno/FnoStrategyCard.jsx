@@ -5,7 +5,7 @@ import PayoffChart from "../nifty-strategy/PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
 
 const DATA_UNAVAILABLE = "No verified premium";
-const FILL_AT_OPEN = "Fill at next open";
+const FILL_AT_OPEN = "Last close not on file";
 
 function fmt(v, d = 2) {
   if (v == null || Number.isNaN(Number(v))) return "—";
@@ -160,7 +160,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           value={
             netPerLot != null
               ? `${isCredit ? "Credit " : "Debit "}${fmtRs(Math.abs(netPerLot))}${
-                  isReferencePlan ? " ref." : ""
+                  isReferencePlan ? " last close" : ""
                 }`
               : isReferencePlan
                 ? FILL_AT_OPEN
@@ -303,7 +303,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
                       ? Number(leg.strike).toLocaleString("en-IN")
                       : DATA_UNAVAILABLE}
                   </td>
-                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit${isReferencePlan ? " ref." : ""}` : isReferencePlan ? FILL_AT_OPEN : DATA_UNAVAILABLE}</td>
+                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit${isReferencePlan ? " last close" : ""}` : isReferencePlan ? FILL_AT_OPEN : DATA_UNAVAILABLE}</td>
                 </tr>
               ))}
             </tbody>

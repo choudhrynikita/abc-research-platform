@@ -4,7 +4,7 @@ import { useState } from "react";
 import PayoffChart from "./PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
 
-const FILL_AT_OPEN = "Fill at next open";
+const FILL_AT_OPEN = "Last close not on file";
 const NO_PREMIUM = "No verified premium";
 
 function fmt(v, digits = 2) {
@@ -36,7 +36,7 @@ function formatPremiumValue(value, { planning = false, credit = false } = {}) {
   }
   const abs = Math.abs(Number(value));
   const side = credit ? "Credit " : Number(value) > 0 && !credit ? "Debit " : "";
-  return `${side}₹${fmt(abs)}${planning ? " ref." : ""}`;
+  return `${side}₹${fmt(abs)}${planning ? " last close" : ""}`;
 }
 
 function formatMaxProfit(strategy) {
@@ -149,7 +149,7 @@ function LegsTable({ strikes, planning }) {
             <td>{leg.strike != null ? Number(leg.strike).toLocaleString("en-IN") : "—"}</td>
             <td>
               {leg.premium != null
-                ? `₹${fmt(leg.premium)}${planning ? " ref." : ""}`
+                ? `₹${fmt(leg.premium)}${planning ? " last close" : ""}`
                 : planning
                   ? FILL_AT_OPEN
                   : NO_PREMIUM}

@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
-const { analyzeChain, computeMaxPain } = require("../lib/nse-options");
+const { analyzeChain, computeMaxPain, parseNseExpiry } = require("../lib/nse-options");
 
 describe("option chain parsing", () => {
   it("handles empty chain gracefully", () => {
@@ -36,7 +36,6 @@ describe("option chain parsing", () => {
     assert.equal(chain.impliedVolatility, 14.5);
     assert.equal(chain.source, "NSE test");
     assert.ok(chain.fetchedAt);
-    // Writer payout is minimized at 2500 (ATM), not a far OTM print
     assert.equal(chain.maxPain, 2500);
   });
 
@@ -136,5 +135,55 @@ describe("option chain parsing", () => {
     assert.equal(chain.available, true);
     assert.equal(chain.strikes[0].ce.premium, 82.5);
     assert.equal(chain.strikes[0].pe.premium, 77.25);
+  });
+
+  it("treats NSE v3 dd-MM-yyyy expiry as the same day as dd-Mon-yyyy", () => {
+    assert.equal(
+      parseNseExpiry("01-09-2026")?.getTime(),
+      parseNseExpiry("01-Sep-2026")?.getTime()
+    );
+    assert.equal(
+      parseNseExpiry("29-09-2026")?.getTime(),
+      parseNseExpiry("29-Sep-2026")?.getTime()
+    );
+    assert.equal(parseNseExpiry("01-09-2026")?.getFullYear(), 2026);
+    assert.equal(parseNseExpiry("01-09-2026")?.getMonth(), 8);
+    assert.equal(parseNseExpiry("01-09-2026")?.getDate(), 1);
+  });
+
+  it("keeps weekend v3 legs when URL expiry is 01-Sep-2026 and CE.expiryDate is 01-09-2026", () => {
+    const chain = analyzeChain(
+      {
+        records: {
+          underlyingValue: 24175.65,
+          expiryDates: ["01-Sep-2026"],
+          data: [
+            {
+              strikePrice: 24200,
+              CE: {
+                lastPrice: 118.4,
+                expiryDate: "01-09-2026",
+                buyPrice1: 117,
+                sellPrice1: 120,
+                openInterest: 5000,
+                impliedVolatility: 12,
+              },
+              PE: {
+                lastPrice: 142.2,
+                expiryDate: "01-09-2026",
+                openInterest: 4100,
+                impliedVolatility: 13,
+              },
+            },
+          ],
+        },
+      },
+      "NSE v3 weekend",
+      "01-Sep-2026"
+    );
+    assert.equal(chain.available, true);
+    assert.equal(chain.strikes.length, 1);
+    assert.equal(chain.strikes[0].ce.premium, 118.4);
+    assert.equal(chain.strikes[0].pe.premium, 142.2);
   });
 });
