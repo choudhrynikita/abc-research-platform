@@ -415,6 +415,8 @@ export default function InteractivePriceChart({
           type="button"
           className={`chip sm${range === r.value ? " active" : ""}`}
           onClick={() => setRange(r.value)}
+          aria-pressed={range === r.value}
+          aria-label={`Range ${r.label}`}
         >
           {r.label}
         </button>
@@ -426,6 +428,7 @@ export default function InteractivePriceChart({
             className={`chip sm${chartType === "candlestick" ? " active" : ""}`}
             onClick={() => setChartType("candlestick")}
             title="Candlestick"
+            aria-pressed={chartType === "candlestick"}
           >
             Candle
           </button>
@@ -434,6 +437,7 @@ export default function InteractivePriceChart({
             className={`chip sm${chartType === "line" ? " active" : ""}`}
             onClick={() => setChartType("line")}
             title="Close line"
+            aria-pressed={chartType === "line"}
           >
             Line
           </button>
@@ -443,6 +447,7 @@ export default function InteractivePriceChart({
         type="button"
         className={`chip sm${overlays.sma20 ? " active" : ""}`}
         onClick={() => toggleOverlay("sma20")}
+        aria-pressed={overlays.sma20}
       >
         SMA20
       </button>
@@ -450,6 +455,7 @@ export default function InteractivePriceChart({
         type="button"
         className={`chip sm${overlays.sma50 ? " active" : ""}`}
         onClick={() => toggleOverlay("sma50")}
+        aria-pressed={overlays.sma50}
       >
         SMA50
       </button>
@@ -457,6 +463,7 @@ export default function InteractivePriceChart({
         type="button"
         className={`chip sm${overlays.bollinger ? " active" : ""}`}
         onClick={() => toggleOverlay("bollinger")}
+        aria-pressed={overlays.bollinger}
       >
         BB
       </button>
@@ -464,6 +471,7 @@ export default function InteractivePriceChart({
         type="button"
         className={`chip sm${overlays.rsi ? " active" : ""}`}
         onClick={() => toggleOverlay("rsi")}
+        aria-pressed={overlays.rsi}
       >
         RSI
       </button>
@@ -471,6 +479,7 @@ export default function InteractivePriceChart({
         type="button"
         className={`chip sm${overlays.macd ? " active" : ""}`}
         onClick={() => toggleOverlay("macd")}
+        aria-pressed={overlays.macd}
       >
         MACD
       </button>
@@ -491,6 +500,7 @@ export default function InteractivePriceChart({
         type="button"
         className="btn btn-ghost btn-sm"
         onClick={() => setFullscreen((v) => !v)}
+        aria-pressed={fullscreen}
       >
         {fullscreen ? "Exit" : "Full"}
       </button>
@@ -533,7 +543,13 @@ export default function InteractivePriceChart({
       <div
         className="chart-canvas-wrap interactive-chart-main"
         ref={wrapRef}
-        style={{ height: fullscreen ? "min(70vh, 640px)" : height }}
+        style={
+          fullscreen
+            ? { height: "min(70vh, 640px)" }
+            : height !== 360
+              ? { height: `${height}px` }
+              : undefined
+        }
       >
         {priceChart && (
           <Chart

@@ -84,7 +84,11 @@ export default function ChartPanel({
             {title && <h3>{title}</h3>}
             {subtitle && <p className="panel-sub">{subtitle}</p>}
           </div>
-          {actions && <div className="chart-panel-actions">{actions}</div>}
+          {actions && (
+            <div className="chart-panel-actions" role="toolbar" aria-label="Chart controls">
+              {actions}
+            </div>
+          )}
         </div>
       )}
 

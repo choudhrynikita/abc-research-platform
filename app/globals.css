@@ -3028,6 +3028,7 @@ th {
 
 .terminal-hero-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
@@ -3347,7 +3348,7 @@ th {
 
 .stock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 14px;
 }
 
@@ -3375,9 +3376,17 @@ th {
   min-width: 28px;
 }
 
+.stock-identity {
+  min-width: 0;
+  flex: 1;
+}
+
 .stock-identity h4 {
   margin: 0;
   font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stock-name-link {
@@ -8551,6 +8560,202 @@ html[data-theme="light"] .global-disclaimer { margin: 0 30px 20px; border: 1px s
     bottom: 12px;
     transform: scale(0.75);
     transform-origin: bottom right;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Fluid Top 50 terminal — phone, phablet, iPad, laptop, desktop
+   Container queries follow the content column (sidebar already subtracted).
+   Last in file among terminal rules so they win over earlier viewport guesses.
+   ═══════════════════════════════════════════════════════════ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.inst-terminal {
+  width: 100%;
+  max-width: 1480px;
+  min-width: 0;
+  padding: 0 0 max(32px, env(safe-area-inset-bottom, 0px));
+  container-type: inline-size;
+  container-name: terminal;
+}
+
+.idx-grid,
+.breadth-strip,
+.movers-row,
+.provenance-grid,
+.stock-grid,
+.terminal-grid,
+.score-grid,
+.idx-tile,
+.stock-card,
+.movers-panel,
+.provenance-item,
+.chart-panel,
+.glass-card {
+  min-width: 0;
+}
+
+.idx-price,
+.stock-price {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.interactive-price-chart .interactive-chart-main {
+  height: clamp(210px, 48vw, 360px);
+}
+
+.interactive-price-chart.fullscreen .interactive-chart-main {
+  height: min(70vh, 640px);
+}
+
+.chip,
+.btn,
+.menu-btn,
+.filter-chips .chip {
+  touch-action: manipulation;
+}
+
+@container terminal (max-width: 639px) {
+  .idx-grid,
+  .breadth-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .movers-row,
+  .provenance-grid,
+  .terminal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container terminal (min-width: 640px) and (max-width: 959px) {
+  .idx-grid,
+  .breadth-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .movers-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .provenance-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .terminal-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container terminal (min-width: 960px) {
+  .idx-grid,
+  .breadth-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .movers-row,
+  .provenance-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .terminal-grid {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+}
+
+@media (max-width: 900px) {
+  .inst-terminal .terminal-aside {
+    order: 0;
+  }
+
+  .terminal-hero h2 {
+    font-size: clamp(1.28rem, 6vw, 1.65rem);
+  }
+
+  .terminal-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .terminal-search,
+  .terminal-select {
+    width: 100%;
+    min-width: 0;
+    font-size: 16px; /* iOS does not auto-zoom inputs at 16px */
+  }
+
+  .filter-chips {
+    width: 100%;
+  }
+
+  .movers-panel {
+    min-height: 0;
+  }
+
+  .interactive-price-chart .chart-panel-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+  }
+
+  .interactive-price-chart .chart-panel-actions > * {
+    flex: 0 0 auto;
+  }
+
+  .chip,
+  .chip.sm,
+  .filter-chips .chip,
+  .btn-sm,
+  .terminal-hero-actions .btn {
+    min-height: var(--touch-min);
+  }
+
+  .mover-row {
+    min-height: var(--touch-min);
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .idx-price {
+    font-size: 1.05rem;
+  }
+
+  .breadth-strip {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .inst-terminal {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .interactive-price-chart .interactive-chart-main {
+    height: 180px;
+  }
+
+  .interactive-price-chart .interactive-chart-sub {
+    height: 72px;
+  }
+}
+
+@media (hover: none) {
+  .stock-card:hover {
+    transform: none;
+  }
+}
+
+@media (min-width: 1600px) {
+  .stock-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   }
 }
 

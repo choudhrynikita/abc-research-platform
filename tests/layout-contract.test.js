@@ -114,3 +114,41 @@ describe("signal provenance strip", () => {
     assert.match(css, /\.provenance-item\s*\{[^}]*background:\s*var\(--tint-04\)/s);
   });
 });
+
+describe("fluid Top 50 layout", () => {
+  const css = fs.readFileSync(CSS_PATH, "utf8");
+  const layout = fs.readFileSync(path.join(__dirname, "..", "app/layout.jsx"), "utf8");
+  const chart = fs.readFileSync(
+    path.join(__dirname, "..", "components/charts/InteractivePriceChart.jsx"),
+    "utf8"
+  );
+
+  it("sizes stock cards from the content column so 320px phones do not overflow", () => {
+    assert.match(
+      css,
+      /\.stock-grid\s*\{[^}]*minmax\(\s*min\(\s*100%\s*,\s*280px\s*\)/s
+    );
+  });
+
+  it("follows the content column with container queries", () => {
+    assert.match(css, /container-name:\s*terminal/);
+    assert.match(css, /@container terminal \(min-width:\s*960px\)/);
+    assert.match(css, /@container terminal \(max-width:\s*639px\)/);
+  });
+
+  it("lets chart range chips scroll instead of stacking off-screen on phones", () => {
+    assert.match(
+      css,
+      /\.interactive-price-chart \.chart-panel-actions\s*\{[^}]*overflow-x:\s*auto/s
+    );
+  });
+
+  it("allows pinch-zoom and covers the notch", () => {
+    assert.match(layout, /maximumScale:\s*5/);
+    assert.match(layout, /viewportFit:\s*"cover"/);
+  });
+
+  it("exposes pressed state on chart range chips", () => {
+    assert.match(chart, /aria-pressed=\{range === r\.value\}/);
+  });
+});
