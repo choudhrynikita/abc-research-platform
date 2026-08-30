@@ -253,7 +253,7 @@ export default function Nifty500Dashboard() {
           </div>
           <div className="stock-grid">
             {stocks.map((stock, i) => (
-              <StockCard key={stock.symbol} stock={stock} rank={i + 1} asOf={data?.dataIntegrity?.refreshedAt} />
+              <StockCard key={stock.symbol} stock={stock} rank={i + 1} />
             ))}
           </div>
           {!stocks.length && (

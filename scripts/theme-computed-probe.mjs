@@ -3,7 +3,7 @@ import process from "node:process";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:4000";
-const routes = ["/nifty500", "/news", "/fiidii", "/ipo", "/research", "/brief", "/nifty-strategy", "/fno", "/reports"];
+const routes = ["/nifty500", "/news", "/fiidii", "/ipo", "/research", "/nifty-strategy", "/fno", "/reports"];
 const selectors = [
   [".news-hero", "surface"], [".news-card:not(.selected)", "surface"], [".news-card.selected", "selected"], [".news-search", "surface"], [".chip:not(.active)", "chip"], [".chip.active", "selected"],
   [".sidebar", "surface"], [".topbar", "surface"], [".glass-card", "surface"], [".card", "surface"],

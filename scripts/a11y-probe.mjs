@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 
 const baseUrl = process.env.BASE_URL || "http://127.0.0.1:4000";
-const routes = ["/nifty500", "/news", "/fiidii", "/ipo", "/research", "/brief", "/nifty-strategy", "/fno", "/reports"];
+const routes = ["/nifty500", "/news", "/fiidii", "/ipo", "/research", "/nifty-strategy", "/fno", "/reports"];
 
 function fail(message) { throw new Error(message); }
 function parseRgb(value) {

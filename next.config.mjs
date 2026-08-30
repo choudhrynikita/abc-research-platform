@@ -2,6 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["pdfkit", "exceljs"],
+  async redirects() {
+    return [
+      { source: "/brief", destination: "/nifty500", permanent: false },
+      { source: "/brief/:path*", destination: "/nifty500", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
