@@ -89,3 +89,28 @@ describe("interactive price chart shell", () => {
     );
   });
 });
+
+describe("signal provenance strip", () => {
+  const css = fs.readFileSync(CSS_PATH, "utf8");
+  const dashboard = fs.readFileSync(
+    path.join(__dirname, "..", "components/nifty500/Nifty500Dashboard.jsx"),
+    "utf8"
+  );
+
+  it("labels the three live sources so the strip is not an unexplained card", () => {
+    assert.match(dashboard, /Data sources/);
+    assert.match(dashboard, /NSE universe/);
+    assert.match(dashboard, /Yahoo Finance/);
+    assert.match(dashboard, /ABC scoring layer/);
+  });
+
+  it("uses theme tokens instead of a hardcoded white panel", () => {
+    const block = css.match(/\.signal-provenance-strip\s*\{[^}]+\}/);
+    assert.ok(block, "provenance strip rule missing");
+    assert.match(block[0], /var\(--text\)/);
+    assert.equal(block[0].includes("rgba(249,251,255"), false);
+    assert.equal(block[0].includes("rgba(255,255,255"), false);
+    assert.match(css, /\.provenance-item strong\s*\{[^}]*color:\s*var\(--text\)/s);
+    assert.match(css, /\.provenance-item\s*\{[^}]*background:\s*var\(--tint-04\)/s);
+  });
+});

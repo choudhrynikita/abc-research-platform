@@ -154,24 +154,39 @@ export default function Nifty500Dashboard() {
         </div>
       </header>
 
-      <div className="signal-provenance-strip" aria-label="Market data provenance">
-        <div className="provenance-item">
-          <span className="provenance-mark nse">N</span>
-          <span><strong>NSE universe</strong><small>Constituent scope and exchange context</small></span>
-          <em>Source</em>
+      <section className="signal-provenance-strip glass-card" aria-label="Market data provenance">
+        <p className="provenance-kicker">Data sources</p>
+        <div className="provenance-grid">
+          <div className="provenance-item">
+            <span className="provenance-mark nse" aria-hidden="true">N</span>
+            <span>
+              <strong>NSE universe</strong>
+              <small>Constituent list and exchange context</small>
+            </span>
+            <em>Source</em>
+          </div>
+          <div className="provenance-item">
+            <span className="provenance-mark yahoo" aria-hidden="true">Y</span>
+            <span>
+              <strong>Yahoo Finance</strong>
+              <small>Price, technical, and OHLCV feed</small>
+            </span>
+            <em>Verified</em>
+          </div>
+          <div className="provenance-item">
+            <span className="provenance-mark model" aria-hidden="true">A</span>
+            <span>
+              <strong>ABC scoring layer</strong>
+              <small>Interpretation, kept separate from facts</small>
+            </span>
+            <em>Method</em>
+          </div>
         </div>
-        <div className="provenance-item">
-          <span className="provenance-mark yahoo">Y</span>
-          <span><strong>Yahoo Finance</strong><small>Price, technical, and OHLCV feed</small></span>
-          <em>Verified</em>
-        </div>
-        <div className="provenance-item">
-          <span className="provenance-mark model">A</span>
-          <span><strong>ABC scoring layer</strong><small>Interpretation remains separate from facts</small></span>
-          <em>Method</em>
-        </div>
-        <div className="provenance-freshness"><span /><small>Updated {formatRefreshTime(data?.dataIntegrity?.refreshedAt)}</small></div>
-      </div>
+        <p className="provenance-freshness">
+          <span aria-hidden="true" />
+          <small>Live feed · Updated {formatRefreshTime(data?.dataIntegrity?.refreshedAt)}</small>
+        </p>
+      </section>
 
       <MarketOverviewBar data={data} />
 
