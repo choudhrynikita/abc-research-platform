@@ -16,6 +16,18 @@ describe("chart range normalization", () => {
     assert.equal(normalizeChartRange("1d"), "1d");
     assert.equal(normalizeChartRange("max"), "max");
   });
+
+  it("maps long ranges to weekly/monthly intervals so candles stay readable", () => {
+    const { resolveChartRequest } = require("../lib/chart-series");
+    assert.equal(resolveChartRequest("6mo").interval, "1d");
+    assert.equal(resolveChartRequest("1y").interval, "1d");
+    assert.equal(resolveChartRequest("1d").interval, "5m");
+    assert.equal(resolveChartRequest("5d").interval, "15m");
+    assert.equal(resolveChartRequest("5y").interval, "1wk");
+    assert.equal(resolveChartRequest("2y").interval, "1wk");
+    assert.equal(resolveChartRequest("max").interval, "1mo");
+    assert.equal(resolveChartRequest("max").range, "max");
+  });
 });
 
 describe("OHLCV validation", () => {
@@ -125,5 +137,20 @@ describe("chart builders", () => {
     );
     assert.ok(bar);
     assert.equal(bar.datasets[0].data.length, 1);
+  });
+
+  it("fits the y-scale to candle high/low rather than overlay closes", () => {
+    const { priceScaleBounds } = require("../lib/chart-builders");
+    const candles = [
+      { date: "2026-01-01", open: 24000, high: 26373, low: 22182, close: 24500 },
+      { date: "2026-01-02", open: 24500, high: 25000, low: 23900, close: 24200 },
+    ];
+    const smaOnly = [{ x: 1, y: 24100 }, { x: 2, y: 24300 }];
+    const bounds = priceScaleBounds(candles, smaOnly);
+    assert.ok(bounds);
+    assert.ok(bounds.min < 22182, "scale must include the session low wick");
+    assert.ok(bounds.max > 26373, "scale must include the session high wick");
+    assert.ok(bounds.min < 24100 && bounds.max > 24300);
+    assert.equal(priceScaleBounds([]), null);
   });
 });

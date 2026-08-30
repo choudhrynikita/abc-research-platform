@@ -15,6 +15,7 @@ import {
   buildVolumeChartData,
   parseChartApiPayload,
   dateToTimestamp,
+  priceScaleBounds,
 } from "@/lib/chart-builders";
 import ChartPanel from "./ChartPanel";
 
@@ -358,13 +359,18 @@ export default function InteractivePriceChart({
   }, [candles, indicators, overlays.macd]);
 
   const chartOptions = useMemo(() => {
-    const isIntraday = chartMeta?.interval && chartMeta.interval !== "1d";
+    const interval = chartMeta?.interval || "1d";
+    const isIntraday = Boolean(interval && interval !== "1d" && interval !== "1wk" && interval !== "1mo");
+    const timeUnit =
+      interval === "1mo" ? "month" : interval === "1wk" ? "week" : isIntraday ? "hour" : "day";
+    const extraPoints = overlayLines.flatMap((line) => line.data || []);
+    const bounds = priceScaleBounds(candles, extraPoints);
     return financialChartOptions({
       scales: {
         x: {
           type: "time",
           time: {
-            unit: isIntraday ? "hour" : "day",
+            unit: timeUnit,
             tooltipFormat: isIntraday ? "dd MMM yyyy HH:mm" : "dd MMM yyyy",
             displayFormats: {
               hour: "HH:mm",
@@ -378,6 +384,7 @@ export default function InteractivePriceChart({
         },
         y: {
           position: "right",
+          ...(bounds ? { min: bounds.min, max: bounds.max } : {}),
           ticks: {
             color: chartTheme.tick,
             callback: (v) =>
@@ -389,7 +396,7 @@ export default function InteractivePriceChart({
         },
       },
     });
-  }, [chartMeta?.interval]);
+  }, [chartMeta?.interval, candles, overlayLines]);
 
   const volOptions = useMemo(() => volumeChartOptions(), []);
   const rsiOptions = useMemo(() => indicatorLineOptions("RSI"), []);

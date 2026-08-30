@@ -74,3 +74,18 @@ describe("sidebar CSS layout contract", () => {
     assert.equal(SIDEBAR_LAYOUT.minTouchTargetPx, 44);
   });
 });
+
+describe("interactive price chart shell", () => {
+  const css = fs.readFileSync(CSS_PATH, "utf8");
+
+  it("lets the NIFTY OHLCV chart grow instead of clipping into Market Movers", () => {
+    assert.match(
+      css,
+      /\.interactive-price-chart\.chart-panel\s*\{[^}]*height:\s*auto/s
+    );
+    assert.match(
+      css,
+      /\.interactive-price-chart\.chart-panel\s*\{[^}]*overflow:\s*visible/s
+    );
+  });
+});

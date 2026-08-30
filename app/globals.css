@@ -1138,6 +1138,12 @@ tbody tr:hover {
     height: 320px;
   }
 
+  .interactive-price-chart.chart-panel {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
   .api-route {
     grid-template-columns: 1fr;
     gap: 4px;
@@ -6923,8 +6929,25 @@ th {
   width: 100%;
 }
 
+/*
+ * Interactive OHLCV charts must grow with header + price + volume + indicators.
+ * Legacy `.chart-panel { height: 420px }` (320px on mobile) clipped the canvases
+ * into the next section, so "Market Movers" painted over the NIFTY candles.
+ */
+.interactive-price-chart.chart-panel {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
 .interactive-price-chart {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.interactive-price-chart .chart-canvas-wrap {
+  overflow: hidden;
 }
 
 .interactive-chart-main,
