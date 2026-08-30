@@ -204,8 +204,12 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         <div className="strategy-identity">
           <h4>{strategy.name}</h4>
           <span className="strategy-type-pill">{strategy.type}</span>
+          {strategy.horizonLabel && (
+            <span className="strategy-horizon-pill">{strategy.horizonLabel}</span>
+          )}
           <span className="strategy-expiry">
             {strategy.expiryType} · {strategy.expiry ?? "—"}
+            {strategy.daysToExpiry != null ? ` · ${strategy.daysToExpiry}d` : ""}
           </span>
           {strategy.modeLabel && (
             <span className="strategy-mode-label">{strategy.modeLabel}</span>

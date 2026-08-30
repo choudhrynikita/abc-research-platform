@@ -72,6 +72,25 @@ function ExecutiveSummary({ summary, refreshedAt, chainStatus, marketStatus }) {
         </div>
       </div>
 
+      {summary.horizons && (
+        <div className="strategy-exec-horizons">
+          {[
+            ["7-day", summary.horizons.sevenDay],
+            ["15-day", summary.horizons.fifteenDay],
+            ["Monthly", summary.horizons.monthly],
+          ].map(([label, row]) => (
+            <div key={label}>
+              <small>{label}</small>
+              <strong>
+                {row?.expiry || "—"}
+                {row?.daysAway != null ? ` · ${row.daysAway}d` : ""}
+                {row?.count != null ? ` · ${row.count}` : ""}
+              </strong>
+            </div>
+          ))}
+        </div>
+      )}
+
       <p className="strategy-meta">
         Last updated {refreshedAt ? new Date(refreshedAt).toLocaleString() : "—"}
         {chainStatus?.fetchedAt && ` · Chain ${new Date(chainStatus.fetchedAt).toLocaleString()}`}
@@ -108,6 +127,24 @@ function mergeDerivativesIntel(base, strategy) {
   };
 }
 
+function flattenHorizonStrategies(data) {
+  if (data?.horizons) {
+    return ["sevenDay", "fifteenDay", "monthly"].flatMap((key) => data.horizons[key]?.strategies || []);
+  }
+  return data?.top10 || [];
+}
+
+function sameStrategy(a, b) {
+  if (!a || !b) return false;
+  return a.horizon === b.horizon && a.name === b.name && a.expiry === b.expiry;
+}
+
+function horizonHeading(bucket) {
+  if (!bucket) return "";
+  const days = bucket.daysAway != null ? `${bucket.daysAway} days to expiry` : "";
+  return [bucket.label || bucket.id, bucket.expiry, days].filter(Boolean).join(" · ");
+}
+
 export default function StrategyTerminal() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -125,10 +162,11 @@ export default function StrategyTerminal() {
     fetchDashboardJson(isRefresh ? "/api/nifty-strategy/dashboard?refresh=1" : "/api/nifty-strategy/dashboard")
       .then((j) => {
         setData(j);
-        const first = j.top10?.[0];
+        const pool = flattenHorizonStrategies(j);
+        const first = pool[0] || j.top10?.[0];
         setSelected((prev) => {
           if (!prev) return first || null;
-          const match = j.top10?.find((s) => s.rank === prev.rank && s.name === prev.name);
+          const match = pool.find((s) => sameStrategy(s, prev));
           return match || first || null;
         });
         if (isRefresh) setChartKey((k) => k + 1);
@@ -153,7 +191,7 @@ export default function StrategyTerminal() {
     return (
       <div className="terminal-loading">
         <div className="terminal-spinner" />
-        <p>Fetching NSE option chain &amp; building top 10 strategies…</p>
+        <p>Fetching 7-day, 15-day and monthly NSE option chains…</p>
         <small>This may take 30–60 seconds while live data loads.</small>
       </div>
     );
@@ -169,21 +207,28 @@ export default function StrategyTerminal() {
     );
   }
 
-  const top10 = data?.top10 || [];
+  const horizonBuckets = [
+    data?.horizons?.sevenDay,
+    data?.horizons?.fifteenDay,
+    data?.horizons?.monthly,
+  ].filter(Boolean);
+  const allStrategies = flattenHorizonStrategies(data);
+  const top10 = allStrategies.length ? allStrategies : (data?.top10 || []);
   const visibleStrategies = top10.filter((strategy) => {
     if (horizonFilter === "all") return true;
     if (horizonFilter === "defer") return strategy.eligibility?.decision === "DEFER" || strategy.eligibility?.decision === "WATCH";
     if (horizonFilter === "live") return strategy.eligibility?.decision === "LIVE";
-    return strategy.status === horizonFilter;
+    return strategy.horizon === horizonFilter;
   });
   const filterOptions = [
     ["all", "All"],
+    ["7-day", "7-day"],
+    ["15-day", "15-day"],
+    ["monthly", "Monthly"],
     ["live", "Live"],
-    ["Next Session", "Next Session"],
-    ["This Week", "This Week"],
-    ["Week-Ahead", "Week Ahead"],
     ["defer", "Watch / Defer"],
   ];
+  const groupedView = horizonFilter === "all" && horizonBuckets.length > 0;
 
   return (
     <div className={`strategy-terminal terminal-vertical${refreshing ? " is-refreshing" : ""}`}>
@@ -233,18 +278,18 @@ export default function StrategyTerminal() {
 
       <section className="strategy-list-section">
         <div className="section-head">
-          <h3>Top 10 Strategies</h3>
+          <h3>7-day, 15-day and Monthly Strategies</h3>
           <p className="panel-sub">
             {top10.length > 0
-              ? `${top10.length} strategies ranked #1–#${top10.length} · `
+              ? `${top10.length} plans across three NSE expiries · `
               : ""}
             {data?.marketMode === "live"
-              ? "Sorted by confidence score — live trend, volatility, OI, PCR, volume & risk-reward"
-              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — technical fit, option structure, expiry risk and verified close data`}
+              ? "Each horizon uses its own verified option chain — nearest weekly, ~15-day weekly, and monthly"
+              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — last-close premiums on 7-day, 15-day and monthly expiries`}
           </p>
         </div>
 
-        <div className="strategy-horizon-filters" role="group" aria-label="Filter strategies by planning horizon">
+        <div className="strategy-horizon-filters" role="group" aria-label="Filter strategies by 7-day, 15-day or monthly expiry">
           {filterOptions.map(([value, label]) => (
             <button
               key={value}
@@ -259,7 +304,7 @@ export default function StrategyTerminal() {
 
         {top10.length === 0 ? (
           <div className="strategy-empty glass-card">
-            <p>Building strategy plans from verified price data…</p>
+            <p>Building 7-day, 15-day and monthly plans from verified price data…</p>
             <p className="panel-sub">
               {data?.chainStatus?.message || "Retry refresh — technical setups generate from verified close data."}
             </p>
@@ -270,14 +315,42 @@ export default function StrategyTerminal() {
             <p>No strategies match this planning filter.</p>
             <button className="btn btn-secondary" type="button" onClick={() => setHorizonFilter("all")}>Show All Strategies</button>
           </div>
+        ) : groupedView ? (
+          horizonBuckets.map((bucket) => (
+            <div key={bucket.id || bucket.label} className="strategy-horizon-group">
+              <div className="strategy-horizon-group-head">
+                <h4>{horizonHeading(bucket)}</h4>
+                <p>
+                  {bucket.verified
+                    ? `${bucket.strategies?.length || 0} plans from last-traded NSE premiums`
+                    : bucket.message || "Technical plan — chain premiums not on file for this expiry"}
+                </p>
+              </div>
+              {bucket.strategies?.length ? (
+                <div className="strategy-grid">
+                  {bucket.strategies.map((s) => (
+                    <StrategyCard
+                      key={`${s.horizon}-${s.name}-${s.expiry}-${s.rank}`}
+                      strategy={s}
+                      marketContext={data?.marketContext}
+                      selected={sameStrategy(selected, s)}
+                      onSelect={setSelected}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="panel-sub">No {bucket.label} plan available for this session.</p>
+              )}
+            </div>
+          ))
         ) : (
           <div className="strategy-grid">
             {visibleStrategies.map((s) => (
               <StrategyCard
-                key={`${s.rank}-${s.name}`}
+                key={`${s.horizon}-${s.name}-${s.expiry}-${s.rank}`}
                 strategy={s}
                 marketContext={data?.marketContext}
-                selected={selected?.rank === s.rank}
+                selected={sameStrategy(selected, s)}
                 onSelect={setSelected}
               />
             ))}
