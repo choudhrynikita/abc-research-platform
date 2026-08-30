@@ -108,4 +108,33 @@ describe("option chain parsing", () => {
     const chain = analyzeChain(data);
     assert.equal(chain.impliedVolatility, 18);
   });
+
+  it("uses last positive close/prev-close when after-hours lastPrice is 0", () => {
+    const chain = analyzeChain({
+      records: {
+        underlyingValue: 24500,
+        expiryDates: ["01-Sep-2026"],
+        data: [
+          {
+            strikePrice: 24500,
+            CE: {
+              lastPrice: 0,
+              previousClose: 82.5,
+              openInterest: 1000,
+              impliedVolatility: 14,
+            },
+            PE: {
+              lastPrice: 0,
+              closePrice: 77.25,
+              openInterest: 900,
+              impliedVolatility: 15,
+            },
+          },
+        ],
+      },
+    }, "NSE after-hours");
+    assert.equal(chain.available, true);
+    assert.equal(chain.strikes[0].ce.premium, 82.5);
+    assert.equal(chain.strikes[0].pe.premium, 77.25);
+  });
 });

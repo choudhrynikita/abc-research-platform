@@ -1,5 +1,10 @@
 "use client";
 
+function fmtPx(value) {
+  if (value == null || !Number.isFinite(Number(value))) return null;
+  return Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+}
+
 function Metric({ label, value, sub }) {
   return (
     <div className="ctx-metric">
@@ -20,14 +25,14 @@ export default function MarketContextPanel({ context, chainStatus }) {
       <div className="context-head">
         <h3>Market Context</h3>
         <span className={`data-pill${chainStatus?.verified ? "" : " cached"}`}>
-          {chainStatus?.verified ? "NSE Chain Verified" : "Chain Unavailable"}
+          {chainStatus?.verified ? "NSE Chain Verified" : "Last-close map"}
         </span>
       </div>
 
       <div className="context-grid">
         <Metric
           label="NIFTY Spot"
-          value={context.spotPrice != null ? context.spotPrice.toLocaleString(undefined, { maximumFractionDigits: 2 }) : null}
+          value={fmtPx(context.spotPrice)}
         />
         <Metric label="Trend" value={context.niftyTrend} sub={trendCls ? undefined : "Neutral / mixed"} />
         <Metric
@@ -36,29 +41,32 @@ export default function MarketContextPanel({ context, chainStatus }) {
           sub={context.indiaVix?.trend}
         />
         <Metric label="Put–Call Ratio" value={context.putCallRatio} />
-        <Metric label="Max Pain" value={context.maxPain?.toLocaleString()} />
-        <Metric label="Highest Call OI" value={context.highestCallOi?.toLocaleString()} />
-        <Metric label="Highest Put OI" value={context.highestPutOi?.toLocaleString()} />
+        <Metric label="Max Pain" value={fmtPx(context.maxPain)} />
+        <Metric label="Highest Call OI" value={context.highestCallOi?.toLocaleString("en-IN")} />
+        <Metric label="Highest Put OI" value={context.highestPutOi?.toLocaleString("en-IN")} />
         <Metric
           label="Call OI Δ"
-          value={context.oiChange?.call != null ? context.oiChange.call.toLocaleString() : null}
+          value={context.oiChange?.call != null ? context.oiChange.call.toLocaleString("en-IN") : null}
         />
         <Metric
           label="Put OI Δ"
-          value={context.oiChange?.put != null ? context.oiChange.put.toLocaleString() : null}
+          value={context.oiChange?.put != null ? context.oiChange.put.toLocaleString("en-IN") : null}
         />
-        <Metric label="Support" value={context.support?.toLocaleString()} />
-        <Metric label="Resistance" value={context.resistance?.toLocaleString()} />
+        <Metric label="Support" value={fmtPx(context.support)} />
+        <Metric label="Resistance" value={fmtPx(context.resistance)} />
+        <Metric label="Last close" value={fmtPx(context.sessionClose ?? context.spotPrice)} sub={context.lastSessionDate} />
+        <Metric label="Session high" value={fmtPx(context.sessionHigh)} />
+        <Metric label="Session low" value={fmtPx(context.sessionLow)} />
         <Metric label="RSI (14)" value={context.technicals?.rsi != null ? context.technicals.rsi.toFixed(1) : null} />
         <Metric label="ADX" value={context.technicals?.adx != null ? context.technicals.adx.toFixed(1) : null} />
         <Metric
           label="FII Net"
-          value={context.fiiDii?.fiiNet != null ? `${context.fiiDii.fiiNet.toLocaleString()} Cr` : null}
+          value={context.fiiDii?.fiiNet != null ? `${context.fiiDii.fiiNet.toLocaleString("en-IN")} Cr` : null}
           sub={context.fiiDii?.date}
         />
         <Metric
           label="DII Net"
-          value={context.fiiDii?.diiNet != null ? `${context.fiiDii.diiNet.toLocaleString()} Cr` : null}
+          value={context.fiiDii?.diiNet != null ? `${context.fiiDii.diiNet.toLocaleString("en-IN")} Cr` : null}
         />
         <Metric
           label="Breadth"
@@ -73,7 +81,7 @@ export default function MarketContextPanel({ context, chainStatus }) {
 
       {!chainStatus?.verified && (
         <p className="context-note">
-          {chainStatus?.message || "NSE NIFTY option chain unavailable. Strategies requiring verified premiums are suppressed."}
+          {chainStatus?.message || "NSE NIFTY option chain is not live. Plans below use the last verified close, support, and resistance — not invented premiums."}
         </p>
       )}
     </section>

@@ -6,6 +6,7 @@ const {
   classicPivotPoints,
   vwapSeries,
   technicalSignal,
+  findSupportResistance,
 } = require("../lib/indicators");
 
 function makeCandles(n = 80) {
@@ -76,5 +77,14 @@ describe("extended technical indicators", () => {
     assert.equal(l.supertrend, null);
     assert.equal(l.ichimoku, null);
     assert.ok(ind.methodology);
+  });
+
+  it("rounds support and resistance to 2 decimals", () => {
+    const levels = findSupportResistance([
+      { high: 24774.30078125, low: 24447.400390625, close: 24600 },
+      { high: 24650.111, low: 24500.999, close: 24610 },
+    ]);
+    assert.equal(levels.resistance, 24774.3);
+    assert.equal(levels.support, 24447.4);
   });
 });

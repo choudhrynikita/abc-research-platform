@@ -2,7 +2,13 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 
 const { generateCandidates, rankTop10, scoreStrategy, shouldOfferBias } = require("../lib/nifty-strategy-engine");
-const { supplementCandidates, generateTechnicalSetups, assignSequentialRanks } = require("../lib/pre-market-strategy");
+const {
+  supplementCandidates,
+  generateTechnicalSetups,
+  assignSequentialRanks,
+  annotateForPlanning,
+  sessionLevelsFromCandles,
+} = require("../lib/pre-market-strategy");
 
 function mockChain(spot = 24500) {
   const atm = 24500;
@@ -126,5 +132,66 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.ok(!names.includes("Protective Put Hedge"));
     assert.ok(!names.includes("Long ATM Put"));
     assert.ok(names.some((n) => /Straddle|Strangle|Condor|Butterfly/i.test(n)));
+  });
+
+  it("weekend technical plans use a rounded last-close map, not placeholders or raw floats", () => {
+    const setups = generateTechnicalSetups({
+      ...baseContext,
+      price: 24612.30078125,
+      support: 24447.400390625,
+      resistance: 24774.30078125,
+      sessionHigh: 24774.30078125,
+      sessionLow: 24447.400390625,
+      sessionClose: 24612.30078125,
+      trend: "NEUTRAL",
+    }, "NIFTY");
+
+    assert.ok(setups.length >= 5);
+    const blob = JSON.stringify(setups);
+    assert.equal(blob.includes("30078125"), false);
+    assert.equal(blob.includes("400390625"), false);
+    assert.equal(blob.includes("Awaiting verified"), false);
+    assert.equal(blob.includes("Check when traded"), false);
+    assert.equal(blob.includes("Waiting for verified"), false);
+
+    const straddle = setups.find((s) => /Straddle/i.test(s.name));
+    assert.ok(straddle, "expected a range-straddle plan on a NEUTRAL last close");
+    assert.ok(straddle.entryZone);
+    assert.equal(straddle.entryZone.low, 24447.4);
+    assert.equal(straddle.entryZone.high, 24774.3);
+    assert.equal(straddle.entryZoneKind, "spot");
+    assert.match(straddle.entryTrigger, /24,447\.4/);
+    assert.match(straddle.entryTrigger, /24,774\.3/);
+    assert.ok(straddle.strikes.every((leg) => leg.action === "BUY"));
+    assert.equal(straddle.structuralRiskNote != null || straddle.maxRisk === 326.9, true);
+
+    const annotated = annotateForPlanning(straddle, {
+      mode: "week-ahead",
+      nextSessionDate: "2026-09-01",
+    }, { stale: true });
+    assert.deepEqual(annotated.entryZone, { low: 24447.4, high: 24774.3 });
+    assert.equal(annotated.mode, "planning");
+    assert.match(annotated.entryTrigger, /last close/i);
+  });
+
+  it("sessionLevelsFromCandles rounds last-bar OHLC to 2 decimals", () => {
+    const levels = sessionLevelsFromCandles([
+      { high: 24774.30078125, low: 24447.400390625, close: 24612.30078125, date: "2026-08-28" },
+    ]);
+    assert.equal(levels.sessionHigh, 24774.3);
+    assert.equal(levels.sessionLow, 24447.4);
+    assert.equal(levels.sessionClose, 24612.3);
+    assert.equal(levels.sessionDate, "2026-08-28");
+  });
+
+  it("attaches last-close premiums as reference without wiping the spot zone", () => {
+    const chain = mockChain(24500);
+    const setups = generateTechnicalSetups({ ...baseContext, chain, trend: "NEUTRAL" }, "NIFTY");
+    const withPremium = setups.find((s) => s.premiums?.net != null && s.entryZoneKind === "spot");
+    assert.ok(withPremium, "expected a last-close plan that kept its spot zone after premium attach");
+    assert.ok(withPremium.entryZone);
+    assert.equal(withPremium.entryZoneKind, "spot");
+    assert.ok(withPremium.premiumZone);
+    assert.ok(withPremium.payoff?.available);
   });
 });

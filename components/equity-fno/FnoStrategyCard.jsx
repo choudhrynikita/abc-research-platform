@@ -4,18 +4,35 @@ import { useState } from "react";
 import PayoffChart from "../nifty-strategy/PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
 
-const DATA_UNAVAILABLE = "Awaiting verified option premiums";
+const DATA_UNAVAILABLE = "No verified premium";
+const FILL_AT_OPEN = "Fill at next open";
 
 function fmt(v, d = 2) {
-  if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
+  if (v == null || Number.isNaN(Number(v))) return "—";
   return typeof v === "number"
     ? v.toLocaleString("en-IN", { maximumFractionDigits: d })
     : String(v);
 }
 
 function fmtRs(v, d = 2) {
-  if (v == null || Number.isNaN(Number(v))) return DATA_UNAVAILABLE;
+  if (v == null || Number.isNaN(Number(v))) return "—";
   return `₹${fmt(v, d)}`;
+}
+
+function isSpotZone(strategy) {
+  return strategy?.entryZoneKind === "spot" || Boolean(strategy?.structuralRiskNote);
+}
+
+function formatEntryZone(strategy) {
+  const zone = strategy?.entryZone;
+  if (zone && (zone.low != null || zone.high != null)) {
+    const low = fmt(zone.low ?? zone.high);
+    const high = fmt(zone.high ?? zone.low);
+    if (isSpotZone(strategy)) return `${low}–${high}`;
+    return `₹${low}–₹${high}`;
+  }
+  if (strategy?.entryTrigger) return strategy.entryTrigger;
+  return strategy?.mode !== "live" ? "Use last-close trigger at the next open" : "No verified entry yet";
 }
 
 function formatMaxProfit(s, preferLot = true) {
@@ -28,18 +45,22 @@ function formatMaxProfit(s, preferLot = true) {
   }
   if (preferLot && s.maxRewardLot != null) return fmtRs(s.maxRewardLot);
   if (preferLot && s.positionSizing?.maxProfitLot != null) return fmtRs(s.positionSizing.maxProfitLot);
-  if (s.maxReward != null) return `${fmtRs(s.maxReward)} / unit`;
+  if (s.payoff?.available && s.maxReward != null) return `${fmtRs(s.maxReward)} / unit`;
+  if (s.structuralRiskNote && s.maxReward != null) return `${fmt(s.maxReward)} pts`;
+  if (s.maxReward != null) return `${fmt(s.maxReward)} pts (width)`;
   if (s.payoff?.maxProfit != null) return `${fmtRs(s.payoff.maxProfit)} / unit`;
-  return DATA_UNAVAILABLE;
+  return s.mode !== "live" ? FILL_AT_OPEN : DATA_UNAVAILABLE;
 }
 
 function formatMaxLoss(s, preferLot = true) {
   if (s.payoff?.maxLossUnlimited || s.positionSizing?.maxLossUnlimited) return "Unlimited";
   if (preferLot && s.maxRiskLot != null) return fmtRs(s.maxRiskLot);
   if (preferLot && s.positionSizing?.maxLossLot != null) return fmtRs(s.positionSizing.maxLossLot);
-  if (s.maxRisk != null) return `${fmtRs(s.maxRisk)} / unit`;
+  if (s.payoff?.available && s.maxRisk != null) return `${fmtRs(s.maxRisk)} / unit`;
+  if (s.structuralRiskNote && s.maxRisk != null) return `${fmt(s.maxRisk)} pts`;
+  if (s.maxRisk != null) return `${fmt(s.maxRisk)} pts (width)`;
   if (s.payoff?.maxLoss != null) return `${fmtRs(s.payoff.maxLoss)} / unit`;
-  return DATA_UNAVAILABLE;
+  return s.mode !== "live" ? FILL_AT_OPEN : DATA_UNAVAILABLE;
 }
 
 function Gauge({ label, value, max = 100, color }) {
@@ -51,7 +72,7 @@ function Gauge({ label, value, max = 100, color }) {
         <div className="gauge-fill" style={{ width: `${pct}%`, background: color || "var(--accent)" }} />
       </div>
       <strong>
-        {value != null ? (typeof value === "number" && max === 100 ? value : value) : DATA_UNAVAILABLE}
+        {value != null ? (typeof value === "number" && max === 100 ? value : value) : "—"}
       </strong>
     </div>
   );
@@ -142,7 +163,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
                   isReferencePlan ? " ref." : ""
                 }`
               : isReferencePlan
-                ? "Check when traded"
+                ? FILL_AT_OPEN
                 : DATA_UNAVAILABLE
           }
         />
@@ -161,12 +182,20 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         <Metric
           label="Break-even"
           title="Underlying level(s) where expiry P/L = 0"
-          value={strategy.payoff?.breakEvenDisplay || ps.breakEven || DATA_UNAVAILABLE}
+          value={strategy.payoff?.breakEvenDisplay || ps.breakEven || (isReferencePlan ? "At trigger / next open" : DATA_UNAVAILABLE)}
         />
         <Metric
           label="R:R"
           title="Max profit ÷ max loss when both finite"
-          value={rr != null ? `${rr}:1` : DATA_UNAVAILABLE}
+          value={
+            rr != null
+              ? `${rr}:1`
+              : strategy.structuralRiskNote && strategy.bias === "Neutral"
+                ? "Range plan"
+                : strategy.structuralRiskNote || isReferencePlan
+                  ? "At trigger"
+                  : DATA_UNAVAILABLE
+          }
         />
       </div>
 
@@ -176,7 +205,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           <strong>
             {strategy.confidenceScore != null
               ? `${strategy.confidenceScore}%`
-              : DATA_UNAVAILABLE}
+              : "—"}
           </strong>
         </div>
         <div className="gauge-bar">
@@ -192,12 +221,8 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
 
       <div className="strategy-targets">
         <div>
-          <small>Entry (premium)</small>
-          <strong>
-            {strategy.entryZone
-              ? `${fmtRs(strategy.entryZone.low)}–${fmtRs(strategy.entryZone.high)}`
-              : strategy.entryTrigger || "Awaiting verified market confirmation."}
-          </strong>
+          <small>{isSpotZone(strategy) ? "Spot zone" : "Entry (premium)"}</small>
+          <strong>{formatEntryZone(strategy)}</strong>
         </div>
         <div>
           <small>Stop (mgmt)</small>
@@ -206,7 +231,9 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
               ? strategy.stopLoss
               : strategy.stopLoss != null
                 ? fmtRs(strategy.stopLoss)
-                : DATA_UNAVAILABLE}
+                : isReferencePlan
+                  ? "Per trigger"
+                  : DATA_UNAVAILABLE}
           </strong>
         </div>
         <div>
@@ -276,7 +303,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
                       ? Number(leg.strike).toLocaleString("en-IN")
                       : DATA_UNAVAILABLE}
                   </td>
-                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit` : DATA_UNAVAILABLE}</td>
+                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit${isReferencePlan ? " ref." : ""}` : isReferencePlan ? FILL_AT_OPEN : DATA_UNAVAILABLE}</td>
                 </tr>
               ))}
             </tbody>
@@ -458,7 +485,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
             <div className="plan-grid">
               <div>
                 <h6>Entry</h6>
-                <p>{strategy.entryTrigger || "Awaiting verified market confirmation."}</p>
+                <p>{strategy.entryTrigger || formatEntryZone(strategy)}</p>
               </div>
               <div>
                 <h6>Exit</h6>
