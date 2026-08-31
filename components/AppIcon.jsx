@@ -10,6 +10,7 @@ const PATHS = {
   strategy: <><path d="M5 17 12 5l7 12" /><path d="M8.2 12h7.6" /></>,
   fno: <><path d="M5 5h14v14H5z" /><path d="M8 15V9" /><path d="M12 15v-4" /><path d="M16 15V7" /></>,
   reports: <><path d="M6 4.5h9l3 3V19.5H6z" /><path d="M15 4.5v3h3" /><path d="M9 11h6" /><path d="M9 14h6" /><path d="M9 17h4" /></>,
+  learn: <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2Z" /><path d="M8 7h8" /><path d="M8 10.5h6" /></>,
   sparkle: <><path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4Z" /><path d="m18 16 .6 2.4L21 19l-2.4.6L18 22l-.6-2.4L15 19l2.4-.6Z" /></>,
   sun: <><circle cx="12" cy="12" r="3.5" /><path d="M12 2.5v2" /><path d="M12 19.5v2" /><path d="m4.6 4.6 1.4 1.4" /><path d="m18 18 1.4 1.4" /><path d="M2.5 12h2" /><path d="M19.5 12h2" /><path d="m4.6 19.4 1.4-1.4" /><path d="m18 6 1.4-1.4" /></>,
   moon: <path d="M19 15.2A7.5 7.5 0 0 1 8.8 5a7.5 7.5 0 1 0 10.2 10.2Z" />,

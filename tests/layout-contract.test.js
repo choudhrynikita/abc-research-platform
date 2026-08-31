@@ -7,8 +7,8 @@ const { NAV_GROUPS, NAV_HREFS, SIDEBAR_LAYOUT, isActivePath } = require("../lib/
 const CSS_PATH = path.join(__dirname, "..", "app", "globals.css");
 
 describe("nav-config", () => {
-  it("exposes eight primary modules, without Research Brief, watchlist, or portfolio", () => {
-    assert.equal(NAV_HREFS.length, 8);
+  it("exposes nine primary modules, including Knowledge Centre", () => {
+    assert.equal(NAV_HREFS.length, 9);
     assert.deepEqual(NAV_HREFS, [
       "/nifty500",
       "/news",
@@ -17,6 +17,7 @@ describe("nav-config", () => {
       "/research",
       "/nifty-strategy",
       "/fno",
+      "/learn",
       "/reports",
     ]);
     const labels = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.label)).join(" ");

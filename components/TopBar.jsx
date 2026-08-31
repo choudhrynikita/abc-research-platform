@@ -28,6 +28,7 @@ const TITLES = {
   "/nifty-strategy": "NIFTY Strategy Center",
   "/fno": "Equity F&O Center",
   "/ipo": "IPO Intelligence Center",
+  "/learn": "Knowledge Centre",
   "/reports": "Report Archive",
 };
 
@@ -39,6 +40,7 @@ const SHORT_TITLES = {
   "/nifty-strategy": "Strategy",
   "/fno": "F&O",
   "/ipo": "IPO",
+  "/learn": "Academy",
   "/reports": "Reports",
 };
 
@@ -50,6 +52,7 @@ function resolveTitle(pathname) {
     return { full: `${sym} · Stock Research`, short: sym || "Stock" };
   }
   if (pathname?.startsWith("/nifty500")) return { full: TITLES["/nifty500"], short: SHORT_TITLES["/nifty500"] };
+  if (pathname?.startsWith("/learn")) return { full: TITLES["/learn"], short: SHORT_TITLES["/learn"] };
   return { full: "ABC Research Platform", short: "ABC Research" };
 }
 
