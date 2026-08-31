@@ -18,18 +18,18 @@ export default function IpoScorecard({ scorecard }) {
           <div key={d.key} className="scorecard-row">
             <div className="scorecard-label">
               <span>{d.label}</span>
-              <strong>{d.available && d.score != null ? d.score : "—"}</strong>
+              <strong>{d.available && d.score != null ? Math.round(d.score) : "—"}</strong>
             </div>
             <div className="gauge-bar">
               <div
                 className="gauge-fill"
                 style={{
-                  width: d.available && d.score != null ? `${d.score}%` : "0%",
+                  width: d.available && d.score != null ? `${Math.max(0, Math.min(100, d.score))}%` : "0%",
                   opacity: d.available ? 1 : 0.25,
                 }}
               />
             </div>
-            {!d.available && <small className="score-note">{d.note}</small>}
+            {d.note && <small className="score-note">{d.note}</small>}
           </div>
         ))}
       </div>

@@ -6,20 +6,18 @@ function recClass(status) {
   return "upcoming";
 }
 
-const NSE_NOT_PUBLISHED = "Not published by NSE";
-
 function fmtSub(metric) {
-  if (!metric?.available) return NSE_NOT_PUBLISHED;
+  if (!metric?.available || !metric.display) return "—";
   return metric.display;
 }
 
 function display(value) {
-  return value == null || value === "" ? NSE_NOT_PUBLISHED : value;
+  return value == null || value === "" ? "—" : value;
 }
 
 function displayAmount(value) {
-  if (typeof value === "number" && Number.isFinite(value)) return `₹${value.toLocaleString()}`;
-  return value == null || value === "" ? NSE_NOT_PUBLISHED : value;
+  if (typeof value === "number" && Number.isFinite(value)) return `₹${value.toLocaleString("en-IN")}`;
+  return value == null || value === "" ? "—" : value;
 }
 
 export default function IpoCard({ ipo, onSelect, selected }) {
@@ -49,7 +47,7 @@ export default function IpoCard({ ipo, onSelect, selected }) {
         <div><small>Industry</small><strong>{display(ipo.industry)}</strong></div>
         <div><small>Issue Size</small><strong>{display(ipo.issueSize)}</strong></div>
         <div><small>Price Band</small><strong>{display(ipo.priceBand)}</strong></div>
-        <div><small>Lot Size</small><strong>{display(ipo.lotSize)}</strong></div>
+        <div><small>Lot Size</small><strong>{ipo.lotSize != null ? Number(ipo.lotSize).toLocaleString("en-IN") : "—"}</strong></div>
         <div><small>Min Investment</small><strong>{displayAmount(ipo.minInvestment)}</strong></div>
         <div><small>Exchange</small><strong>{display(ipo.exchange || "NSE")}</strong></div>
       </div>
@@ -68,7 +66,7 @@ export default function IpoCard({ ipo, onSelect, selected }) {
       )}
 
       <footer className="ipo-card-foot">
-        <span>Updated {ipo.lastUpdated ? new Date(ipo.lastUpdated).toLocaleString() : NSE_NOT_PUBLISHED}</span>
+        <span>Updated {ipo.lastUpdated ? new Date(ipo.lastUpdated).toLocaleString() : "—"}</span>
       </footer>
     </article>
   );

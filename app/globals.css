@@ -7819,6 +7819,63 @@ th {
   line-height: 1.5;
 }
 
+.ipo-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px 14px;
+}
+
+.ipo-snapshot-grid small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ipo-snapshot-grid strong {
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+.ipo-table-wrap {
+  overflow-x: auto;
+}
+
+.ipo-demand-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.ipo-demand-table th,
+.ipo-demand-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ipo-demand-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ipo-doc-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.ipo-doc-list a {
+  color: var(--accent);
+}
+
+.ipo-expand .expand-body.always-open {
+  padding-top: 8px;
+}
+
 .ipo-empty {
   font-size: 0.85rem;
   color: var(--text-muted);
