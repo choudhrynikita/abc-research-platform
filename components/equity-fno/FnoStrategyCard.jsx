@@ -299,11 +299,12 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         </div>
       )}
 
-      {selected && (
-        <div className="fno-detail" onClick={(e) => e.stopPropagation()}>
-          <PayoffChart strategy={strategy} height={280} />
+      <div className="strategy-payoff" onClick={(e) => e.stopPropagation()}>
+        <PayoffChart strategy={strategy} height={200} />
+      </div>
 
-          <ExpandSection title="Capital, Risk & Returns" defaultOpen>
+      <div className="fno-detail" onClick={(e) => e.stopPropagation()}>
+          <ExpandSection title="Capital, Risk & Returns">
             <div className="sizing-grid equity-sizing-grid">
               <Metric label="Lot Size" value={ps.lotSize != null ? ps.lotSize : DATA_UNAVAILABLE} title="Official NSE F&O lot size" />
               <Metric
@@ -491,7 +492,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           </ExpandSection>
 
           {(strategy.dossier || strategy.backtest || strategy.confidenceDetail) && (
-            <ExpandSection title="Institutional Dossier & Backtest" defaultOpen>
+            <ExpandSection title="Institutional Dossier & Backtest">
               <StrategyDossierPanel
                 dossier={strategy.dossier}
                 confidence={strategy.confidenceDetail || strategy.dossier?.confidence}
@@ -500,7 +501,6 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
             </ExpandSection>
           )}
         </div>
-      )}
 
       <footer className="strategy-card-foot">
         <span>

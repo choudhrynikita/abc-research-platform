@@ -290,6 +290,10 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         <LegsTable strikes={strategy.strikes} planning={isReferencePlan} expiry={strategy.expiry} />
       </div>
 
+      <div className="strategy-payoff" onClick={(e) => e.stopPropagation()}>
+        <PayoffChart strategy={strategy} height={200} />
+      </div>
+
       {strategy.premiumNote && (
         <p className="strategy-premium-note">{strategy.premiumNote}</p>
       )}
@@ -313,11 +317,8 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         </details>
       )}
 
-      {selected && (
-        <div className="strategy-detail" onClick={(e) => e.stopPropagation()}>
-          <PayoffChart strategy={strategy} height={280} />
-
-          <ExpandSection title="Why This Strategy?" defaultOpen>
+      <div className="strategy-detail" onClick={(e) => e.stopPropagation()}>
+          <ExpandSection title="Why This Strategy?">
             {strategy.why?.length ? (
               <ul className="why-rationale">
                 {strategy.why.map((w) => {
@@ -339,7 +340,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
             )}
           </ExpandSection>
 
-          <ExpandSection title="Risk & Payoff Analysis" defaultOpen>
+          <ExpandSection title="Risk & Payoff Analysis">
             <ul className="risk-list">
               <li>
                 Maximum loss: <strong>{formatMaxLoss(strategy)}</strong>
@@ -423,7 +424,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
           </ExpandSection>
 
           {(strategy.dossier || strategy.backtest || strategy.confidenceDetail) && (
-            <ExpandSection title="Institutional Dossier & Backtest" defaultOpen>
+            <ExpandSection title="Institutional Dossier & Backtest">
               <StrategyDossierPanel
                 dossier={strategy.dossier}
                 confidence={strategy.confidenceDetail || strategy.dossier?.confidence}
@@ -432,7 +433,6 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
             </ExpandSection>
           )}
         </div>
-      )}
 
       <footer className="strategy-card-foot">
         <span>

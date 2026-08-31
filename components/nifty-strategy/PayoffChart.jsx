@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, exportChartPng } from "@/lib/chart-setup";
@@ -16,11 +16,33 @@ function fmtNum(v, d = 2) {
  * Institutional expiry payoff diagram with BE / max P/L / spot / strike markers.
  * Values are computed server-side from verified premiums — never estimated here.
  */
-export default function PayoffChart({ strategy, height = 320 }) {
+export default function PayoffChart({ strategy, height = 220, eager = false }) {
   const [zoom, setZoom] = useState(1);
+  const [visible, setVisible] = useState(Boolean(eager));
+  const hostRef = useRef(null);
   const chartRef = useRef(null);
   const payoff = strategy?.payoff;
-  // chartRef used for PNG export
+
+  useEffect(() => {
+    if (visible) return undefined;
+    const el = hostRef.current;
+    if (!el) return undefined;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return undefined;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "240px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible]);
 
   const chart = useMemo(() => {
     if (!payoff?.available || !payoff.payoffCurve?.length) return null;
@@ -180,6 +202,15 @@ export default function PayoffChart({ strategy, height = 320 }) {
   }, [payoff, zoom]);
 
   if (!strategy) return null;
+
+  if (!visible) {
+    return (
+      <div ref={hostRef} className="payoff-chart-panel compact" style={{ minHeight: height }}>
+        <h4>Expiry Payoff Diagram</h4>
+        <p className="panel-sub">Payoff loads when this card is on screen.</p>
+      </div>
+    );
+  }
 
   if (!payoff?.available) {
     return (

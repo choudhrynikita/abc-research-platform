@@ -5279,6 +5279,15 @@ th {
   margin-bottom: 14px;
 }
 
+.strategy-payoff .payoff-chart-panel {
+  margin: 12px 0 8px;
+  padding: 12px;
+}
+
+.strategy-payoff .payoff-chart-canvas {
+  min-height: 180px;
+}
+
 .payoff-chart-head {
   display: flex;
   justify-content: space-between;
@@ -5300,9 +5309,15 @@ th {
 
 .payoff-metrics-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 12px;
+}
+
+@media (min-width: 700px) {
+  .payoff-metrics-strip {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 .payoff-metrics-strip > div {
