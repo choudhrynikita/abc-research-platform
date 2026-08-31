@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import AcademyLessonBody from "./AcademyLessonBody";
+import AcademyAssessment from "./AcademyAssessment";
 import useAcademyProgress from "./useAcademyProgress";
 
 const academy = require("../../lib/academy");
@@ -35,8 +36,11 @@ export default function AcademyLesson({ trackId, lessonId }) {
 
   const done = Boolean(progress.completed[meta.id]);
   const learn = content?.learn || content?.sections || [];
-  const practice = content?.practice || [];
+  const practice = (content?.practice || []).filter((b) => b.t !== "quiz");
   const desk = content?.desk || [];
+  const assessment = content?.assessment;
+  const assessStored = progress.assess?.[meta.id];
+  const passed = Boolean(assessStored?.passed);
 
   return (
     <div className="academy-player">
@@ -98,7 +102,7 @@ export default function AcademyLesson({ trackId, lessonId }) {
                 Lesson
               </button>
               <button type="button" className={tab === "practice" ? "on" : ""} onClick={() => setTab("practice")}>
-                Practice{practice.length ? "" : ""}
+                Assessment{passed ? " · passed" : ""}
               </button>
               <button type="button" className={tab === "desk" ? "on" : ""} onClick={() => setTab("desk")}>
                 Notes
@@ -107,14 +111,30 @@ export default function AcademyLesson({ trackId, lessonId }) {
           </header>
 
           {tab === "lesson" && (
-            <AcademyLessonBody blocks={learn} quizState={progress.quiz[meta.id]} onGrade={(ok) => progress.markQuiz(meta.id, ok)} />
+            <>
+              <AcademyLessonBody blocks={learn} quizState={progress.quiz[meta.id]} onGrade={(ok) => progress.markQuiz(meta.id, ok)} />
+              <button type="button" className="academy-assess-cta" onClick={() => setTab("practice")}>
+                <strong>Chapter assessment</strong>
+                <span>{passed ? `Passed ${assessStored.score}/${assessStored.total}` : "5 questions · pass 4/5 to complete"}</span>
+              </button>
+            </>
           )}
           {tab === "practice" && (
-            <AcademyLessonBody
-              blocks={practice.length ? practice : [{ t: "p", text: "No drill on this one — mark it complete and go to the next lesson." }]}
-              quizState={progress.quiz[meta.id]}
-              onGrade={(ok) => progress.markQuiz(meta.id, ok)}
-            />
+            <>
+              {practice.length ? (
+                <AcademyLessonBody
+                  blocks={practice}
+                  quizState={progress.quiz[meta.id]}
+                  onGrade={(ok) => progress.markQuiz(meta.id, ok)}
+                />
+              ) : null}
+              <AcademyAssessment
+                key={meta.id}
+                assessment={assessment}
+                stored={assessStored}
+                onResult={(result) => progress.markAssess(meta.id, result)}
+              />
+            </>
           )}
           {tab === "desk" && (
             <AcademyLessonBody
@@ -128,10 +148,10 @@ export default function AcademyLesson({ trackId, lessonId }) {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => progress.markComplete(meta.id)}
+              onClick={() => (passed || done ? progress.markComplete(meta.id) : setTab("practice"))}
               disabled={done}
             >
-              {done ? "Completed" : "Mark complete"}
+              {done ? "Completed" : passed ? "Mark complete" : "Pass assessment to complete"}
             </button>
             {next ? (
               <Link href={`/learn/${next.trackId}/${next.id}`} className="btn btn-ghost">

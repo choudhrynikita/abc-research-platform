@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const KEY = "abc-learn-progress-v1";
 
 function empty() {
-  return { completed: {}, quiz: {}, lastId: null };
+  return { completed: {}, quiz: {}, assess: {}, lastId: null };
 }
 
 function read() {
@@ -16,6 +16,7 @@ function read() {
     return {
       completed: parsed.completed && typeof parsed.completed === "object" ? parsed.completed : {},
       quiz: parsed.quiz && typeof parsed.quiz === "object" ? parsed.quiz : {},
+      assess: parsed.assess && typeof parsed.assess === "object" ? parsed.assess : {},
       lastId: parsed.lastId || null,
     };
   } catch {
@@ -65,9 +66,23 @@ export default function useAcademyProgress() {
     setState((prev) => (prev.lastId === id ? prev : { ...prev, lastId: id }));
   }, []);
 
+  const markAssess = useCallback((id, result) => {
+    if (!id || !result) return;
+    const passed = Boolean(result.passed);
+    setState((prev) => ({
+      ...prev,
+      lastId: id,
+      assess: { ...prev.assess, [id]: { score: result.score, total: result.total, passed, at: new Date().toISOString() } },
+      quiz: { ...prev.quiz, [id]: passed ? "pass" : "fail" },
+      completed: passed
+        ? { ...prev.completed, [id]: prev.completed[id] || new Date().toISOString() }
+        : prev.completed,
+    }));
+  }, []);
+
   const reset = useCallback(() => setState(empty()), []);
 
   const completedCount = useMemo(() => Object.keys(state.completed).length, [state.completed]);
 
-  return { ...state, ready, markComplete, markQuiz, touch, reset, completedCount };
+  return { ...state, ready, markComplete, markQuiz, markAssess, touch, reset, completedCount };
 }

@@ -9,6 +9,7 @@ const {
   searchLessons,
   neighbors,
   nextLesson,
+  assessmentFor,
 } = require("../lib/academy");
 const { NAV_HREFS } = require("../lib/nav-config");
 
@@ -65,5 +66,26 @@ describe("Knowledge Centre curriculum", () => {
     assert.ok(bull.learn.some((s) => s.t === "example"));
     assert.ok(bull.practice.some((s) => s.t === "lab"));
     assert.ok(bull.practice.some((s) => s.t === "quiz"));
+  });
+
+  it("gives every chapter a five-question assessment with a 4/5 pass mark", () => {
+    for (const lesson of LESSON_LIST) {
+      const test = assessmentFor(lesson.id);
+      assert.equal(test.questions.length, 5, lesson.id);
+      assert.equal(test.passMark, 4, lesson.id);
+      const authored = (getLessonContent(lesson.id).sections || []).find((s) => s.t === "quiz");
+      if (authored?.q) {
+        assert.ok(
+          test.questions.some((q) => q.q === authored.q),
+          `${lesson.id} dropped the authored quiz`
+        );
+      }
+      for (const q of test.questions) {
+        assert.equal(q.options.length, 4, `${lesson.id} ${q.q}`);
+        assert.equal(new Set(q.options).size, 4, `${lesson.id} duplicate options`);
+        assert.ok(q.answer >= 0 && q.answer < 4, lesson.id);
+        assert.ok(q.why, lesson.id);
+      }
+    }
   });
 });

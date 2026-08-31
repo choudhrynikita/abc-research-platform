@@ -34,7 +34,8 @@ export default function AcademyHub() {
         <p className="academy-hero-lead">
           {catalog.counts.tracks} modules, {catalog.counts.lessons} chapters — Indian markets,
           indicators, fundamentals, options OI, AI on the desk, funds, tax, NPS.
-          Original lessons. Tap Continue, finish one chapter, come back tomorrow.
+          Original lessons. Every chapter ends with a 5-question assessment
+          (pass 4/5). Tap Continue, finish one chapter, come back tomorrow.
         </p>
         <div className="academy-hero-stats">
           <span>{done}/{total} done</span>

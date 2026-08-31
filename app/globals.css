@@ -9519,8 +9519,71 @@ html {
 }
 .academy-option.answer { border-color: var(--green); background: var(--green-soft); }
 .academy-option.miss { border-color: var(--red); background: var(--red-soft); }
+.academy-option.picked { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .academy-quiz-why.ok { color: var(--green); }
 .academy-quiz-why.bad { color: var(--red); }
+
+.academy-assess {
+  margin: 16px 0 8px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  min-width: 0;
+}
+.academy-assess-head h3 { margin: 4px 0 8px; font-size: 1.15rem; }
+.academy-assess-head p { margin: 0 0 8px; color: var(--text-muted); }
+.academy-assess-q {
+  margin: 16px 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.academy-assess-q legend {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.academy-assess-q legend span {
+  flex: 0 0 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+.academy-assess-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.academy-assess-bar .ok { color: var(--green); font-weight: 650; }
+.academy-assess-bar .bad { color: var(--red); font-weight: 650; }
+.academy-assess-cta {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  margin-top: 18px;
+  padding: 14px 16px;
+  min-height: var(--touch-min);
+  border-radius: var(--radius);
+  border: 1px dashed var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.academy-assess-cta span { color: var(--text-muted); font-size: 0.88rem; }
 
 .academy-sources a { color: var(--accent); }
 .academy-source-note { color: var(--muted); font-size: 0.86em; }
