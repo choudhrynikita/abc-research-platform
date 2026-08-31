@@ -31,7 +31,9 @@ describe("Knowledge Centre curriculum", () => {
     }
     assert.ok(LESSON_LIST.some((l) => l.id === "technicals-15"));
     assert.ok(LESSON_LIST.some((l) => l.id === "fundamentals-15"));
-    assert.ok(LESSON_LIST.some((l) => l.id === "ai-05"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "funds-11"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "commodities-09"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "commodities-14"));
   });
 
   it("gives every lesson a lead, takeaways, and a four-option quiz", () => {

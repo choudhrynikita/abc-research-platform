@@ -26,6 +26,10 @@ HDFC Mutual Fund
 describe("Funds & ETFs", () => {
   it("is a primary nav module", () => {
     assert.ok(NAV_HREFS.includes("/funds"));
+    assert.ok(NAV_HREFS.includes("/commodities"));
+    const fundsIdx = NAV_HREFS.indexOf("/funds");
+    const cmdIdx = NAV_HREFS.indexOf("/commodities");
+    assert.equal(cmdIdx, fundsIdx + 1);
   });
 
   it("parses AMFI NAVAll rows and classifies kinds", () => {

@@ -7,21 +7,24 @@ const { NAV_GROUPS, NAV_HREFS, SIDEBAR_LAYOUT, isActivePath } = require("../lib/
 const CSS_PATH = path.join(__dirname, "..", "app", "globals.css");
 
 describe("nav-config", () => {
-  it("exposes ten primary modules, including Funds & ETFs", () => {
-    assert.equal(NAV_HREFS.length, 10);
+  it("exposes eleven primary modules, including Mutual Funds & ETFs and Commodities", () => {
+    assert.equal(NAV_HREFS.length, 11);
     assert.deepEqual(NAV_HREFS, [
       "/nifty500",
       "/news",
       "/fiidii",
       "/ipo",
-      "/funds",
       "/research",
       "/nifty-strategy",
       "/fno",
+      "/funds",
+      "/commodities",
       "/learn",
       "/reports",
     ]);
     const labels = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.label)).join(" ");
+    assert.match(labels, /Mutual Funds & ETFs/);
+    assert.match(labels, /Commodities/);
     assert.equal(/research brief/i.test(labels), false);
     assert.equal(/watchlist/i.test(labels), false);
     assert.equal(/portfolio analysis/i.test(labels), false);
