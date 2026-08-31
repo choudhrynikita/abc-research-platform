@@ -109,5 +109,72 @@ export default function AcademyDiagram({ name }) {
       </Frame>
     );
   }
+  if (name === "oi-quadrants") {
+    return (
+      <Frame title="Price vs change in OI — four hypotheses">
+        <rect x="24" y="28" width="150" height="54" className="ad-bid" />
+        <rect x="186" y="28" width="150" height="54" className="ad-ask" />
+        <rect x="24" y="90" width="150" height="54" className="ad-ask" />
+        <rect x="186" y="90" width="150" height="54" className="ad-bid" />
+        <text x="40" y="52" className="ad-label">Price ↑ OI ↑</text>
+        <text x="40" y="68" className="ad-note">Long build-up</text>
+        <text x="202" y="52" className="ad-label">Price ↑ OI ↓</text>
+        <text x="202" y="68" className="ad-note">Short covering</text>
+        <text x="40" y="114" className="ad-label">Price ↓ OI ↑</text>
+        <text x="40" y="130" className="ad-note">Short build-up</text>
+        <text x="202" y="114" className="ad-label">Price ↓ OI ↓</text>
+        <text x="202" y="130" className="ad-note">Long unwinding</text>
+      </Frame>
+    );
+  }
+  if (name === "oi-walls") {
+    return (
+      <Frame title="Strike-wise OI — walls around ATM">
+        <rect x="40" y="88" width="28" height="40" className="ad-bid" />
+        <rect x="78" y="64" width="28" height="64" className="ad-bid" />
+        <rect x="116" y="40" width="28" height="88" className="ad-bid" />
+        <rect x="168" y="36" width="28" height="92" className="ad-ask" />
+        <rect x="206" y="56" width="28" height="72" className="ad-ask" />
+        <rect x="244" y="80" width="28" height="48" className="ad-ask" />
+        <line x1="156" y1="28" x2="156" y2="132" className="ad-wick" />
+        <text x="148" y="24" className="ad-note">ATM</text>
+        <text x="36" y="148" className="ad-note">Puts below</text>
+        <text x="220" y="148" className="ad-note">Calls above</text>
+      </Frame>
+    );
+  }
+  if (name === "gamma-profile") {
+    return (
+      <Frame title="Long gamma cushions; short gamma chases">
+        <polyline points="28,110 80,96 140,40 180,40 240,96 320,110" className="ad-line" />
+        <line x1="24" y1="118" x2="336" y2="118" className="ad-axis" />
+        <text x="118" y="34" className="ad-note">long Γ (U-shape P/L)</text>
+        <text x="200" y="148" className="ad-note">short Γ is that curve flipped</text>
+      </Frame>
+    );
+  }
+  if (name === "gex-flip") {
+    return (
+      <Frame title="Dealer gamma flip — amplify vs pin">
+        <rect x="24" y="40" width="140" height="80" className="ad-ask" />
+        <rect x="196" y="40" width="140" height="80" className="ad-bid" />
+        <text x="40" y="76" className="ad-label">Spot below flip</text>
+        <text x="48" y="96" className="ad-note">short Γ · amplify</text>
+        <text x="214" y="76" className="ad-label">Spot above flip</text>
+        <text x="222" y="96" className="ad-note">long Γ · can pin</text>
+        <text x="148" y="148" className="ad-note">zero-gamma / flip</text>
+      </Frame>
+    );
+  }
+  if (name === "theta-decay") {
+    return (
+      <Frame title="Theta is slow, then it is not">
+        <polyline points="28,40 80,44 140,52 200,70 250,96 320,140" className="ad-line" />
+        <text x="36" y="34" className="ad-note">premium</text>
+        <text x="250" y="148" className="ad-note">expiry →</text>
+        <text x="150" y="88" className="ad-label">decay accelerates</text>
+      </Frame>
+    );
+  }
   return null;
 }

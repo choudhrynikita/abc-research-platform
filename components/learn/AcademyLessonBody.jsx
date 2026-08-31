@@ -134,17 +134,21 @@ export function Block({ block, quizState, onGrade }) {
       <div className="academy-sources">
         <p className="academy-kicker">Official links</p>
         <ul>
-          {(block.items || []).map((item) => (
-            <li key={item.href || item.label}>
-              {item.href ? (
-                <a href={item.href} target="_blank" rel="noreferrer">
-                  {item.label}
-                </a>
-              ) : (
-                item.label
-              )}
-            </li>
-          ))}
+          {(block.items || []).map((item) => {
+            const label = item.label || item.name || item.href;
+            return (
+              <li key={item.href || label}>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noreferrer">
+                    {label}
+                  </a>
+                ) : (
+                  label
+                )}
+                {item.note ? <span className="academy-source-note"> — {item.note}</span> : null}
+              </li>
+            );
+          })}
         </ul>
       </div>
     );

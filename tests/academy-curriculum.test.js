@@ -25,7 +25,7 @@ describe("Knowledge Centre curriculum", () => {
     assert.equal(cat.counts.lessons, LESSON_LIST.length);
     assert.ok(cat.counts.minutes > 1800);
     const ids = TRACKS.map((t) => t.id);
-    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse"]) {
+    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse", "positioning"]) {
       assert.ok(ids.includes(need), need);
     }
   });
@@ -46,6 +46,10 @@ describe("Knowledge Centre curriculum", () => {
   it("can search and walk neighbors", () => {
     const hits = searchLessons("greeks");
     assert.ok(hits.some((h) => h.id === "options-05"));
+    const oi = searchLessons("open interest");
+    assert.ok(oi.some((h) => h.id === "positioning-01"));
+    const gamma = searchLessons("dealer gamma");
+    assert.ok(gamma.some((h) => h.id === "positioning-09"));
     const { prev, next } = neighbors("foundations-01");
     assert.equal(prev, null);
     assert.equal(next.id, "foundations-02");

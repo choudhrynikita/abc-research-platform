@@ -9523,6 +9523,7 @@ html {
 .academy-quiz-why.bad { color: var(--red); }
 
 .academy-sources a { color: var(--accent); }
+.academy-source-note { color: var(--muted); font-size: 0.86em; }
 .academy-lesson-actions {
   display: flex;
   flex-wrap: wrap;
