@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import AcademyDiagram from "./AcademyDiagram";
+import AcademyLab from "./AcademyLabs";
 
-function Quiz({ quiz, lessonId, stored, onGrade }) {
+function Quiz({ quiz, stored, onGrade }) {
   const [picked, setPicked] = useState(null);
-  const [submitted, setSubmitted] = useState(stored === "pass" || stored === "fail");
+  const [submitted, setSubmitted] = useState(false);
   const [correct, setCorrect] = useState(stored === "pass");
   if (!quiz?.q || !quiz.options) return null;
 
@@ -19,7 +20,7 @@ function Quiz({ quiz, lessonId, stored, onGrade }) {
 
   return (
     <div className="academy-quiz">
-      <p className="academy-kicker">Check</p>
+      <p className="academy-kicker">Practice</p>
       <h4>{quiz.q}</h4>
       <div className="academy-quiz-options">
         {quiz.options.map((option, index) => {
@@ -30,8 +31,7 @@ function Quiz({ quiz, lessonId, stored, onGrade }) {
               key={option}
               type="button"
               className={`academy-option${isAnswer ? " answer" : ""}${chosen && !isAnswer ? " miss" : ""}`}
-              onClick={() => !submitted && submit(index)}
-              disabled={submitted}
+              onClick={() => submit(index)}
             >
               {option}
             </button>
@@ -40,22 +40,27 @@ function Quiz({ quiz, lessonId, stored, onGrade }) {
       </div>
       {submitted && (
         <p className={`academy-quiz-why ${correct ? "ok" : "bad"}`}>
-          {correct ? "Correct. " : "Not quite. "}
+          {correct ? "Correct. " : "Not this one. "}
           {quiz.why}
         </p>
+      )}
+      {submitted && (
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSubmitted(false)}>
+          Try again
+        </button>
       )}
     </div>
   );
 }
 
-function Block({ block, lessonId, quizState, onGrade }) {
+export function Block({ block, quizState, onGrade }) {
   if (block.t === "lead") return <p className="academy-lead">{block.text}</p>;
   if (block.t === "h") return <h3>{block.text}</h3>;
   if (block.t === "p") return <p>{block.text}</p>;
   if (block.t === "ul") {
     return (
       <ul>
-        {block.items.map((item) => (
+        {(block.items || []).map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
@@ -91,7 +96,7 @@ function Block({ block, lessonId, quizState, onGrade }) {
           </thead>
           <tbody>
             {(block.rows || []).map((row) => (
-              <tr key={row.join("-")}>
+              <tr key={row.join("|")}>
                 {row.map((cell) => (
                   <td key={cell}>{cell}</td>
                 ))}
@@ -103,15 +108,33 @@ function Block({ block, lessonId, quizState, onGrade }) {
     );
   }
   if (block.t === "diagram") return <AcademyDiagram name={block.name} />;
+  if (block.t === "example") {
+    return (
+      <aside className="academy-example">
+        <p className="academy-kicker">Worked example</p>
+        <h4>{block.title}</h4>
+        <p>{block.body || block.text}</p>
+      </aside>
+    );
+  }
+  if (block.t === "depth") {
+    return (
+      <aside className="academy-callout desk">
+        <strong>{block.title || "Desk depth"}</strong>
+        <p>{block.text}</p>
+      </aside>
+    );
+  }
+  if (block.t === "lab") return <AcademyLab name={block.name} />;
   if (block.t === "quiz") {
-    return <Quiz quiz={block} lessonId={lessonId} stored={quizState} onGrade={onGrade} />;
+    return <Quiz quiz={block} stored={quizState} onGrade={onGrade} />;
   }
   if (block.t === "sources") {
     return (
       <div className="academy-sources">
-        <p className="academy-kicker">Primary sources</p>
+        <p className="academy-kicker">Official links</p>
         <ul>
-          {block.items.map((item) => (
+          {(block.items || []).map((item) => (
             <li key={item.href || item.label}>
               {item.href ? (
                 <a href={item.href} target="_blank" rel="noreferrer">
@@ -126,23 +149,25 @@ function Block({ block, lessonId, quizState, onGrade }) {
       </div>
     );
   }
+  if (block.t === "steps") {
+    return (
+      <ol className="academy-steps">
+        {(block.items || []).map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ol>
+    );
+  }
   return null;
 }
 
-export default function AcademyLessonBody({ content, lessonId, quizState, onGrade }) {
-  if (!content?.sections?.length) {
-    return <p className="academy-empty">This lesson is still being typeset.</p>;
-  }
+export default function AcademyLessonBody({ blocks, quizState, onGrade }) {
+  const list = blocks || [];
+  if (!list.length) return <p className="academy-empty">Nothing in this tab yet — try Lesson.</p>;
   return (
     <div className="academy-prose">
-      {content.sections.map((block, index) => (
-        <Block
-          key={`${block.t}-${index}`}
-          block={block}
-          lessonId={lessonId}
-          quizState={quizState}
-          onGrade={onGrade}
-        />
+      {list.map((block, index) => (
+        <Block key={`${block.t}-${index}`} block={block} quizState={quizState} onGrade={onGrade} />
       ))}
     </div>
   );

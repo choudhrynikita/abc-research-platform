@@ -8,6 +8,7 @@ const {
   missingLessons,
   searchLessons,
   neighbors,
+  nextLesson,
 } = require("../lib/academy");
 const { NAV_HREFS } = require("../lib/nav-config");
 
@@ -44,5 +45,14 @@ describe("Knowledge Centre curriculum", () => {
     const { prev, next } = neighbors("foundations-01");
     assert.equal(prev, null);
     assert.equal(next.id, "foundations-02");
+    assert.equal(nextLesson({}).id, "foundations-01");
+    assert.equal(nextLesson({ "foundations-01": true }).id, "foundations-02");
+  });
+
+  it("attaches worked examples and labs to core F&O lessons", () => {
+    const bull = getLessonContent("options-02");
+    assert.ok(bull.learn.some((s) => s.t === "example"));
+    assert.ok(bull.practice.some((s) => s.t === "lab"));
+    assert.ok(bull.practice.some((s) => s.t === "quiz"));
   });
 });

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const KEY = "abc-learn-progress-v1";
 
 function empty() {
-  return { completed: {}, quiz: {} };
+  return { completed: {}, quiz: {}, lastId: null };
 }
 
 function read() {
@@ -16,6 +16,7 @@ function read() {
     return {
       completed: parsed.completed && typeof parsed.completed === "object" ? parsed.completed : {},
       quiz: parsed.quiz && typeof parsed.quiz === "object" ? parsed.quiz : {},
+      lastId: parsed.lastId || null,
     };
   } catch {
     return empty();
@@ -33,7 +34,7 @@ export default function useAcademyProgress() {
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
     } catch {
-      /* ignore quota */
+      /* ignore */
     }
   }, [state]);
 
@@ -41,6 +42,7 @@ export default function useAcademyProgress() {
     if (!id) return;
     setState((prev) => ({
       ...prev,
+      lastId: id,
       completed: { ...prev.completed, [id]: new Date().toISOString() },
     }));
   }, []);
@@ -49,16 +51,20 @@ export default function useAcademyProgress() {
     if (!id) return;
     setState((prev) => ({
       ...prev,
+      lastId: id,
       quiz: { ...prev.quiz, [id]: correct ? "pass" : "fail" },
+      completed: correct ? { ...prev.completed, [id]: prev.completed[id] || new Date().toISOString() } : prev.completed,
     }));
+  }, []);
+
+  const touch = useCallback((id) => {
+    if (!id) return;
+    setState((prev) => ({ ...prev, lastId: id }));
   }, []);
 
   const reset = useCallback(() => setState(empty()), []);
 
-  const completedCount = useMemo(
-    () => Object.keys(state.completed).length,
-    [state.completed]
-  );
+  const completedCount = useMemo(() => Object.keys(state.completed).length, [state.completed]);
 
-  return { ...state, markComplete, markQuiz, reset, completedCount };
+  return { ...state, markComplete, markQuiz, touch, reset, completedCount };
 }

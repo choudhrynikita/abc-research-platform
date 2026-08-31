@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import useAcademyProgress from "./useAcademyProgress";
 
@@ -10,16 +11,22 @@ export default function AcademyTrack({ trackId }) {
   const lessons = academy.lessonsForTrack(trackId);
   const progress = useAcademyProgress();
 
+  useEffect(() => {
+    if (lessons[0]) progress.touch(lessons[0].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackId]);
+
   if (!track) {
     return (
       <div className="academy-shell">
         <p>That track is not in the course.</p>
-        <Link href="/learn">Back to Knowledge Centre</Link>
+        <Link href="/learn">Back</Link>
       </div>
     );
   }
 
   const done = lessons.filter((l) => progress.completed[l.id]).length;
+  const next = lessons.find((l) => !progress.completed[l.id]) || lessons[0];
 
   return (
     <div className="academy-shell">
@@ -28,29 +35,43 @@ export default function AcademyTrack({ trackId }) {
         <span>/</span>
         <span>{track.title}</span>
       </nav>
-      <header className="academy-track-head glass-card">
-        <small>{track.level} · Track {String(track.no).padStart(2, "0")}</small>
+      <header className="academy-track-head">
+        <small>
+          {track.level} · Track {String(track.no).padStart(2, "0")} · {done}/{lessons.length} done
+        </small>
         <h1>{track.title}</h1>
         <p>{track.blurb}</p>
-        <p className="panel-sub">
-          {done} / {lessons.length} complete · {track.minutes} min
-        </p>
+        {next ? (
+          <Link href={`/learn/${track.id}/${next.id}`} className="academy-continue">
+            <span>
+              <small>{done ? "Next lesson" : "Lesson 01"}</small>
+              <strong>{next.title}</strong>
+              <em>{next.minutes} min</em>
+            </span>
+            <span className="academy-continue-go">Start</span>
+          </Link>
+        ) : null}
       </header>
       <ol className="academy-lesson-index">
-        {lessons.map((lesson) => (
-          <li key={lesson.id}>
-            <Link href={`/learn/${track.id}/${lesson.id}`} className="glass-card academy-lesson-row">
-              <span className="academy-lesson-num">{String(lesson.number).padStart(2, "0")}</span>
-              <div>
-                <h3>{lesson.title}</h3>
-                <p>
-                  {lesson.minutes} min · {lesson.formats.join(" · ")}
-                  {progress.completed[lesson.id] ? " · Done" : ""}
-                </p>
-              </div>
-            </Link>
-          </li>
-        ))}
+        {lessons.map((lesson) => {
+          const complete = Boolean(progress.completed[lesson.id]);
+          return (
+            <li key={lesson.id}>
+              <Link href={`/learn/${track.id}/${lesson.id}`} className={`academy-lesson-row${complete ? " done" : ""}`}>
+                <span className={`academy-check${complete ? " on" : ""}`} aria-hidden>
+                  {complete ? "✓" : String(lesson.number).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3>{lesson.title}</h3>
+                  <p>
+                    {lesson.minutes} min
+                    {complete ? " · Completed" : ""}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
