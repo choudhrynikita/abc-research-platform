@@ -18,16 +18,19 @@ describe("Knowledge Centre curriculum", () => {
   });
 
   it("ships a full Varsity-breadth course with a body for every id", () => {
-    assert.ok(TRACKS.length >= 21);
-    assert.ok(LESSON_LIST.length >= 170);
+    assert.ok(TRACKS.length >= 23);
+    assert.ok(LESSON_LIST.length >= 200);
     assert.deepEqual(missingLessons(), []);
     const cat = catalog();
     assert.equal(cat.counts.lessons, LESSON_LIST.length);
-    assert.ok(cat.counts.minutes > 1800);
+    assert.ok(cat.counts.minutes > 2200);
     const ids = TRACKS.map((t) => t.id);
-    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse", "positioning"]) {
+    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse", "positioning", "ai"]) {
       assert.ok(ids.includes(need), need);
     }
+    assert.ok(LESSON_LIST.some((l) => l.id === "technicals-15"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "fundamentals-15"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "ai-05"));
   });
 
   it("gives every lesson a lead, takeaways, and a four-option quiz", () => {

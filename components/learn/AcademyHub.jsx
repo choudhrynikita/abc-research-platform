@@ -33,8 +33,8 @@ export default function AcademyHub() {
         <h1>Learn markets like a desk — not like a feed.</h1>
         <p className="academy-hero-lead">
           {catalog.counts.tracks} modules, {catalog.counts.lessons} chapters — Indian markets,
-          options OI and Greeks, funds, bonds, tax, insurance, NPS. Original lessons.
-          Tap Continue, finish one chapter, come back tomorrow.
+          indicators, fundamentals, options OI, AI on the desk, funds, tax, NPS.
+          Original lessons. Tap Continue, finish one chapter, come back tomorrow.
         </p>
         <div className="academy-hero-stats">
           <span>{done}/{total} done</span>

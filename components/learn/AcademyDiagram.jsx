@@ -176,5 +176,62 @@ export default function AcademyDiagram({ name }) {
       </Frame>
     );
   }
+  if (name === "atr-stop") {
+    return (
+      <Frame title="ATR is a ruler — trail the stop by a multiple">
+        <polyline points="28,110 70,90 110,96 150,60 200,70 250,44 320,52" className="ad-line" />
+        <polyline points="28,128 70,118 110,122 150,98 200,104 250,88 320,92" className="ad-axis" />
+        <text x="200" y="148" className="ad-note">price above · stop = high − k·ATR</text>
+      </Frame>
+    );
+  }
+  if (name === "bollinger") {
+    return (
+      <Frame title="Bollinger — a mean inside a volatility envelope">
+        <polyline points="28,48 90,40 150,52 210,36 280,50 330,44" className="ad-axis" />
+        <polyline points="28,80 90,76 150,82 210,74 280,84 330,78" className="ad-line" />
+        <polyline points="28,112 90,118 150,110 210,122 280,114 330,118" className="ad-axis" />
+        <text x="36" y="40" className="ad-note">+2σ</text>
+        <text x="36" y="76" className="ad-label">SMA</text>
+        <text x="36" y="128" className="ad-note">−2σ</text>
+      </Frame>
+    );
+  }
+  if (name === "supertrend") {
+    return (
+      <Frame title="Supertrend — an ATR trail that flips">
+        <polyline points="28,100 80,70 130,78 180,48 230,56 300,36" className="ad-line" />
+        <polyline points="28,118 80,102 130,108 180,90" className="ad-line" />
+        <polyline points="180,90 230,70 300,58" className="ad-axis" />
+        <text x="40" y="148" className="ad-note">long trail</text>
+        <text x="210" y="148" className="ad-note">flip → short trail</text>
+      </Frame>
+    );
+  }
+  if (name === "ichimoku") {
+    return (
+      <Frame title="Ichimoku cloud is displaced equilibrium">
+        <polygon points="80,50 160,40 250,70 250,110 160,100 80,90" className="ad-card" />
+        <polyline points="28,96 90,80 150,70 220,58 320,48" className="ad-line" />
+        <text x="120" y="80" className="ad-label">Kumo</text>
+        <text x="220" y="40" className="ad-note">price above cloud</text>
+      </Frame>
+    );
+  }
+  if (name === "ai-loop") {
+    return (
+      <Frame title="AI as copilot — you still own the gate">
+        <rect x="20" y="48" width="70" height="44" className="ad-card" />
+        <rect x="108" y="48" width="70" height="44" className="ad-card" />
+        <rect x="196" y="48" width="70" height="44" className="ad-card" />
+        <rect x="284" y="48" width="56" height="44" className="ad-card" />
+        <text x="32" y="74" className="ad-label">Data</text>
+        <text x="118" y="74" className="ad-label">Model</text>
+        <text x="204" y="74" className="ad-label">You</text>
+        <text x="292" y="74" className="ad-label">Gate</text>
+        <text x="70" y="128" className="ad-note">No fence, no live order</text>
+      </Frame>
+    );
+  }
   return null;
 }
