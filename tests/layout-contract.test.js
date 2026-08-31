@@ -152,3 +152,24 @@ describe("fluid Top 50 layout", () => {
     assert.match(chart, /aria-pressed=\{range === r\.value\}/);
   });
 });
+
+describe("fluid IPO layout", () => {
+  const css = fs.readFileSync(CSS_PATH, "utf8");
+
+  it("sizes IPO grids from the content column so phones do not clip labels", () => {
+    assert.match(css, /\.ipo-terminal\s*\{[^}]*container-name:\s*ipo/s);
+    assert.match(css, /\.ipo-facts[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+    assert.match(css, /\.ipo-snapshot-grid\s*\{[^}]*minmax\(0,\s*1fr\)/s);
+    assert.match(css, /\.ipo-rec-badge\s*\{[^}]*white-space:\s*normal/s);
+    assert.match(css, /\.ipo-exec h2[\s\S]*?overflow-wrap:\s*anywhere/);
+  });
+
+  it("uses a stacked list then a two-pane layout as the terminal widens", () => {
+    assert.match(css, /@container ipo \(min-width:\s*980px\)/);
+    assert.match(css, /@container ipo \(max-width:\s*639px\)/);
+    assert.match(
+      css,
+      /@container ipo \(min-width:\s*980px\)[\s\S]*?grid-template-columns:\s*minmax\(280px,\s*340px\)\s+minmax\(0,\s*1fr\)/
+    );
+  });
+});

@@ -13,8 +13,8 @@ export default function IpoExecutiveSummary({ summary, companyName }) {
 
   return (
     <section className="ipo-exec glass-card">
-      <div className="exec-head">
-        <div>
+      <div className="ipo-exec-head">
+        <div className="ipo-exec-titles">
           <p className="terminal-eyebrow">Executive Summary</p>
           <h2>{companyName || "IPO Analysis"}</h2>
         </div>
@@ -25,11 +25,20 @@ export default function IpoExecutiveSummary({ summary, companyName }) {
         <div>
           <small>IPO Score</small>
           <strong className="score-val">{summary.ipoScore ?? "—"}</strong>
-          <span className="score-of">/ 100</span>
+          <span className="score-of"> / 100</span>
         </div>
-        <div><small>Confidence</small><strong>{summary.confidence != null ? `${summary.confidence}%` : "—"}</strong></div>
-        <div><small>Risk</small><strong>{summary.riskLevel ?? "—"}</strong></div>
-        <div><small>Horizon</small><strong>{summary.horizon ?? "—"}</strong></div>
+        <div>
+          <small>Confidence</small>
+          <strong>{summary.confidence != null ? `${summary.confidence}%` : "—"}</strong>
+        </div>
+        <div>
+          <small>Risk</small>
+          <strong>{summary.riskLevel ?? "—"}</strong>
+        </div>
+        <div>
+          <small>Horizon</small>
+          <strong>{summary.horizon ?? "—"}</strong>
+        </div>
       </div>
 
       {summary.thesis?.length > 0 && (

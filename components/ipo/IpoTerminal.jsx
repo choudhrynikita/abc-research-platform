@@ -98,14 +98,16 @@ export default function IpoTerminal() {
   return (
     <div className="ipo-terminal">
       <section className="ipo-hub-exec glass-card">
-        <div className="exec-head">
+        <div className="ipo-hub-head">
           <div>
             <p className="terminal-eyebrow">IPO Research Center</p>
             <h2>Institutional IPO Intelligence</h2>
-            <p className="panel-sub">NSE verified · Upcoming, open &amp; recently listed only</p>
+            <p className="panel-sub">NSE verified · Upcoming, open and recently listed</p>
           </div>
-          <button className="btn btn-ghost btn-sm" type="button" onClick={loadDashboard}>Refresh</button>
-          <TerminalExport module="ipo" symbol={selected?.symbol} />
+          <div className="ipo-hub-actions">
+            <button className="btn btn-ghost btn-sm" type="button" onClick={loadDashboard}>Refresh</button>
+            <TerminalExport module="ipo" symbol={selected?.symbol} />
+          </div>
         </div>
         <div className="ipo-count-strip">
           <div><small>Open</small><strong>{counts.open ?? 0}</strong></div>
