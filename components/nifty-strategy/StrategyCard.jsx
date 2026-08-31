@@ -202,7 +202,6 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         <div className="strategy-identity">
           <h4>{strategy.name}</h4>
           <div className="strategy-identity-pills">
-            <span className="strategy-type-pill">{strategy.type}</span>
             {strategy.horizonLabel && (
               <span className="strategy-horizon-pill">{strategy.horizonLabel}</span>
             )}

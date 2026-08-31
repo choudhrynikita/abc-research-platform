@@ -3,12 +3,13 @@ const assert = require("node:assert/strict");
 const {
   formatTradeBadge,
   formatTradeLine,
+  formatStructureName,
   optionTypes,
 } = require("../lib/strategy-trade-label");
 const { applyHorizon } = require("../lib/nifty-strategy-engine");
 
 const putSpread = {
-  name: "Bear Put Spread",
+  name: "Monthly Bear Put Spread",
   type: "Bear Put Spread",
   status: "Week-Ahead",
   expiry: "29-Sep-2026",
@@ -20,7 +21,7 @@ const putSpread = {
 };
 
 const longPut = {
-  name: "Long OTM Put",
+  name: "15-Day Long OTM Put",
   type: "Long PE",
   status: "Next Session",
   expiry: "15-Sep-2026",
@@ -28,45 +29,59 @@ const longPut = {
   strikes: [{ action: "BUY", type: "PE", strike: 23900, premium: 82.5 }],
 };
 
+const butterfly = {
+  name: "7-Day Iron Butterfly",
+  type: "Iron Butterfly",
+  expiry: "01-Sep-2026",
+  daysToExpiry: 1,
+  strikes: [
+    { action: "BUY", type: "PE", strike: 23900 },
+    { action: "SELL", type: "PE", strike: 24100 },
+    { action: "SELL", type: "CE", strike: 24100 },
+    { action: "BUY", type: "CE", strike: 24300 },
+  ],
+};
+
 describe("strategy trade labels", () => {
-  it("states expiry and PE/CE instead of Week-Ahead or Next Session", () => {
-    assert.equal(formatTradeBadge(putSpread), "29-Sep-2026 PE");
-    assert.equal(formatTradeBadge(longPut), "15-Sep-2026 PE");
-    assert.equal(formatTradeBadge(putSpread).includes("Week-Ahead"), false);
-    assert.equal(formatTradeBadge(longPut).includes("Next Session"), false);
-    assert.equal(optionTypes(putSpread.strikes), "PE");
+  it("puts the structure name on the badge, not expiry + CE/PE", () => {
+    assert.equal(formatTradeBadge(putSpread), "Bear Put");
+    assert.equal(formatTradeBadge(longPut), "Long OTM Put");
+    assert.equal(formatTradeBadge(butterfly), "Iron Butterfly");
+    assert.equal(formatTradeBadge(putSpread).includes("PE"), false);
+    assert.equal(formatTradeBadge(butterfly).includes("CE"), false);
+    assert.equal(formatTradeBadge(longPut).includes("01-Sep"), false);
   });
 
-  it("names the strikes to trade on the instruction line", () => {
+  it("keeps CE/PE and strikes on the trade line", () => {
     assert.equal(
       formatTradeLine(putSpread),
-      "Trade PE 24,100 / 23,900 · expiry 29-Sep-2026 · 29d"
+      "Trade PE 24,100 / 23,900 · expiry 29 Sep 2026 · 29d"
     );
     assert.equal(
       formatTradeLine(longPut),
-      "Trade PE 23,900 · expiry 15-Sep-2026 · 15d"
+      "Trade PE 23,900 · expiry 15 Sep 2026 · 15d"
     );
+    assert.match(formatTradeLine(butterfly), /Trade CE \+ PE/);
   });
 
-  it("labels mixed CE/PE structures and stamps horizon expiry", () => {
-    const iron = {
-      name: "Iron Condor",
-      type: "Iron Condor",
-      strikes: [
-        { action: "SELL", type: "PE", strike: 24000 },
-        { action: "SELL", type: "CE", strike: 25000 },
-      ],
-    };
-    assert.equal(formatTradeBadge(iron), "CE + PE");
-    const monthly = applyHorizon([iron], {
+  it("names common multi-leg structures from type or title", () => {
+    assert.equal(formatStructureName({ type: "Bull Call Spread", name: "7-Day Bull Call Spread" }), "Bull Call");
+    assert.equal(formatStructureName({ type: "Iron Condor", name: "Monthly Iron Condor" }), "Iron Condor");
+    assert.equal(formatStructureName({ type: "Long Straddle", name: "15-Day Long Straddle" }), "Straddle");
+    assert.equal(formatStructureName({ type: "Credit Spread", strikes: [{ type: "PE" }] }), "Bull Put");
+    assert.equal(optionTypes(butterfly.strikes), "CE + PE");
+  });
+
+  it("stamps horizon expiry onto the trade line, not the badge", () => {
+    const monthly = applyHorizon([butterfly], {
       id: "monthly",
       label: "MONTHLY",
       expiry: "29-Sep-2026",
       daysAway: 29,
       expiryType: "Monthly",
     })[0];
-    assert.equal(monthly.tradeLabel, "29-Sep-2026 CE + PE");
-    assert.match(monthly.tradeLine, /expiry 29-Sep-2026/);
-    assert.equal(monthly.modeLabel.includes("Week-ahead"), false);
+    assert.equal(monthly.tradeLabel, "Iron Butterfly");
+    assert.match(monthly.tradeLine, /expiry 29 Sep 2026/);
+    assert.equal(monthly.tradeLabel.includes("PE"), false);
   });
 });
