@@ -95,6 +95,23 @@ describe("option chain parsing", () => {
     assert.equal(chain.lotSize, 65);
   });
 
+  it("does not invent a lot when option-chain-v3 omits marketLot", () => {
+    const chain = analyzeChain({
+      records: {
+        underlyingValue: 24100,
+        expiryDates: ["01-Sep-2026"],
+        data: [
+          {
+            strikePrice: 24100,
+            CE: { lastPrice: 62.1, openInterest: 10, impliedVolatility: 13.6 },
+            PE: { lastPrice: 62.5, openInterest: 10, impliedVolatility: 13.6 },
+          },
+        ],
+      },
+    }, "NSE test");
+    assert.equal(chain.lotSize, null);
+  });
+
   it("rejects zero IV in leg parsing", () => {
     const data = {
       records: {

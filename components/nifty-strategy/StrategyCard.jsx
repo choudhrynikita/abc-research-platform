@@ -35,39 +35,50 @@ function formatEntryZone(strategy) {
   return strategy?.mode !== "live" ? "Last-close trigger — confirm on the live tape" : "No verified entry yet";
 }
 
-function formatPremiumValue(value, { planning = false, credit = false } = {}) {
+function lotSizeOf(strategy) {
+  const n = Number(strategy?.positionSizing?.lotSize ?? strategy?.payoff?.lotSize ?? strategy?.lotSize);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function rupees(unit, lot, { planning = false, prefix = "" } = {}) {
+  if (unit == null || Number.isNaN(Number(unit))) return null;
+  const n = lot ? Number(unit) * lot : Number(unit);
+  return `${prefix}₹${fmt(n)}${lot ? " / lot" : " / unit"}${planning ? " last close" : ""}`;
+}
+
+function formatPremiumValue(value, { planning = false, credit = false, lot = null } = {}) {
   if (value == null || Number.isNaN(Number(value))) {
     return planning ? FILL_AT_OPEN : NO_PREMIUM;
   }
-  const abs = Math.abs(Number(value));
   const side = credit ? "Credit " : Number(value) > 0 && !credit ? "Debit " : "";
-  return `${side}₹${fmt(abs)}${planning ? " last close" : ""}`;
+  return rupees(Math.abs(Number(value)), lot, { planning, prefix: side });
 }
 
-function formatMaxProfit(strategy) {
+function formatMaxProfit(strategy, lot) {
   const p = strategy.payoff;
   if (p?.maxProfitUnlimited) return "Unlimited";
-  if (strategy.type === "Long PE" && (strategy.maxReward != null || p?.maxProfit != null)) {
-    return `₹${fmt(strategy.maxReward ?? p.maxProfit)} if spot→0`;
+  const unit = p?.maxProfit ?? strategy.maxReward;
+  if (strategy.type === "Long PE" && unit != null) {
+    const shown = rupees(unit, lot);
+    return shown ? `${shown} if spot→0` : NO_PREMIUM;
   }
-  if (p?.available && strategy.maxReward != null) return `₹${fmt(strategy.maxReward)}`;
+  if (unit != null && (p?.available || lot)) return rupees(unit, lot);
   if (strategy.structuralRiskNote && strategy.maxReward != null) {
     return `${fmt(strategy.maxReward)} pts`;
   }
   if (strategy.maxReward != null) return `${fmt(strategy.maxReward)} pts (width)`;
-  if (p?.maxProfit != null) return `₹${fmt(p.maxProfit)}`;
   return strategy.mode !== "live" ? FILL_AT_OPEN : NO_PREMIUM;
 }
 
-function formatMaxLoss(strategy) {
+function formatMaxLoss(strategy, lot) {
   const p = strategy.payoff;
   if (p?.maxLossUnlimited) return "Unlimited";
-  if (p?.available && strategy.maxRisk != null) return `₹${fmt(strategy.maxRisk)}`;
+  const unit = p?.maxLoss ?? strategy.maxRisk;
+  if (unit != null && (p?.available || lot)) return rupees(unit, lot);
   if (strategy.structuralRiskNote && strategy.maxRisk != null) {
     return `${fmt(strategy.maxRisk)} pts`;
   }
   if (strategy.maxRisk != null) return `${fmt(strategy.maxRisk)} pts (width)`;
-  if (p?.maxLoss != null) return `₹${fmt(p.maxLoss)}`;
   return strategy.mode !== "live" ? FILL_AT_OPEN : NO_PREMIUM;
 }
 
@@ -146,7 +157,7 @@ function LegsTable({ strikes, planning, expiry }) {
             <td>{leg.expiry || expiry || "—"}</td>
             <td>
               {leg.premium != null
-                ? `₹${fmt(leg.premium)}${planning ? " last close" : ""}`
+                ? `₹${fmt(leg.premium)} / unit${planning ? " last close" : ""}`
                 : planning
                   ? FILL_AT_OPEN
                   : NO_PREMIUM}
@@ -188,6 +199,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
   const readyGateCount = eligibility?.gates?.filter((gate) => gate.state === "ready").length ?? 0;
   const entryLabel = isSpotZone(strategy) ? "Spot zone" : "Entry Zone";
   const tradeLine = formatTradeLine(strategy);
+  const lot = lotSizeOf(strategy);
 
   return (
     <article
@@ -205,6 +217,9 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
             {strategy.horizonLabel && (
               <span className="strategy-horizon-pill">{strategy.horizonLabel}</span>
             )}
+            {lot != null && (
+              <span className="strategy-horizon-pill">Lot {lot}</span>
+            )}
           </div>
           {tradeLine ? <p className="strategy-trade-line">{tradeLine}</p> : null}
         </div>
@@ -213,25 +228,25 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
 
       <div className="strategy-metrics-row strategy-metrics-risk">
         <MetricCell
-          label="Net Premium"
-          title="Debit paid or credit received from verified NSE premiums"
-          value={formatPremiumValue(netPrem, { planning: isReferencePlan, credit: isCredit })}
+          label={lot != null ? "Net Premium / Lot" : "Net Premium"}
+          title="Debit paid or credit received from verified NSE premiums × official lot"
+          value={formatPremiumValue(netPrem, { planning: isReferencePlan, credit: isCredit, lot })}
         />
         <MetricCell
-          label="Max Loss"
+          label={lot != null ? "Max Loss / Lot" : "Max Loss"}
           className="risk"
           title={
             isSpotZone(strategy) && !strategy.payoff?.available
               ? "Last-close spot distance in index points — not rupee P/L"
-              : "Worst-case expiry P/L from verified legs (standard payoff model)"
+              : "Worst-case expiry P/L from verified legs × official lot"
           }
-          value={formatMaxLoss(strategy)}
+          value={formatMaxLoss(strategy, lot)}
         />
         <MetricCell
-          label="Max Profit"
+          label={lot != null ? "Max Profit / Lot" : "Max Profit"}
           className="reward"
-          title="Best-case expiry P/L from verified legs — Unlimited when theoretically unbounded"
-          value={formatMaxProfit(strategy)}
+          title="Best-case expiry P/L from verified legs × official lot — Unlimited when theoretically unbounded"
+          value={formatMaxProfit(strategy, lot)}
         />
         <MetricCell
           label="Break-even"

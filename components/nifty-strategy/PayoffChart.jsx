@@ -227,8 +227,21 @@ export default function PayoffChart({ strategy, height = 220, eager = false }) {
     );
   }
 
-  const maxP = payoff.maxProfitUnlimited ? "Unlimited" : payoff.maxProfit != null ? `₹ ${fmtNum(payoff.maxProfit)}` : PREMIUMS_UNAVAILABLE;
-  const maxL = payoff.maxLossUnlimited ? "Unlimited" : payoff.maxLoss != null ? `₹ ${fmtNum(payoff.maxLoss)}` : PREMIUMS_UNAVAILABLE;
+  const lot = payoff.lotSize;
+  const maxP = payoff.maxProfitUnlimited
+    ? "Unlimited"
+    : payoff.maxProfit != null
+      ? lot
+        ? `₹ ${fmtNum(payoff.maxProfit * lot)} / lot`
+        : `₹ ${fmtNum(payoff.maxProfit)} / unit`
+      : PREMIUMS_UNAVAILABLE;
+  const maxL = payoff.maxLossUnlimited
+    ? "Unlimited"
+    : payoff.maxLoss != null
+      ? lot
+        ? `₹ ${fmtNum(payoff.maxLoss * lot)} / lot`
+        : `₹ ${fmtNum(payoff.maxLoss)} / unit`
+      : PREMIUMS_UNAVAILABLE;
 
   return (
     <div className="payoff-chart-panel glass-card">
