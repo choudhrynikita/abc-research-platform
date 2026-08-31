@@ -6702,12 +6702,21 @@ th {
 }
 
 .strategy-identity {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .strategy-identity h4 {
   margin: 0 0 4px;
   font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.strategy-identity-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
 }
 
 .strategy-type-pill {
@@ -6717,7 +6726,6 @@ th {
   border-radius: 6px;
   background: var(--accent-soft);
   color: var(--accent);
-  margin-right: 6px;
 }
 
 .strategy-expiry {
@@ -6725,11 +6733,26 @@ th {
   color: var(--text-muted);
 }
 
+.strategy-trade-line {
+  display: block;
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
 .strategy-status {
   font-size: 0.72rem;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 999px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+  max-width: min(46%, 11.5rem);
+  flex: 0 0 auto;
 }
 
 .strategy-status.active {
@@ -6844,7 +6867,7 @@ th {
 
 .legs-table {
   width: 100%;
-  min-width: 280px;
+  min-width: 420px;
   font-size: 0.78rem;
   border-collapse: collapse;
 }
@@ -7272,6 +7295,11 @@ th {
 
   .strategy-status {
     margin-left: auto;
+    max-width: 100%;
+  }
+
+  .fno-identity {
+    min-width: 0;
   }
 
   .fno-type-row {

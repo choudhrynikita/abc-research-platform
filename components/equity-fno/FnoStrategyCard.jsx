@@ -3,6 +3,11 @@
 import { useState } from "react";
 import PayoffChart from "../nifty-strategy/PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
+import {
+  formatTradeBadge,
+  formatTradeLine,
+  statusTone,
+} from "../../lib/strategy-trade-label";
 
 const DATA_UNAVAILABLE = "No verified premium";
 const FILL_AT_OPEN = "Last close not on file";
@@ -105,20 +110,8 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
   const ps = strategy.positionSizing || {};
   const netPerLot = ps.premiumPerLot ?? (net != null && ps.lotSize != null ? net * ps.lotSize : null);
   const isCredit = netPerLot != null && netPerLot < 0;
-  const statusCls =
-    strategy.status === "Active" || strategy.status === "Live"
-      ? "active"
-      : strategy.status === "Next Session"
-        ? "next-session"
-        : strategy.status === "This Week"
-          ? "this-week"
-          : strategy.status === "Week-Ahead"
-            ? "week-ahead"
-            : strategy.status === "Defer"
-              ? "defer"
-              : strategy.status === "Watch" || strategy.status === "Wait"
-                ? "wait"
-                : "avoid";
+  const statusCls = statusTone(strategy.status);
+  const tradeLine = formatTradeLine(strategy);
   const a = strategy.analytics || {};
   const rr = strategy.riskRewardRatio ?? ps.riskRewardRatio;
   const isReferencePlan = strategy.mode !== "live";
@@ -140,17 +133,12 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           <span className="fno-symbol">{strategy.nseSymbol}</span>
           <span className="fno-sector">{strategy.sector || DATA_UNAVAILABLE}</span>
         </div>
-        <span className={`strategy-status ${statusCls}`}>{strategy.status}</span>
+        <span className={`strategy-status ${statusCls}`}>{formatTradeBadge(strategy)}</span>
       </header>
 
       <div className="fno-type-row">
         <span className="strategy-type-pill">{strategy.type}</span>
-        <span className="strategy-expiry">
-          Monthly · {strategy.expiry ?? DATA_UNAVAILABLE}
-        </span>
-        {strategy.modeLabel && (
-          <span className="strategy-mode-label">{strategy.modeLabel}</span>
-        )}
+        {tradeLine ? <span className="strategy-trade-line">{tradeLine}</span> : null}
       </div>
 
       <div className="strategy-metrics-row strategy-metrics-risk equity-risk-grid">

@@ -3,6 +3,11 @@
 import { useState } from "react";
 import PayoffChart from "./PayoffChart";
 import StrategyDossierPanel from "../StrategyDossierPanel";
+import {
+  formatTradeBadge,
+  formatTradeLine,
+  statusTone,
+} from "../../lib/strategy-trade-label";
 
 const FILL_AT_OPEN = "Last close not on file";
 const NO_PREMIUM = "No verified premium";
@@ -83,22 +88,12 @@ function formatRr(strategy) {
   return "—";
 }
 
-function StatusBadge({ status }) {
-  const cls =
-    status === "Active" || status === "Live"
-      ? "active"
-      : status === "Next Session"
-        ? "next-session"
-        : status === "This Week"
-          ? "this-week"
-          : status === "Week-Ahead"
-            ? "week-ahead"
-            : status === "Defer"
-              ? "defer"
-              : status === "Watch" || status === "Wait"
-                ? "wait"
-                : "avoid";
-  return <span className={`strategy-status ${cls}`}>{status ?? "—"}</span>;
+function TradeBadge({ strategy }) {
+  return (
+    <span className={`strategy-status ${statusTone(strategy.status)}`}>
+      {formatTradeBadge(strategy)}
+    </span>
+  );
 }
 
 function ConfidenceGauge({ score, factors }) {
@@ -127,7 +122,7 @@ function ConfidenceGauge({ score, factors }) {
   );
 }
 
-function LegsTable({ strikes, planning }) {
+function LegsTable({ strikes, planning, expiry }) {
   if (!strikes?.length) return <p className="na-text">{planning ? FILL_AT_OPEN : NO_PREMIUM}</p>;
   return (
     <table className="legs-table">
@@ -136,6 +131,7 @@ function LegsTable({ strikes, planning }) {
           <th>Action</th>
           <th>Type</th>
           <th>Strike</th>
+          <th>Expiry</th>
           <th>Premium</th>
         </tr>
       </thead>
@@ -147,6 +143,7 @@ function LegsTable({ strikes, planning }) {
             </td>
             <td>{leg.type}</td>
             <td>{leg.strike != null ? Number(leg.strike).toLocaleString("en-IN") : "—"}</td>
+            <td>{leg.expiry || expiry || "—"}</td>
             <td>
               {leg.premium != null
                 ? `₹${fmt(leg.premium)}${planning ? " last close" : ""}`
@@ -190,6 +187,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
   const eligibility = strategy.eligibility;
   const readyGateCount = eligibility?.gates?.filter((gate) => gate.state === "ready").length ?? 0;
   const entryLabel = isSpotZone(strategy) ? "Spot zone" : "Entry Zone";
+  const tradeLine = formatTradeLine(strategy);
 
   return (
     <article
@@ -203,19 +201,15 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         <div className="strategy-rank">#{strategy.rank}</div>
         <div className="strategy-identity">
           <h4>{strategy.name}</h4>
-          <span className="strategy-type-pill">{strategy.type}</span>
-          {strategy.horizonLabel && (
-            <span className="strategy-horizon-pill">{strategy.horizonLabel}</span>
-          )}
-          <span className="strategy-expiry">
-            {strategy.expiryType} · {strategy.expiry ?? "—"}
-            {strategy.daysToExpiry != null ? ` · ${strategy.daysToExpiry}d` : ""}
-          </span>
-          {strategy.modeLabel && (
-            <span className="strategy-mode-label">{strategy.modeLabel}</span>
-          )}
+          <div className="strategy-identity-pills">
+            <span className="strategy-type-pill">{strategy.type}</span>
+            {strategy.horizonLabel && (
+              <span className="strategy-horizon-pill">{strategy.horizonLabel}</span>
+            )}
+          </div>
+          {tradeLine ? <p className="strategy-trade-line">{tradeLine}</p> : null}
         </div>
-        <StatusBadge status={strategy.status} />
+        <TradeBadge strategy={strategy} />
       </header>
 
       <div className="strategy-metrics-row strategy-metrics-risk">
@@ -294,7 +288,7 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
       </div>
 
       <div className="legs-table-wrap">
-        <LegsTable strikes={strategy.strikes} planning={isReferencePlan} />
+        <LegsTable strikes={strategy.strikes} planning={isReferencePlan} expiry={strategy.expiry} />
       </div>
 
       {strategy.premiumNote && (
