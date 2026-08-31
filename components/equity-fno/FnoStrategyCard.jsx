@@ -6,6 +6,7 @@ import StrategyDossierPanel from "../StrategyDossierPanel";
 import {
   formatTradeBadge,
   formatTradeLine,
+  formatStructureName,
   statusTone,
 } from "../../lib/strategy-trade-label";
 
@@ -96,6 +97,29 @@ function ExpandSection({ title, children, defaultOpen = false }) {
   );
 }
 
+function PositioningStrip({ pos }) {
+  if (!pos) return null;
+  const cells = [
+    ["PCR (OI)", pos.pcr],
+    ["Max pain", pos.maxPain != null ? Number(pos.maxPain).toLocaleString("en-IN") : null],
+    ["ATM IV", pos.atmIv != null ? `${Number(pos.atmIv).toFixed(1)}%` : null],
+    ["Put wall", pos.putWall != null ? Number(pos.putWall).toLocaleString("en-IN") : null],
+    ["Call wall", pos.callWall != null ? Number(pos.callWall).toLocaleString("en-IN") : null],
+    ["OI tape", pos.quadrant],
+  ].filter(([, v]) => v != null && v !== "");
+  if (!cells.length) return null;
+  return (
+    <div className="strategy-pos-strip" onClick={(e) => e.stopPropagation()}>
+      {cells.map(([label, value]) => (
+        <div key={label}>
+          <small>{label}</small>
+          <strong>{value}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Metric({ label, value, className = "", title }) {
   return (
     <div className="equity-metric" title={title}>
@@ -132,12 +156,15 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           <h4>{strategy.companyName || strategy.name}</h4>
           <span className="fno-symbol">{strategy.nseSymbol}</span>
           <span className="fno-sector">{strategy.sector || DATA_UNAVAILABLE}</span>
+          {strategy.horizonLabel || strategy.expiryType ? (
+            <span className="strategy-horizon-pill">{strategy.horizonLabel || strategy.expiryType}</span>
+          ) : null}
         </div>
         <span className={`strategy-status ${statusCls}`}>{formatTradeBadge(strategy)}</span>
       </header>
 
       <div className="fno-type-row">
-        <span className="strategy-type-pill">{strategy.type}</span>
+        <span className="strategy-type-pill">{formatStructureName(strategy)}</span>
         {tradeLine ? <span className="strategy-trade-line">{tradeLine}</span> : null}
       </div>
 
@@ -207,6 +234,8 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         </p>
       </div>
 
+      <PositioningStrip pos={strategy.positioning} />
+
       <div className="strategy-targets">
         <div>
           <small>{isSpotZone(strategy) ? "Spot zone" : "Entry (premium)"}</small>
@@ -275,29 +304,53 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           <table className="legs-table">
             <thead>
               <tr>
-                <th>Leg</th>
+                <th>Action</th>
+                <th>Type</th>
                 <th>Strike</th>
+                <th>Expiry</th>
                 <th>Premium</th>
+                <th>OI</th>
               </tr>
             </thead>
             <tbody>
               {strategy.strikes.map((leg, i) => (
-                <tr key={i}>
-                  <td className={leg.action === "BUY" ? "buy" : "sell"}>
-                    {leg.action} {leg.type}
-                  </td>
+                <tr key={`${leg.strike}-${leg.type}-${i}`}>
+                  <td className={leg.action === "BUY" ? "buy" : "sell"}>{leg.action}</td>
+                  <td>{leg.type}</td>
                   <td>
                     {leg.strike != null
                       ? Number(leg.strike).toLocaleString("en-IN")
                       : DATA_UNAVAILABLE}
                   </td>
-                  <td>{leg.premium != null ? `${fmtRs(leg.premium)} / unit${isReferencePlan ? " last close" : ""}` : isReferencePlan ? FILL_AT_OPEN : DATA_UNAVAILABLE}</td>
+                  <td>{leg.expiry || strategy.expiry || "—"}</td>
+                  <td>
+                    {leg.premium != null
+                      ? `${fmtRs(leg.premium)} / unit${
+                          ps.lotSize != null ? ` · ${fmtRs(leg.premium * ps.lotSize)} / lot` : ""
+                        }${isReferencePlan ? " last close" : ""}`
+                      : isReferencePlan
+                        ? FILL_AT_OPEN
+                        : DATA_UNAVAILABLE}
+                  </td>
+                  <td>{leg.openInterest != null ? Number(leg.openInterest).toLocaleString("en-IN") : "—"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {strategy.tradeTicket?.steps?.length ? (
+        <div className="strategy-ticket-wrap" onClick={(e) => e.stopPropagation()}>
+          <small>How to put it on</small>
+          <ol className="strategy-ticket">
+            {strategy.tradeTicket.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+          {strategy.tradeTicket.note ? <p className="panel-sub">{strategy.tradeTicket.note}</p> : null}
+        </div>
+      ) : null}
 
       <div className="strategy-payoff" onClick={(e) => e.stopPropagation()}>
         <PayoffChart strategy={strategy} height={200} />

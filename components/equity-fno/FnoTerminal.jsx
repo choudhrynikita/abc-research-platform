@@ -177,20 +177,24 @@ export default function FnoTerminal() {
   }
 
   const top10 = data?.top10 || [];
+  const weekly = top10.filter((s) => String(s.expiryType || "").toLowerCase() !== "monthly");
+  const monthly = top10.filter((s) => String(s.expiryType || "").toLowerCase() === "monthly");
   const visibleStrategies = top10.filter((strategy) => {
     if (horizonFilter === "all") return true;
     if (horizonFilter === "defer") return strategy.eligibility?.decision === "DEFER" || strategy.eligibility?.decision === "WATCH";
     if (horizonFilter === "live") return strategy.eligibility?.decision === "LIVE";
-    return strategy.status === horizonFilter;
+    if (horizonFilter === "weekly") return String(strategy.expiryType || "").toLowerCase() !== "monthly";
+    if (horizonFilter === "monthly") return String(strategy.expiryType || "").toLowerCase() === "monthly";
+    return true;
   });
   const filterOptions = [
     ["all", "All"],
+    ["weekly", "Weekly"],
+    ["monthly", "Monthly"],
     ["live", "Live"],
-    ["Next Session", "After close"],
-    ["This Week", "This week"],
-    ["Week-Ahead", "Weekend"],
     ["defer", "Watch / Defer"],
   ];
+  const groupedView = horizonFilter === "all" && (weekly.length || monthly.length);
 
   return (
     <div className={`fno-terminal terminal-vertical${refreshing ? " is-refreshing" : ""}`}>
@@ -235,14 +239,14 @@ export default function FnoTerminal() {
 
       <section className="strategy-list-section">
         <div className="section-head">
-          <h3>Top 10 Strategies</h3>
+          <h3>Weekly and monthly equity F&O plans</h3>
           <p className="panel-sub">
             {top10.length > 0
-              ? `${top10.length} strategies ranked #1–#${top10.length} · `
+              ? `${top10.length} ranked plans · ${weekly.length} weekly · ${monthly.length} monthly · `
               : ""}
             {data?.marketMode === "live"
-              ? "Sorted by confidence score — trend, liquidity, OI, RS, volume & risk-reward"
-              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next trading session"} — stock trend, financial context, contract quality and conditional entry checks`}
+              ? "Verified NSE premiums, lot P/L, OI walls and a one-lot ticket on every card"
+              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — last-close premiums, OI snapshot, and explicit expiry`}
           </p>
         </div>
         <div className="strategy-horizon-filters" role="group" aria-label="Filter strategies by planning horizon">
@@ -268,11 +272,33 @@ export default function FnoTerminal() {
             <p>No strategies match this planning filter.</p>
             <button className="btn btn-secondary" type="button" onClick={() => setHorizonFilter("all")}>Show All Strategies</button>
           </div>
+        ) : groupedView ? (
+          [
+            ["Weekly expiry", weekly],
+            ["Monthly expiry", monthly],
+          ].filter(([, list]) => list.length).map(([label, list]) => (
+            <div key={label} className="strategy-horizon-group">
+              <div className="strategy-horizon-group-head">
+                <h4>{label}</h4>
+                <p>{list.length} plans · named structure, lot rupees, OI walls</p>
+              </div>
+              <div className="strategy-grid">
+                {list.map((s) => (
+                  <FnoStrategyCard
+                    key={`${s.rank}-${s.symbol}-${s.type}-${s.expiry}`}
+                    strategy={s}
+                    selected={selected?.rank === s.rank && selected?.symbol === s.symbol}
+                    onSelect={setSelected}
+                  />
+                ))}
+              </div>
+            </div>
+          ))
         ) : (
           <div className="strategy-grid">
             {visibleStrategies.map((s) => (
               <FnoStrategyCard
-                key={`${s.rank}-${s.symbol}-${s.type}`}
+                key={`${s.rank}-${s.symbol}-${s.type}-${s.expiry}`}
                 strategy={s}
                 selected={selected?.rank === s.rank && selected?.symbol === s.symbol}
                 onSelect={setSelected}

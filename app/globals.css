@@ -9623,3 +9623,84 @@ html {
   .academy-curr-next { display: none; }
   .academy-lab-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.strategy-pos-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 8px;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  min-width: 0;
+}
+.strategy-pos-strip small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+.strategy-pos-strip strong { font-size: 0.88rem; }
+.strategy-ticket-wrap {
+  margin: 10px 0 4px;
+  min-width: 0;
+}
+.strategy-ticket-wrap > small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.strategy-ticket {
+  margin: 6px 0 4px;
+  padding-left: 1.2rem;
+}
+.strategy-ticket li { margin: 3px 0; font-size: 0.88rem; }
+.legs-table { width: 100%; font-size: 0.82rem; }
+.legs-table th, .legs-table td { padding: 6px 8px; text-align: left; }
+.legs-table-wrap { overflow-x: auto; min-width: 0; }
+
+.funds-search {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+}
+.funds-search input {
+  min-height: var(--touch-min);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  width: 100%;
+}
+.fund-card { padding: 14px; min-width: 0; }
+.fund-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+.fund-card-head h4 { margin: 0 0 4px; font-size: 1rem; }
+.fund-card-head p { margin: 0; color: var(--text-muted); font-size: 0.82rem; }
+.fund-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.fund-metrics small { display: block; color: var(--text-muted); font-size: 0.7rem; }
+.fund-notes {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  padding-left: 1.1rem;
+}
+.fund-detail h3 { margin: 4px 0 8px; }
+.funds-terminal .up { color: var(--green); }
+.funds-terminal .down { color: var(--red); }
+
+@media (max-width: 639px) {
+  .strategy-pos-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fund-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

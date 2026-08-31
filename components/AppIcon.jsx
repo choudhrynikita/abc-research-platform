@@ -6,6 +6,7 @@ const PATHS = {
   news: <><path d="M5 5.5h14v13H5z" /><path d="M8 9h8" /><path d="M8 12h8" /><path d="M8 15h5" /></>,
   flows: <><path d="M5 8h11" /><path d="m13 5 3 3-3 3" /><path d="M19 16H8" /><path d="m11 13-3 3 3 3" /></>,
   ipo: <><circle cx="12" cy="12" r="7.5" /><path d="M12 7v10" /><path d="M15 9.5c-.7-.7-1.6-1-3-1-1.7 0-2.8.8-2.8 2 0 3 5.8 1.3 5.8 4 0 1.2-1.1 2-3 2-1.4 0-2.4-.4-3.1-1.1" /></>,
+  funds: <><rect x="4.5" y="10" width="5" height="8.5" rx="0.8" /><rect x="10.5" y="6" width="5" height="12.5" rx="0.8" /><rect x="16.5" y="8" width="3.5" height="10.5" rx="0.8" /></>,
   research: <><circle cx="10.5" cy="10.5" r="5.5" /><path d="m15 15 4 4" /><path d="M10.5 8v5" /><path d="M8 10.5h5" /></>,
   strategy: <><path d="M5 17 12 5l7 12" /><path d="M8.2 12h7.6" /></>,
   fno: <><path d="M5 5h14v14H5z" /><path d="M8 15V9" /><path d="M12 15v-4" /><path d="M16 15V7" /></>,

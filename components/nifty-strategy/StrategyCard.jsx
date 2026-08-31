@@ -133,7 +133,7 @@ function ConfidenceGauge({ score, factors }) {
   );
 }
 
-function LegsTable({ strikes, planning, expiry }) {
+function LegsTable({ strikes, planning, expiry, lot }) {
   if (!strikes?.length) return <p className="na-text">{planning ? FILL_AT_OPEN : NO_PREMIUM}</p>;
   return (
     <table className="legs-table">
@@ -144,6 +144,7 @@ function LegsTable({ strikes, planning, expiry }) {
           <th>Strike</th>
           <th>Expiry</th>
           <th>Premium</th>
+          <th>OI</th>
         </tr>
       </thead>
       <tbody>
@@ -157,15 +158,50 @@ function LegsTable({ strikes, planning, expiry }) {
             <td>{leg.expiry || expiry || "—"}</td>
             <td>
               {leg.premium != null
-                ? `₹${fmt(leg.premium)} / unit${planning ? " last close" : ""}`
+                ? `₹${fmt(leg.premium)} / unit${lot ? ` · ₹${fmt(leg.premium * lot)} / lot` : ""}${planning ? " last close" : ""}`
                 : planning
                   ? FILL_AT_OPEN
                   : NO_PREMIUM}
             </td>
+            <td>{leg.openInterest != null ? Number(leg.openInterest).toLocaleString("en-IN") : "—"}</td>
           </tr>
         ))}
       </tbody>
     </table>
+  );
+}
+
+function PositioningStrip({ pos }) {
+  if (!pos) return null;
+  const cells = [
+    ["PCR (OI)", pos.pcr],
+    ["Max pain", pos.maxPain != null ? Number(pos.maxPain).toLocaleString("en-IN") : null],
+    ["ATM IV", pos.atmIv != null ? `${pos.atmIv}%` : null],
+    ["Put wall", pos.putWall != null ? Number(pos.putWall).toLocaleString("en-IN") : null],
+    ["Call wall", pos.callWall != null ? Number(pos.callWall).toLocaleString("en-IN") : null],
+    ["OI tape", pos.quadrant],
+  ].filter(([, v]) => v != null && v !== "");
+  if (!cells.length) return null;
+  return (
+    <div className="strategy-pos-strip" onClick={(e) => e.stopPropagation()}>
+      {cells.map(([label, value]) => (
+        <div key={label}>
+          <small>{label}</small>
+          <strong>{value}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TradeTicket({ ticket }) {
+  if (!ticket?.steps?.length) return null;
+  return (
+    <ol className="strategy-ticket">
+      {ticket.steps.map((step) => (
+        <li key={step}>{step}</li>
+      ))}
+    </ol>
   );
 }
 
@@ -262,6 +298,8 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
 
       <ConfidenceGauge score={strategy.confidenceScore} factors={strategy.confidenceFactors} />
 
+      <PositioningStrip pos={strategy.positioning} />
+
       <div className="strategy-targets">
         <div>
           <small>{entryLabel}</small>
@@ -302,8 +340,16 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
       </div>
 
       <div className="legs-table-wrap">
-        <LegsTable strikes={strategy.strikes} planning={isReferencePlan} expiry={strategy.expiry} />
+        <LegsTable strikes={strategy.strikes} planning={isReferencePlan} expiry={strategy.expiry} lot={lot} />
       </div>
+
+      {strategy.tradeTicket?.steps?.length ? (
+        <div className="strategy-ticket-wrap" onClick={(e) => e.stopPropagation()}>
+          <small>How to put it on</small>
+          <TradeTicket ticket={strategy.tradeTicket} />
+          {strategy.tradeTicket.note ? <p className="panel-sub">{strategy.tradeTicket.note}</p> : null}
+        </div>
+      ) : null}
 
       <div className="strategy-payoff" onClick={(e) => e.stopPropagation()}>
         <PayoffChart strategy={strategy} height={200} />

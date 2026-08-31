@@ -284,8 +284,8 @@ export default function StrategyTerminal() {
               ? `${top10.length} plans across three NSE expiries · `
               : ""}
             {data?.marketMode === "live"
-              ? "Each horizon uses its own verified option chain — nearest weekly, ~15-day weekly, and monthly"
-              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — last-close premiums on 7-day, 15-day and monthly expiries`}
+              ? "Each horizon uses its own verified option chain — named structure, lot rupees, OI walls, PCR and a one-lot ticket"
+              : `Planning for ${data?.marketStatus?.planningDateLabel || "the next session"} — last-close premiums, OI snapshot, and explicit 7-day / 15-day / monthly expiries`}
           </p>
         </div>
 
