@@ -5,7 +5,7 @@ import { Line } from "react-chartjs-2";
 import "@/lib/chart-setup";
 import { baseChartOptions, exportChartPng } from "@/lib/chart-setup";
 
-const PREMIUMS_UNAVAILABLE = "Fill payoff at next open";
+const PREMIUMS_UNAVAILABLE = "No verified premium";
 
 function fmtNum(v, d = 2) {
   if (v == null || Number.isNaN(Number(v))) return PREMIUMS_UNAVAILABLE;
@@ -220,7 +220,7 @@ export default function PayoffChart({ strategy, height = 220, eager = false }) {
         <p className="panel-sub">
           {payoff?.reason ||
             (strategy.mode !== "live"
-              ? "Last-close map is on the card. The expiry diagram is drawn only after verified NSE premiums are filled at the next open — never estimated."
+              ? "Last-close map is on the card. The expiry diagram is drawn only from verified NSE premiums — never estimated."
               : "Verified option premiums are required to calculate the payoff diagram. Values are never estimated.")}
         </p>
       </div>

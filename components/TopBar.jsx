@@ -62,11 +62,11 @@ function computeMarketSession() {
     const ist = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     const day = ist.getDay(); // 0 Sun
     const mins = ist.getHours() * 60 + ist.getMinutes();
-    if (day === 0 || day === 6) return { mode: "closed", label: "Week-Ahead Plan" };
+    if (day === 0 || day === 6) return { mode: "closed", label: "Weekend · closed" };
     // Regular cash session ~ 9:15–15:30 IST
     if (mins >= 9 * 60 + 15 && mins < 15 * 60 + 30) return { mode: "live", label: "Session Open" };
-    if (mins < 9 * 60 + 15) return { mode: "pre", label: "Before Market Open" };
-    return { mode: "closed", label: "Next-Session Plan" };
+    if (mins < 9 * 60 + 15) return { mode: "pre", label: "Before open" };
+    return { mode: "closed", label: "After close" };
   } catch {
     return { mode: "unknown", label: "Status Unknown" };
   }

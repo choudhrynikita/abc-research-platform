@@ -17,10 +17,12 @@ export default function AcademyLesson({ trackId, lessonId }) {
   const [tab, setTab] = useState("lesson");
 
   useEffect(() => {
-    if (meta?.id) progress.touch(meta.id);
     setTab("lesson");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
+
+  useEffect(() => {
+    if (meta?.id && progress.ready) progress.touch(meta.id);
+  }, [lessonId, progress.ready, meta?.id, progress.touch]);
 
   if (!meta || !track) {
     return (

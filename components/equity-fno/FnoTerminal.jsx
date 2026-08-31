@@ -186,9 +186,9 @@ export default function FnoTerminal() {
   const filterOptions = [
     ["all", "All"],
     ["live", "Live"],
-    ["Next Session", "Next Session"],
-    ["This Week", "This Week"],
-    ["Week-Ahead", "Week Ahead"],
+    ["Next Session", "After close"],
+    ["This Week", "This week"],
+    ["Week-Ahead", "Weekend"],
     ["defer", "Watch / Defer"],
   ];
 

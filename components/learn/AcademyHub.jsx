@@ -18,7 +18,9 @@ export default function AcademyHub() {
   const total = catalog.counts.lessons;
   const done = Math.min(progress.completedCount, total);
   const pct = total ? Math.round((done / total) * 100) : 0;
-  const continueLesson = academy.getLesson(progress.lastId) || academy.nextLesson(progress.completed);
+  const last = academy.getLesson(progress.lastId);
+  const continueLesson =
+    last && !progress.completed[last.id] ? last : academy.nextLesson(progress.completed);
   const continueTrack = continueLesson ? academy.getTrack(continueLesson.trackId) : null;
 
   const hits = useMemo(() => academy.searchLessons(query), [query]);
@@ -84,7 +86,7 @@ export default function AcademyHub() {
       <section>
         <div className="academy-section-head">
           <h2>Pick a lane</h2>
-          <p>Four short paths if you do not want to browse 13 tracks.</p>
+          <p>{catalog.paths.length} short paths if you do not want to browse all {catalog.tracks.length} modules.</p>
         </div>
         <div className="academy-path-grid">
           {catalog.paths.map((path) => (

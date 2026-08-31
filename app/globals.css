@@ -9499,7 +9499,8 @@ html {
 .ad-bg { fill: var(--bg); }
 .ad-bid { fill: var(--green-soft); stroke: var(--green); }
 .ad-ask { fill: var(--red-soft); stroke: var(--red); }
-.ad-card, .ad-stroke { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.ad-card { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+.ad-stroke { fill: none; stroke: var(--accent); stroke-width: 1.6; }
 .ad-line { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; }
 .ad-wick, .ad-axis { stroke: var(--text-muted); stroke-width: 1.4; }
 .ad-label { fill: var(--text); font-size: 12px; font-weight: 700; }

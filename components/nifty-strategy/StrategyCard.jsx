@@ -32,7 +32,7 @@ function formatEntryZone(strategy) {
     return `₹${low} – ₹${high}`;
   }
   if (strategy?.entryTrigger) return strategy.entryTrigger;
-  return strategy?.mode !== "live" ? "Use last-close trigger at the next open" : "No verified entry yet";
+  return strategy?.mode !== "live" ? "Last-close trigger — confirm on the live tape" : "No verified entry yet";
 }
 
 function formatPremiumValue(value, { planning = false, credit = false } = {}) {
@@ -77,7 +77,7 @@ function formatBreakEven(strategy) {
     strategy.positionSizing?.breakEven ||
     null;
   if (be) return be;
-  return strategy.mode !== "live" ? "At trigger / next open" : "—";
+  return strategy.mode !== "live" ? "Confirm break-even on the live fill" : "—";
 }
 
 function formatRr(strategy) {

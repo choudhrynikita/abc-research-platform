@@ -25,18 +25,21 @@ function read() {
 
 export default function useAcademyProgress() {
   const [state, setState] = useState(empty);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setState(read());
+    setReady(true);
   }, []);
 
   useEffect(() => {
+    if (!ready) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
     } catch {
       /* ignore */
     }
-  }, [state]);
+  }, [state, ready]);
 
   const markComplete = useCallback((id) => {
     if (!id) return;
@@ -59,12 +62,12 @@ export default function useAcademyProgress() {
 
   const touch = useCallback((id) => {
     if (!id) return;
-    setState((prev) => ({ ...prev, lastId: id }));
+    setState((prev) => (prev.lastId === id ? prev : { ...prev, lastId: id }));
   }, []);
 
   const reset = useCallback(() => setState(empty()), []);
 
   const completedCount = useMemo(() => Object.keys(state.completed).length, [state.completed]);
 
-  return { ...state, markComplete, markQuiz, touch, reset, completedCount };
+  return { ...state, ready, markComplete, markQuiz, touch, reset, completedCount };
 }

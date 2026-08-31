@@ -37,7 +37,7 @@ function formatEntryZone(strategy) {
     return `₹${low}–₹${high}`;
   }
   if (strategy?.entryTrigger) return strategy.entryTrigger;
-  return strategy?.mode !== "live" ? "Use last-close trigger at the next open" : "No verified entry yet";
+  return strategy?.mode !== "live" ? "Last-close trigger — confirm on the live tape" : "No verified entry yet";
 }
 
 function formatMaxProfit(s, preferLot = true) {
@@ -170,7 +170,7 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         <Metric
           label="Break-even"
           title="Underlying level(s) where expiry P/L = 0"
-          value={strategy.payoff?.breakEvenDisplay || ps.breakEven || (isReferencePlan ? "At trigger / next open" : DATA_UNAVAILABLE)}
+          value={strategy.payoff?.breakEvenDisplay || ps.breakEven || (isReferencePlan ? "Confirm on the live fill" : DATA_UNAVAILABLE)}
         />
         <Metric
           label="R:R"

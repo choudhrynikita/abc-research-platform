@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import useAcademyProgress from "./useAcademyProgress";
 
@@ -10,11 +9,6 @@ export default function AcademyTrack({ trackId }) {
   const track = academy.getTrack(trackId);
   const lessons = academy.lessonsForTrack(trackId);
   const progress = useAcademyProgress();
-
-  useEffect(() => {
-    if (lessons[0]) progress.touch(lessons[0].id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackId]);
 
   if (!track) {
     return (
