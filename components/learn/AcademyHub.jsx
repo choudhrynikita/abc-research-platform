@@ -30,8 +30,9 @@ export default function AcademyHub() {
         <p className="academy-kicker">Knowledge Centre</p>
         <h1>Learn markets like a desk — not like a feed.</h1>
         <p className="academy-hero-lead">
-          100 short lessons on Indian cash, F&O, commodities and the psychology that actually
-          blows accounts. Tap Continue, finish one lesson, come back tomorrow.
+          21 modules, {catalog.counts.lessons} chapters — Indian markets, funds, bonds,
+          options, tax, insurance, NPS. Original lessons. Tap Continue, finish one
+          chapter, come back tomorrow.
         </p>
         <div className="academy-hero-stats">
           <span>{done}/{total} done</span>
@@ -106,7 +107,8 @@ export default function AcademyHub() {
 
       <section>
         <div className="academy-section-head">
-          <h2>Curriculum</h2>
+          <h2>Modules</h2>
+          <p>Numbered chapters. Open one, finish it, go to the next.</p>
           <div className="academy-level-row">
             {["All", "Foundation", "Intermediate", "Advanced", "Desk"].map((item) => (
               <button
@@ -134,18 +136,17 @@ export default function AcademyHub() {
                       <h3>{track.title}</h3>
                       <small>{track.level}</small>
                     </div>
+                    <p className="academy-chapters">{track.lessons.length} chapters</p>
                     <p>{track.blurb}</p>
                     <div className="academy-mini-line" aria-hidden>
                       <span style={{ width: `${Math.round(frac * 100)}%` }} />
                     </div>
                     <span className="academy-track-meta">
-                      {finished}/{track.lessons.length} · {track.minutes} min
+                      {finished}/{track.lessons.length} complete · {track.minutes} min
                     </span>
                   </div>
                   {next ? (
-                    <span className="academy-curr-next">
-                      {finished === track.lessons.length ? "Review" : "Open"}
-                    </span>
+                    <span className="academy-curr-next">View module</span>
                   ) : null}
                 </Link>
               </li>

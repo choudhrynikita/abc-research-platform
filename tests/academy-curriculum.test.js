@@ -17,13 +17,17 @@ describe("Knowledge Centre curriculum", () => {
     assert.ok(NAV_HREFS.includes("/learn"));
   });
 
-  it("ships thirteen tracks and a full lesson body for every id", () => {
-    assert.equal(TRACKS.length, 13);
-    assert.equal(LESSON_LIST.length, 100);
+  it("ships a full Varsity-breadth course with a body for every id", () => {
+    assert.ok(TRACKS.length >= 21);
+    assert.ok(LESSON_LIST.length >= 170);
     assert.deepEqual(missingLessons(), []);
     const cat = catalog();
-    assert.equal(cat.counts.lessons, 100);
-    assert.ok(cat.counts.minutes > 1000);
+    assert.equal(cat.counts.lessons, LESSON_LIST.length);
+    assert.ok(cat.counts.minutes > 1800);
+    const ids = TRACKS.map((t) => t.id);
+    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse"]) {
+      assert.ok(ids.includes(need), need);
+    }
   });
 
   it("gives every lesson a lead, takeaways, and a four-option quiz", () => {
