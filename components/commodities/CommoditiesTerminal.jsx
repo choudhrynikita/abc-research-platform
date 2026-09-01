@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import { fetchDashboardJson } from "../terminal-fetch";
+import TradePlanCard from "../desk/TradePlanCard";
 
 function fmt(v, d = 2) {
   if (v == null || Number.isNaN(Number(v))) return "—";
@@ -18,8 +19,8 @@ function pct(v) {
 function tone(v) {
   if (v == null) return "";
   if (typeof v === "string") {
-    if (v === "BULLISH") return "up";
-    if (v === "BEARISH") return "down";
+    if (v === "BULLISH" || v === "Bullish") return "up";
+    if (v === "BEARISH" || v === "Bearish") return "down";
     return "";
   }
   if (v > 0) return "up";
@@ -27,19 +28,12 @@ function tone(v) {
   return "";
 }
 
-function zone(z) {
-  if (!z) return "—";
-  if (typeof z === "string") return z;
-  if (z.low != null && z.high != null) return `${fmt(z.low)} – ${fmt(z.high)}`;
-  return "—";
-}
-
 export default function CommoditiesTerminal() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("actionable");
   const [selected, setSelected] = useState(null);
 
   const load = useCallback((isRefresh = false) => {
@@ -49,7 +43,8 @@ export default function CommoditiesTerminal() {
     fetchDashboardJson(isRefresh ? "/api/commodities/dashboard?refresh=1" : "/api/commodities/dashboard")
       .then((j) => {
         setData(j);
-        setSelected((prev) => j.contracts?.find((c) => c.id === prev?.id) || j.contracts?.[0] || null);
+        const first = (j.strategies || []).find((s) => s.status === "Plan") || j.strategies?.[0] || null;
+        setSelected((prev) => (j.strategies || []).find((s) => s.id === prev?.id) || first);
       })
       .catch((e) => setError(e.message))
       .finally(() => {
@@ -62,11 +57,20 @@ export default function CommoditiesTerminal() {
     load(false);
   }, [load]);
 
+  const contracts = data?.contracts || [];
+  const strategies = useMemo(() => {
+    const all = data?.strategies || [];
+    if (filter === "actionable") return all.filter((s) => s.status === "Plan");
+    if (filter === "pass") return all.filter((s) => s.status === "Pass");
+    if (filter === "all") return all;
+    return all.filter((s) => s.commodityId === filter);
+  }, [data, filter]);
+
   if (loading) {
     return (
       <div className="terminal-loading">
         <div className="terminal-spinner" />
-        <p>Loading gold, silver, crude, gas, copper and USDINR…</p>
+        <p>Building MCX gold, silver, crude, gas, copper and USDINR tickets…</p>
       </div>
     );
   }
@@ -81,8 +85,6 @@ export default function CommoditiesTerminal() {
     );
   }
 
-  const contracts = data?.contracts || [];
-  const strategies = (data?.strategies || []).filter((s) => filter === "all" || s.commodityId === filter);
   const summary = data?.executiveSummary;
 
   return (
@@ -98,20 +100,20 @@ export default function CommoditiesTerminal() {
         <div className="exec-head">
           <div>
             <p className="terminal-eyebrow">Commodities desk</p>
-            <h2>Gold, silver, crude, gas, copper, USDINR</h2>
+            <h2>Named tickets — GOLDMINI, SILVERM, CRUDEOIL, GAS, COPPER, USDINR</h2>
             <p className="panel-sub">
-              COMEX/NYMEX last prices plus Indian BeES wrappers. MCX rupee lots can differ the same minute — treat this as the map, confirm on your MCX LTP.
+              Each card is a trade: BUY or SELL 1 lot, entry, stop, T1, rupee heat. MCX levels are COMEX × USDINR estimates — fill on your LTP.
             </p>
           </div>
           <div className="exec-badges">
-            <span className="data-pill">{summary?.contractsLive ?? 0} quotes</span>
-            <span className="data-pill">{summary?.strategies ?? 0} plans</span>
+            <span className="data-pill">{summary?.actionable ?? 0} actionable</span>
+            <span className="data-pill">USDINR {fmt(summary?.usdinr, 2)}</span>
           </div>
         </div>
         <div className="strategy-exec-grid">
           <div>
-            <small>Gold</small>
-            <strong>{fmt(summary?.gold)}</strong>
+            <small>Gold (est. ₹ / 10g)</small>
+            <strong>{fmt(summary?.gold, 0)}</strong>
           </div>
           <div>
             <small>Gold 1D</small>
@@ -122,73 +124,51 @@ export default function CommoditiesTerminal() {
             <strong className={tone(summary?.goldTrend)}>{summary?.goldTrend || "—"}</strong>
           </div>
           <div>
-            <small>WTI crude</small>
-            <strong>{fmt(summary?.crude)}</strong>
-          </div>
-          <div>
-            <small>Crude 1D</small>
-            <strong className={tone(summary?.crudeChange)}>{pct(summary?.crudeChange)}</strong>
+            <small>Crude (est. ₹ / bbl)</small>
+            <strong>{fmt(summary?.crude, 1)}</strong>
           </div>
         </div>
       </section>
 
-      <section className="strategy-list-section">
-        <div className="section-head">
-          <h3>Contracts</h3>
+      <div className="desk-tape-wrap glass-card">
+        <p className="academy-kicker">Tape</p>
+        <div className="legs-table-wrap">
+          <table className="legs-table">
+            <thead>
+              <tr>
+                <th>Contract</th>
+                <th>Trend</th>
+                <th>Dollar last</th>
+                <th>MCX estimate</th>
+                <th>1D</th>
+                <th>ATR %</th>
+                <th>India wrapper</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contracts.map((row) => (
+                <tr key={row.id}>
+                  <td>
+                    <strong>{row.mcx}</strong>
+                    <div className="panel-sub">{row.name}</div>
+                  </td>
+                  <td className={tone(row.trend)}>{row.trend || "—"}</td>
+                  <td>{fmt(row.price)}</td>
+                  <td>{row.mcxEstimate != null ? `₹${fmt(row.mcxEstimate)}` : "—"}</td>
+                  <td className={tone(row.changePct)}>{pct(row.changePct)}</td>
+                  <td>{row.atrPct != null ? `${row.atrPct}%` : "—"}</td>
+                  <td>{row.proxyName ? `${row.proxyName} ₹${fmt(row.proxy?.price)}` : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="strategy-grid">
-          {contracts.map((row) => (
-            <article
-              key={row.id}
-              className={`fund-card glass-card${selected?.id === row.id ? " selected" : ""}`}
-              onClick={() => setSelected(row)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && setSelected(row)}
-            >
-              <header className="fund-card-head">
-                <div>
-                  <h4>{row.name}</h4>
-                  <p>{row.mcx} · {row.venue}</p>
-                </div>
-                <span className="strategy-horizon-pill">{row.kind}</span>
-              </header>
-              <div className="fund-metrics">
-                <div>
-                  <small>Last</small>
-                  <strong>{fmt(row.price)}</strong>
-                </div>
-                <div>
-                  <small>1D</small>
-                  <strong className={tone(row.changePct)}>{pct(row.changePct)}</strong>
-                </div>
-                <div>
-                  <small>Trend</small>
-                  <strong className={tone(row.trend)}>{row.trend || "—"}</strong>
-                </div>
-                <div>
-                  <small>ATR</small>
-                  <strong>{fmt(row.atr)}</strong>
-                </div>
-                <div>
-                  <small>1M</small>
-                  <strong className={tone(row.ret1m)}>{pct(row.ret1m)}</strong>
-                </div>
-                {row.proxy ? (
-                  <div>
-                    <small>{row.proxyName}</small>
-                    <strong>{fmt(row.proxy.price)}</strong>
-                  </div>
-                ) : null}
-              </div>
-              {row.error ? <p className="panel-sub">{row.error}</p> : null}
-            </article>
-          ))}
-        </div>
-      </section>
+      </div>
 
-      <div className="strategy-horizon-filters" role="group" aria-label="Filter commodity plans">
-        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All plans</button>
+      <div className="strategy-horizon-filters" role="group" aria-label="Filter commodity tickets">
+        <button type="button" className={`chip sm${filter === "actionable" ? " active" : ""}`} onClick={() => setFilter("actionable")}>Do this</button>
+        <button type="button" className={`chip sm${filter === "pass" ? " active" : ""}`} onClick={() => setFilter("pass")}>Stand aside</button>
+        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All tickets</button>
         {contracts.map((c) => (
           <button
             key={c.id}
@@ -196,57 +176,35 @@ export default function CommoditiesTerminal() {
             className={`chip sm${filter === c.id ? " active" : ""}`}
             onClick={() => setFilter(c.id)}
           >
-            {c.name}
+            {c.mcx.replace("MCX ", "").replace("NSE ", "")}
           </button>
         ))}
       </div>
 
       <section className="strategy-list-section">
         <div className="section-head">
-          <h3>Trading plans</h3>
-          <p className="panel-sub">ATR-sized trend or range plans from verified daily candles. Confirm MCX LTP and SPAN before you size.</p>
+          <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "All tickets"}</h3>
+          <p className="panel-sub">BUY / SELL / NO TRADE with a 1-lot heat figure. Square before delivery. Confirm SPAN.</p>
+        </div>
+        <div className="desk-legend" aria-hidden="true">
+          <span><strong>BUY 1 lot</strong> dip to support, ATR stop</span>
+          <span><strong>SELL 1 lot</strong> fade resistance</span>
+          <span><strong>NO TRADE</strong> gas, mixed SMA, low ADX</span>
+          <span><strong>Heat</strong> 1.5× ATR in rupees — skip if > 1% of equity</span>
         </div>
         <div className="strategy-grid">
-          {strategies.map((s) => (
-            <article key={s.id} className="fund-card glass-card">
-              <header className="fund-card-head">
-                <div>
-                  <h4>{s.name}</h4>
-                  <p>{s.mcx} · {s.type} · {s.holdingPeriod}</p>
-                </div>
-                <span className={`strategy-horizon-pill ${tone(s.bias)}`}>{s.bias}</span>
-              </header>
-              <div className="fund-metrics">
-                <div>
-                  <small>Last</small>
-                  <strong>{fmt(s.last)}</strong>
-                </div>
-                <div>
-                  <small>Entry zone</small>
-                  <strong>{zone(s.entryZone)}</strong>
-                </div>
-                <div>
-                  <small>Stop</small>
-                  <strong>{typeof s.stopLoss === "number" ? fmt(s.stopLoss) : s.stopLoss || "—"}</strong>
-                </div>
-                <div>
-                  <small>T1</small>
-                  <strong>{typeof s.targets?.t1 === "number" ? fmt(s.targets.t1) : s.targets?.t1 || "—"}</strong>
-                </div>
-              </div>
-              {s.why?.length ? (
-                <ul className="why-rationale">
-                  {s.why.map((w) => (
-                    <li key={w.text}>
-                      {w.category ? <span className={`why-tag why-${w.category.toLowerCase()}`}>{w.category}</span> : null}
-                      <span>{w.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {s.caution ? <p className="strategy-defer-note">{s.caution}</p> : null}
-            </article>
-          ))}
+          {strategies.length ? (
+            strategies.map((s) => (
+              <TradePlanCard
+                key={s.id}
+                plan={s}
+                selected={selected?.id === s.id}
+                onSelect={setSelected}
+              />
+            ))
+          ) : (
+            <p className="panel-sub">No tickets in this filter. Open All tickets.</p>
+          )}
         </div>
       </section>
 

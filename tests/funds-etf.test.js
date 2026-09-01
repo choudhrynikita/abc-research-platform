@@ -8,6 +8,7 @@ const {
 } = require("../lib/funds-etf");
 const { attachPositioning, tradeTicket, wallsFromChain } = require("../lib/strategy-positioning");
 const { NAV_HREFS } = require("../lib/nav-config");
+const { buildFundDeskPlans, premiumLabel, unitsFor } = require("../lib/funds-strategies");
 
 const AMFI_FIXTURE = `
 Open Ended Schemes (Equity Scheme - Flexi Cap Fund)
@@ -52,6 +53,49 @@ describe("Funds & ETFs", () => {
     const schemes = parseAmfiNavText(AMFI_FIXTURE);
     const hits = searchFunds(schemes, "bees");
     assert.ok(hits.some((h) => /nifty bees/i.test(h.name)));
+  });
+});
+
+describe("fund desk playbooks", () => {
+  const etfs = [
+    { nse: "NIFTYBEES", name: "Nippon India ETF Nifty BeES", price: 268.4, nav: 268.32, premiumPct: 0.03, ret1m: -1.2, trend: "BULLISH" },
+    { nse: "GOLDBEES", name: "Nippon India ETF Gold BeES", price: 72.1, nav: 71.9, premiumPct: 0.28, trend: "NEUTRAL" },
+    { nse: "ITBEES", name: "Nippon India ETF IT BeES", price: 42, nav: 41.9, premiumPct: 0.2, ret1m: 14, rsi: 74, trend: "BULLISH" },
+  ];
+  const featured = [
+    { code: "100349", name: "UTI Nifty 50 Index Fund - Direct Plan - Growth", nav: 165.44, date: "29-Aug-2026", kind: "index", blurb: "Plain Nifty 50 index fund" },
+    { code: "119598", name: "Parag Parikh Flexi Cap Fund - Direct Plan - Growth", nav: 92.12, date: "29-Aug-2026", kind: "flexicap", blurb: "Flexi-cap" },
+  ];
+
+  it("names a Nifty BeES SIP with a rupee size", () => {
+    const plans = buildFundDeskPlans({ etfs, featured, navDate: "29-Aug-2026" });
+    const sip = plans.find((p) => p.id === "niftybees-sip");
+    assert.ok(sip);
+    assert.equal(sip.action, "BUY");
+    assert.match(sip.tradeLine, /NIFTYBEES/);
+    assert.match(sip.tradeTicket.steps[0], /CNC/);
+    assert.equal(unitsFor(10000, 268.4), 37);
+  });
+
+  it("skips IT BeES when the 1-month run is extended", () => {
+    const plans = buildFundDeskPlans({ etfs, featured });
+    const it = plans.find((p) => p.id === "itbees-satellite");
+    assert.equal(it.action, "WAIT");
+    assert.equal(it.status, "Pass");
+  });
+
+  it("writes Direct–Growth SIP tickets for featured funds", () => {
+    const plans = buildFundDeskPlans({ etfs, featured });
+    const flexi = plans.find((p) => p.id === "fund-sip-119598");
+    assert.ok(flexi);
+    assert.equal(flexi.action, "SIP");
+    assert.match(flexi.tradeLine, /5,000/);
+    assert.match(flexi.tradeTicket.steps[0], /Direct/);
+  });
+
+  it("labels a fat ETF premium as skip", () => {
+    assert.match(premiumLabel(1.2), /SKIP/i);
+    assert.match(premiumLabel(-0.5), /Discount/);
   });
 });
 

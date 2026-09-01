@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import TerminalRefreshBar from "../TerminalRefreshBar";
 import { fetchDashboardJson } from "../terminal-fetch";
+import TradePlanCard from "../desk/TradePlanCard";
 
 function fmt(v, d = 2) {
   if (v == null || Number.isNaN(Number(v))) return "—";
@@ -23,6 +24,11 @@ function pct(v) {
 
 function tone(v) {
   if (v == null) return "";
+  if (typeof v === "string") {
+    if (v === "BULLISH") return "up";
+    if (v === "BEARISH") return "down";
+    return "";
+  }
   if (v > 0) return "up";
   if (v < 0) return "down";
   return "";
@@ -42,8 +48,9 @@ function EtfCard({ row, selected, onSelect }) {
           <h4>{row.nse}</h4>
           <p>{row.name}</p>
         </div>
-        <span className="strategy-horizon-pill">{row.tracks}</span>
+        <span className="strategy-horizon-pill">{row.playbook?.action || row.tracks}</span>
       </header>
+      {row.playbook?.tradeLine ? <p className="etf-action-chip">{row.playbook.tradeLine}</p> : null}
       <div className="fund-metrics">
         <div>
           <small>Last (NSE)</small>
@@ -54,7 +61,7 @@ function EtfCard({ row, selected, onSelect }) {
           <strong className={tone(row.changePct)}>{pct(row.changePct)}</strong>
         </div>
         <div>
-          <small>NAV (AMFI)</small>
+          <small>NAV</small>
           <strong>{fmtRs(row.nav, 4)}</strong>
         </div>
         <div>
@@ -66,8 +73,8 @@ function EtfCard({ row, selected, onSelect }) {
           <strong className={tone(row.ret1m)}>{pct(row.ret1m)}</strong>
         </div>
         <div>
-          <small>3M</small>
-          <strong className={tone(row.ret3m)}>{pct(row.ret3m)}</strong>
+          <small>Trend</small>
+          <strong className={tone(row.trend)}>{row.trend || "—"}</strong>
         </div>
       </div>
       {row.error ? <p className="panel-sub">Quote unavailable: {row.error}</p> : null}
@@ -83,8 +90,9 @@ function FundCard({ row }) {
           <h4>{row.name}</h4>
           <p>{row.amc || row.category}</p>
         </div>
-        <span className="strategy-horizon-pill">{row.kind}</span>
+        <span className="strategy-horizon-pill">{row.playbook?.action || row.kind}</span>
       </header>
+      {row.playbook?.tradeLine ? <p className="etf-action-chip">{row.playbook.tradeLine}</p> : null}
       <div className="fund-metrics">
         <div>
           <small>NAV</small>
@@ -98,10 +106,6 @@ function FundCard({ row }) {
           <small>NAV date</small>
           <strong>{row.date || "—"}</strong>
         </div>
-        <div>
-          <small>Code</small>
-          <strong>{row.code || "—"}</strong>
-        </div>
       </div>
       {row.blurb ? <p className="panel-sub">{row.blurb}</p> : null}
     </article>
@@ -113,7 +117,7 @@ export default function FundsTerminal() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [tab, setTab] = useState("etf");
+  const [tab, setTab] = useState("playbook");
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState(null);
@@ -127,9 +131,8 @@ export default function FundsTerminal() {
       .then((j) => {
         setData(j);
         setSelected((prev) => {
-          const bees = j.etfs?.find((e) => e.nse === "NIFTYBEES") || j.etfs?.[0] || null;
-          if (!prev) return bees;
-          return j.etfs?.find((e) => e.nse === prev.nse) || bees;
+          const next = j.strategies?.find((s) => s.id === prev?.id);
+          return next || j.strategies?.find((s) => s.status === "Plan") || j.strategies?.[0] || null;
         });
       })
       .catch((e) => setError(e.message))
@@ -163,9 +166,10 @@ export default function FundsTerminal() {
   const etfs = data?.etfs || [];
   const featured = data?.featured || [];
   const summary = data?.executiveSummary;
-  const kindFilter = tab === "etf" ? null : tab;
+  const playbook = data?.strategies || [];
+  const kindFilter = tab === "etf" || tab === "playbook" || tab === "funds" ? null : tab;
   const filteredFeatured = useMemo(() => {
-    if (!kindFilter || kindFilter === "funds") return featured;
+    if (!kindFilter) return featured;
     return featured.filter((f) => f.kind === kindFilter);
   }, [featured, kindFilter]);
 
@@ -173,7 +177,7 @@ export default function FundsTerminal() {
     return (
       <div className="terminal-loading">
         <div className="terminal-spinner" />
-        <p>Loading AMFI NAVs and Nifty BeES quotes…</p>
+        <p>Loading AMFI NAVs, Nifty BeES quotes and SIP tickets…</p>
       </div>
     );
   }
@@ -202,16 +206,15 @@ export default function FundsTerminal() {
       <section className="strategy-exec glass-card">
         <div className="exec-head">
           <div>
-            <p className="terminal-eyebrow">Funds desk</p>
-            <h2>Mutual funds & index ETFs</h2>
+            <p className="terminal-eyebrow">Mutual funds & ETFs</p>
+            <h2>Named tickets — Nifty BeES, Gold BeES, SIPs, skip rules</h2>
             <p className="panel-sub">
-              Nifty BeES and peers trade like stocks. Mutual-fund NAVs print once a day on AMFI.
-              Premium/discount tells you if the ETF is rich vs its NAV.
+              Every card says BUY, WAIT or SIP with a rupee size. Nifty BeES is an ETF you fill on NSE.
+              Index funds print a NAV. Skip a fill when the ETF is more than 0.7% rich to NAV.
             </p>
           </div>
           <div className="exec-badges">
-            <span className="data-pill">{summary?.etfCount ?? 0} ETF quotes</span>
-            <span className="data-pill">{fmt(summary?.schemeCount, 0)} AMFI schemes</span>
+            <span className="data-pill">{summary?.actionable ?? playbook.filter((s) => s.status === "Plan").length} playbooks</span>
             <span className="data-pill">NAV {summary?.navDate || "—"}</span>
           </div>
         </div>
@@ -261,8 +264,9 @@ export default function FundsTerminal() {
 
       <div className="strategy-horizon-filters" role="tablist" aria-label="Funds desk views">
         {[
-          ["etf", "Index ETFs (BeES)"],
-          ["funds", "Featured mutual funds"],
+          ["playbook", "Do this"],
+          ["etf", "ETF tape"],
+          ["funds", "Featured funds"],
           ["index", "Index funds"],
           ["flexicap", "Flexi / multi cap"],
           ["elss", "ELSS"],
@@ -279,13 +283,39 @@ export default function FundsTerminal() {
         ))}
       </div>
 
+      {tab === "playbook" ? (
+        <section className="strategy-list-section">
+          <div className="section-head">
+            <h3>Playbook — the actual trades</h3>
+            <p className="panel-sub">
+              Core Nifty SIP, Gold BeES overlay, Bank/IT/Junior satellites, cash bucket, 70/20/10 book.
+            </p>
+          </div>
+          <div className="desk-legend" aria-hidden="true">
+            <span><strong>BUY / SIP</strong> fill this size</span>
+            <span><strong>WAIT</strong> premium too rich or tape extended</span>
+            <span><strong>Stop / rule</strong> when this product is wrong</span>
+            <span><strong>Do this</strong> numbered ticket, in order</span>
+          </div>
+          <div className="strategy-grid">
+            {playbook.map((s) => (
+              <TradePlanCard
+                key={s.id}
+                plan={s}
+                selected={selected?.id === s.id}
+                onSelect={setSelected}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {tab === "etf" ? (
         <section className="strategy-list-section">
           <div className="section-head">
             <h3>Index & commodity ETFs</h3>
             <p className="panel-sub">
-              Nifty BeES is an ETF: you buy it on NSE like a share. It tracks Nifty 50. Bank BeES, Junior BeES,
-              Gold BeES work the same way for their indices / metal.
+              Tape only. The playbook tab is the strategy. Prefer a tight premium and CNC delivery.
             </p>
           </div>
           <div className="strategy-grid">
@@ -293,18 +323,20 @@ export default function FundsTerminal() {
               <EtfCard
                 key={row.nse}
                 row={row}
-                selected={selected?.nse === row.nse}
-                onSelect={setSelected}
+                selected={selected?.contract === row.nse}
+                onSelect={() => setSelected(playbook.find((s) => s.contract === row.nse) || { id: row.nse, contract: row.nse })}
               />
             ))}
           </div>
         </section>
-      ) : (
+      ) : null}
+
+      {tab !== "playbook" && tab !== "etf" ? (
         <section className="strategy-list-section">
           <div className="section-head">
             <h3>{tab === "funds" ? "Featured mutual funds" : `Featured · ${tab}`}</h3>
             <p className="panel-sub">
-              Growth options where AMFI matched. Search above for any of the {fmt(summary?.schemeCount, 0)} schemes.
+              Direct–Growth NAVs. Use the 70/20/10 playbook rather than chasing last quarter's trophy.
             </p>
           </div>
           <div className="strategy-grid">
@@ -312,27 +344,6 @@ export default function FundsTerminal() {
               <FundCard key={row.code} row={row} />
             ))}
           </div>
-        </section>
-      )}
-
-      {selected && tab === "etf" ? (
-        <section className="glass-card fund-detail">
-          <p className="academy-kicker">Selected ETF</p>
-          <h3>
-            {selected.nse} · {selected.name}
-          </h3>
-          <p>
-            Tracks {selected.tracks}. Last {fmtRs(selected.price)} versus AMFI NAV {fmtRs(selected.nav, 4)}
-            {selected.premiumPct != null
-              ? ` (${pct(selected.premiumPct)} ${selected.premiumPct >= 0 ? "premium" : "discount"}).`
-              : "."}{" "}
-            52-week {fmtRs(selected.low52)} – {fmtRs(selected.high52)}. Volume {fmt(selected.volume, 0)}.
-          </p>
-          <p className="panel-sub">
-            A Nifty BeES-style ETF is not a mutual fund SIP unit. You pay the NSE price, you can sell in the
-            cash session, and tracking error + TER still eat a little of the index. Prefer a tight premium and
-            liquid volume.
-          </p>
         </section>
       ) : null}
 
