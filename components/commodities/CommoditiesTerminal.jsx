@@ -190,7 +190,7 @@ export default function CommoditiesTerminal() {
           <span><strong>BUY 1 lot</strong> dip to support, ATR stop</span>
           <span><strong>SELL 1 lot</strong> fade resistance</span>
           <span><strong>NO TRADE</strong> gas, mixed SMA, low ADX</span>
-          <span><strong>Heat</strong> 1.5× ATR in rupees — skip if > 1% of equity</span>
+          <span><strong>Heat</strong> 1.5× ATR in rupees — skip if over 1% of equity</span>
         </div>
         <div className="strategy-grid">
           {strategies.length ? (
