@@ -16,6 +16,19 @@ function pct(v) {
   return `${n > 0 ? "+" : ""}${n.toFixed(2)}%`;
 }
 
+function usd(v, unit) {
+  if (v == null || Number.isNaN(Number(v))) return "—";
+  const n = Number(v);
+  const body = n.toLocaleString("en-US", { maximumFractionDigits: n >= 100 ? 2 : 4 });
+  return unit ? `$${body}/${unit}` : `$${body}`;
+}
+
+function nativeUnit(row) {
+  const u = String(row?.unit || "");
+  if (u.startsWith("USD/")) return u.slice(4);
+  return "";
+}
+
 function tone(v) {
   if (v == null) return "";
   if (typeof v === "string") {
@@ -103,8 +116,8 @@ export default function CommoditiesTerminal() {
             <p className="terminal-eyebrow">Commodities desk</p>
             <h2>Named tickets — GOLDMINI, SILVERM, CRUDEOIL, GAS, COPPER, USDINR</h2>
             <p className="panel-sub">
-              Each card is one fill sheet: product, side, 1 lot, limit, hard stop, broker path.
-              Confirm MCX / NSE LTP before you send — rupee levels are COMEX × USDINR estimates.
+              Each card is one fill sheet: product, side, 1 lot, ATR dip limit, hard stop, conversion, broker path.
+              COMEX gold is USD/oz. MCX Gold Mini is ₹/10g. Confirm LTP before you send.
             </p>
           </div>
           <div className="exec-badges">
@@ -116,7 +129,11 @@ export default function CommoditiesTerminal() {
         {notice ? <p className="strategy-defer-note">{notice}</p> : null}
         <div className="strategy-exec-grid">
           <div>
-            <small>Gold (est. ₹ / 10g)</small>
+            <small>Gold COMEX</small>
+            <strong>{summary?.goldNativeLabel || usd(summary?.goldNative, "oz")}</strong>
+          </div>
+          <div>
+            <small>Gold est. ₹ / 10g</small>
             <strong>{fmt(summary?.gold, 0)}</strong>
           </div>
           <div>
@@ -128,10 +145,16 @@ export default function CommoditiesTerminal() {
             <strong className={tone(summary?.goldTrend)}>{summary?.goldTrend || "—"}</strong>
           </div>
           <div>
-            <small>Crude (est. ₹ / bbl)</small>
+            <small>USDINR</small>
+            <strong>{fmt(summary?.usdinr, 4)}</strong>
+          </div>
+          <div>
+            <small>Crude est. ₹ / bbl</small>
             <strong>{fmt(summary?.crude, 1)}</strong>
           </div>
         </div>
+        {summary?.goldConversion ? <p className="panel-sub">{summary.goldConversion}</p> : null}
+        {summary?.goldBees ? <p className="panel-sub">{summary.goldBees}</p> : null}
       </section>
 
       <div className="desk-tape-wrap glass-card">
@@ -142,12 +165,14 @@ export default function CommoditiesTerminal() {
               <thead>
                 <tr>
                   <th>Contract</th>
+                  <th>Native last</th>
+                  <th>USDINR</th>
+                  <th>MCX est.</th>
+                  <th>BeES</th>
+                  <th>SMA 20 / 50</th>
+                  <th>ADX</th>
                   <th>Trend</th>
-                  <th>Dollar last</th>
-                  <th>MCX estimate</th>
                   <th>1D</th>
-                  <th>ATR %</th>
-                  <th>India wrapper</th>
                 </tr>
               </thead>
               <tbody>
@@ -156,13 +181,31 @@ export default function CommoditiesTerminal() {
                     <td>
                       <strong>{row.mcx}</strong>
                       <div className="panel-sub">{row.name}{row.error ? ` · ${row.error}` : ""}</div>
+                      {row.conversion ? <div className="panel-sub">{row.conversion}</div> : null}
+                    </td>
+                    <td>{row.nativeLastLabel || (String(row.unit || "").startsWith("USD/") ? usd(row.price, nativeUnit(row)) : fmt(row.price, row.id === "usdinr" ? 4 : 2))}</td>
+                    <td>{row.id === "usdinr" ? "—" : fmt(row.usdinr, 4)}</td>
+                    <td>{row.mcxEstimate != null ? `₹${fmt(row.mcxEstimate, row.id === "crude" || row.id === "natgas" ? 1 : 0)}` : "—"}</td>
+                    <td>
+                      {row.proxyName && row.proxy?.price != null
+                        ? `₹${fmt(row.proxy.price)}`
+                        : row.proxyName
+                          ? row.proxyName
+                          : "—"}
+                      {row.beesCheck ? <div className="panel-sub">{row.beesCheck}</div> : null}
+                    </td>
+                    <td>
+                      {row.sma20 != null && row.sma50 != null
+                        ? `${row.id === "usdinr" ? fmt(row.sma20, 4) : usd(row.sma20, nativeUnit(row))} / ${row.id === "usdinr" ? fmt(row.sma50, 4) : usd(row.sma50, nativeUnit(row))}`
+                        : "—"}
+                    </td>
+                    <td>
+                      {row.adx != null ? `ADX ${Number(row.adx).toFixed(1)}` : "—"}
+                      {row.rsi != null ? ` · RSI ${Number(row.rsi).toFixed(1)}` : ""}
+                      {row.atrPct != null ? ` · ATR ${row.atrPct}%` : ""}
                     </td>
                     <td className={tone(row.trend)}>{row.trend || "—"}</td>
-                    <td>{fmt(row.price)}</td>
-                    <td>{row.mcxEstimate != null ? `₹${fmt(row.mcxEstimate)}` : "—"}</td>
                     <td className={tone(row.changePct)}>{pct(row.changePct)}</td>
-                    <td>{row.atrPct != null ? `${row.atrPct}%` : "—"}</td>
-                    <td>{row.proxyName ? `${row.proxyName} ₹${fmt(row.proxy?.price)}` : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -193,7 +236,7 @@ export default function CommoditiesTerminal() {
         <div className="desk-section-head">
           <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "Fill sheets"}</h3>
           <p className="panel-sub">
-            Product, side, 1 lot, limit, stop, numbered how-to. Square crude before the 19th. Gas defaults to no trade.
+            Product, side, 1 lot, ATR dip limit, stop, conversion (COMEX × USDINR), numbered how-to. Square crude before the 19th. Gas defaults to no trade.
           </p>
         </div>
         <div className="strategy-grid">

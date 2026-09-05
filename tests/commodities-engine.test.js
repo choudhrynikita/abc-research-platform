@@ -125,4 +125,66 @@ describe("commodities engine", () => {
     assert.ok(desk.executiveSummary.gold > 70000);
     assert.ok(desk.strategies.length >= 8);
   });
+
+  it("treats stacked SMA20 above SMA50 with ADX 22 as a GOLDMINI buy even if composite is Neutral", () => {
+    const row = UNIVERSE.find((u) => u.id === "gold");
+    const price = 4467.15;
+    const atr = Number((price * 0.0185).toFixed(2));
+    const plans = buildPlans(
+      row,
+      { atr, support: 4100, resistance: 5010, sma20: 4467.15, sma50: 4238.98, rsi: 52.3, adx: 22 },
+      "NEUTRAL",
+      price,
+      { usdinr: 88, proxy: { price: 126.23, name: "Gold BeES" } }
+    );
+    const futures = plans.find((p) => p.contract === "GOLDMINI");
+    assert.ok(futures);
+    assert.equal(futures.action, "BUY");
+    assert.equal(futures.status, "Plan");
+    assert.match(futures.name, /BUY 1 lot GOLDMINI/);
+    assert.match(futures.fillSheet.formula, /31\.1034768/);
+    assert.match(futures.fillSheet.nativeLast, /\$/);
+    assert.match(futures.fillSheet.path, /BUY 1 lot/);
+    assert.equal(typeof futures.entryZone, "object");
+    assert.ok(futures.entryZone.low > 120000, String(futures.entryZone.low));
+    assert.ok(futures.entryZone.high < 132000, String(futures.entryZone.high));
+    assert.ok(futures.entryZone.high - futures.entryZone.low < 8000, "ATR dip, not 20-bar range");
+    assert.match(String(futures.why[0].text), /stacked up/);
+    assert.ok(futures.tapeMetrics.some((m) => /COMEX/.test(m.label)));
+    const overlay = plans.find((p) => p.contract === "GOLDBEES");
+    assert.ok(overlay);
+    assert.equal(overlay.action, "BUY");
+    assert.equal(overlay.bias, "Bullish");
+  });
+
+  it("passes when SMA20 and SMA50 have not separated, and SIPs the BeES overlay", () => {
+    const row = UNIVERSE.find((u) => u.id === "gold");
+    const plans = buildPlans(
+      row,
+      { atr: 20, support: 3300, resistance: 3500, sma20: 3400, sma50: 3398, rsi: 50, adx: 22 },
+      "NEUTRAL",
+      3400,
+      { usdinr: 83, proxy: { price: 72.5, name: "Gold BeES" } }
+    );
+    const futures = plans.find((p) => p.contract === "GOLDMINI");
+    assert.equal(futures.action, "NO TRADE");
+    assert.match(futures.name, /have not separated/);
+    assert.equal(futures.entryZone, "Do not send");
+    assert.equal(futures.stopLoss, "Do not send");
+    assert.equal(futures.fillSheet.limit, "Do not send");
+    assert.match(futures.fillSheet.path, /do not send/);
+    assert.equal(futures.heat, null);
+    const overlay = plans.find((p) => p.contract === "GOLDBEES");
+    assert.equal(overlay.action, "SIP");
+    assert.match(overlay.name, /SIP GOLDBEES/);
+  });
+
+  it("converts live-like COMEX gold and Gold BeES into the same 10g neighbourhood", () => {
+    const fromComex = toMcx("gold", 4467.15, 88);
+    const fromBees = beesToMcx("gold", 126.23);
+    assert.ok(fromComex > 120000 && fromComex < 135000, String(fromComex));
+    assert.equal(fromBees, 126230);
+    const gap = Math.abs(fromComex - fromBees) / fromComex;
+    assert.ok(gap < 0.03, String(gap));
+  });
 });

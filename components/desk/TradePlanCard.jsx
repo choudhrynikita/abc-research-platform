@@ -12,6 +12,7 @@ function zone(z, prefix = "₹") {
   if (z.low == null && z.high == null) return "—";
   const a = z.low ?? z.high;
   const b = z.high ?? z.low;
+  if (typeof a === "string" || typeof b === "string") return a === b ? String(a) : `${a} – ${b}`;
   if (a === b) return `${prefix}${fmt(a)}`;
   return `${prefix}${fmt(a)} – ${prefix}${fmt(b)}`;
 }
@@ -53,10 +54,19 @@ function sheetRows(plan) {
     ["Side", sheet.side || plan.action],
     ["Qty", qty],
     ["Order", sheet.orderType || null],
-    ["Limit / NAV", sheet.limit || zone(plan.entryZone)],
+    ["Limit / NAV", sheet.limit || (typeof plan.entryZone === "string" ? plan.entryZone : zone(plan.entryZone))],
     ["Stop", stop],
     ["Target", t1],
     ["When", sheet.when || plan.holdingPeriod],
+    ["Native last", sheet.nativeLast || plan.nativeLastLabel || null],
+    ["USDINR", sheet.usdinr || (plan.usdinr != null ? String(plan.usdinr) : null)],
+    ["MCX estimate", sheet.mcxEstimate || null],
+    ["Conversion", sheet.formula || plan.formula || null],
+    ["BeES check", sheet.beesCheck || plan.beesCheck || null],
+    ["SMA 20 / 50", sheet.sma || null],
+    ["ADX / RSI", sheet.adxRsi || null],
+    ["1-lot notional", sheet.notional || null],
+    ["Expiry", sheet.expiry || null],
     ["Skip if", sheet.skip || null],
     ["Broker path", sheet.path || null],
   ];
@@ -116,12 +126,20 @@ export default function TradePlanCard({ plan, selected, onSelect }) {
       </div>
 
       <div className="strategy-metrics-row strategy-metrics-risk">
-        <Metric label="Entry / limit" value={zone(plan.entryZone)} />
+        <Metric label="Entry / limit" value={typeof plan.entryZone === "string" ? plan.entryZone : zone(plan.entryZone)} />
         <Metric label="Stop" value={stop} className="risk" />
         <Metric label="Target 1" value={t1} className="reward" />
         <Metric label="Hold" value={plan.holdingPeriod || "—"} />
         {plan.heat != null ? <Metric label="Heat / 1 lot" value={`₹${fmt(plan.heat, 0)}`} className="risk" /> : null}
       </div>
+
+      {plan.tapeMetrics?.length ? (
+        <div className="strategy-metrics-row strategy-metrics-tape">
+          {plan.tapeMetrics.map((m) => (
+            <Metric key={m.label} label={m.label} value={m.value} />
+          ))}
+        </div>
+      ) : null}
 
       {rows.length ? (
         <div className="legs-table-wrap" onClick={(e) => e.stopPropagation()}>

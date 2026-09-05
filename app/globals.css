@@ -9762,13 +9762,18 @@ html {
 }
 .fill-sheet td:first-child {
   color: var(--text-muted);
-  white-space: nowrap;
+  white-space: normal;
   width: 7.5rem;
   font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }
 .fill-sheet td:last-child {
   font-weight: 600;
   overflow-wrap: anywhere;
+  white-space: normal;
+}
+.strategy-metrics-tape {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 .legs-table { width: 100%; font-size: 0.82rem; }
 .legs-table th, .legs-table td { padding: 6px 8px; text-align: left; }
