@@ -86,6 +86,7 @@ export default function CommoditiesTerminal() {
   }
 
   const summary = data?.executiveSummary;
+  const notice = data?.loadWarning || data?.message;
 
   return (
     <div className={`funds-terminal terminal-vertical${refreshing ? " is-refreshing" : ""}`}>
@@ -102,14 +103,17 @@ export default function CommoditiesTerminal() {
             <p className="terminal-eyebrow">Commodities desk</p>
             <h2>Named tickets — GOLDMINI, SILVERM, CRUDEOIL, GAS, COPPER, USDINR</h2>
             <p className="panel-sub">
-              Each card is a fill sheet: where, product, side, 1 lot, limit, hard stop. Confirm MCX LTP — rupee levels are COMEX × USDINR estimates.
+              Each card is one fill sheet: product, side, 1 lot, limit, hard stop, broker path.
+              Confirm MCX / NSE LTP before you send — rupee levels are COMEX × USDINR estimates.
             </p>
           </div>
           <div className="exec-badges">
-            <span className="data-pill">{summary?.actionable ?? 0} actionable</span>
+            <span className="data-pill">{summary?.actionable ?? 0} to run</span>
+            <span className="data-pill">{summary?.strategies ?? 0} tickets</span>
             <span className="data-pill">USDINR {fmt(summary?.usdinr, 2)}</span>
           </div>
         </div>
+        {notice ? <p className="strategy-defer-note">{notice}</p> : null}
         <div className="strategy-exec-grid">
           <div>
             <small>Gold (est. ₹ / 10g)</small>
@@ -132,42 +136,46 @@ export default function CommoditiesTerminal() {
 
       <div className="desk-tape-wrap glass-card">
         <p className="academy-kicker">Tape</p>
-        <div className="legs-table-wrap">
-          <table className="legs-table">
-            <thead>
-              <tr>
-                <th>Contract</th>
-                <th>Trend</th>
-                <th>Dollar last</th>
-                <th>MCX estimate</th>
-                <th>1D</th>
-                <th>ATR %</th>
-                <th>India wrapper</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contracts.map((row) => (
-                <tr key={row.id}>
-                  <td>
-                    <strong>{row.mcx}</strong>
-                    <div className="panel-sub">{row.name}</div>
-                  </td>
-                  <td className={tone(row.trend)}>{row.trend || "—"}</td>
-                  <td>{fmt(row.price)}</td>
-                  <td>{row.mcxEstimate != null ? `₹${fmt(row.mcxEstimate)}` : "—"}</td>
-                  <td className={tone(row.changePct)}>{pct(row.changePct)}</td>
-                  <td>{row.atrPct != null ? `${row.atrPct}%` : "—"}</td>
-                  <td>{row.proxyName ? `${row.proxyName} ₹${fmt(row.proxy?.price)}` : "—"}</td>
+        {contracts.length ? (
+          <div className="legs-table-wrap">
+            <table className="legs-table">
+              <thead>
+                <tr>
+                  <th>Contract</th>
+                  <th>Trend</th>
+                  <th>Dollar last</th>
+                  <th>MCX estimate</th>
+                  <th>1D</th>
+                  <th>ATR %</th>
+                  <th>India wrapper</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {contracts.map((row) => (
+                  <tr key={row.id}>
+                    <td>
+                      <strong>{row.mcx}</strong>
+                      <div className="panel-sub">{row.name}{row.error ? ` · ${row.error}` : ""}</div>
+                    </td>
+                    <td className={tone(row.trend)}>{row.trend || "—"}</td>
+                    <td>{fmt(row.price)}</td>
+                    <td>{row.mcxEstimate != null ? `₹${fmt(row.mcxEstimate)}` : "—"}</td>
+                    <td className={tone(row.changePct)}>{pct(row.changePct)}</td>
+                    <td>{row.atrPct != null ? `${row.atrPct}%` : "—"}</td>
+                    <td>{row.proxyName ? `${row.proxyName} ₹${fmt(row.proxy?.price)}` : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="panel-sub">Tape empty — tickets below still name the Indian contract. Refresh, then confirm LTP on MCX.</p>
+        )}
       </div>
 
       <div className="strategy-horizon-filters" role="group" aria-label="Filter commodity tickets">
-        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All strategies</button>
-        <button type="button" className={`chip sm${filter === "actionable" ? " active" : ""}`} onClick={() => setFilter("actionable")}>Do this</button>
+        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All tickets</button>
+        <button type="button" className={`chip sm${filter === "actionable" ? " active" : ""}`} onClick={() => setFilter("actionable")}>Run these</button>
         <button type="button" className={`chip sm${filter === "pass" ? " active" : ""}`} onClick={() => setFilter("pass")}>Stand aside</button>
         {contracts.map((c) => (
           <button
@@ -176,21 +184,17 @@ export default function CommoditiesTerminal() {
             className={`chip sm${filter === c.id ? " active" : ""}`}
             onClick={() => setFilter(c.id)}
           >
-            {c.mcx.replace("MCX ", "").replace("NSE ", "")}
+            {chipLabel(c)}
           </button>
         ))}
       </div>
 
       <section className="strategy-list-section">
-        <div className="section-head">
-          <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "All strategies"}</h3>
-          <p className="panel-sub">Each card is a fill sheet: product, 1 lot, limit, stop. Square before delivery. Confirm SPAN.</p>
-        </div>
-        <div className="desk-legend" aria-hidden="true">
-          <span><strong>BUY 1 lot</strong> dip to support, ATR stop</span>
-          <span><strong>SELL 1 lot</strong> fade resistance</span>
-          <span><strong>NO TRADE</strong> gas, mixed SMA, low ADX</span>
-          <span><strong>Heat</strong> 1.5× ATR in rupees — skip if over 1% of equity</span>
+        <div className="desk-section-head">
+          <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "Fill sheets"}</h3>
+          <p className="panel-sub">
+            Product, side, 1 lot, limit, stop, numbered how-to. Square crude before the 19th. Gas defaults to no trade.
+          </p>
         </div>
         <div className="strategy-grid">
           {strategies.length ? (
@@ -203,7 +207,7 @@ export default function CommoditiesTerminal() {
               />
             ))
           ) : (
-            <p className="panel-sub">No tickets in this filter. Open All tickets.</p>
+            <p className="panel-sub">No tickets in this filter. Tap All tickets.</p>
           )}
         </div>
       </section>
@@ -217,4 +221,8 @@ export default function CommoditiesTerminal() {
       ) : null}
     </div>
   );
+}
+
+function chipLabel(c) {
+  return String(c.mcx || c.id || "").replace("MCX ", "").replace("NSE ", "");
 }

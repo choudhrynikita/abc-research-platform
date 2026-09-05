@@ -9739,6 +9739,20 @@ html {
 }
 .desk-legend span { display: block; }
 .desk-legend strong { color: var(--text); font-weight: 650; }
+.desk-section-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.desk-section-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.desk-section-head .panel-sub {
+  margin: 0;
+}
 .etf-action-chip {
   display: inline-block;
   margin-top: 8px;
