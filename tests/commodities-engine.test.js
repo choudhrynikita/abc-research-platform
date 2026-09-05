@@ -27,10 +27,14 @@ describe("commodities engine", () => {
     assert.ok(futures);
     assert.equal(futures.action, "BUY");
     assert.match(futures.name, /BUY 1 lot GOLDMINI/);
-    assert.ok(futures.tradeTicket.steps[0].includes("GOLDMINI"));
-    assert.ok(futures.tradeTicket.steps[0].includes("100 g"));
+    assert.ok(futures.tradeTicket.steps.some((s) => s.includes("GOLDMINI")));
+    assert.ok(futures.tradeTicket.steps.some((s) => s.includes("100 g")));
     assert.equal(typeof futures.stopLoss, "number");
     assert.ok(futures.heat > 0);
+    assert.equal(futures.fillSheet.product, "GOLDMINI");
+    assert.equal(futures.fillSheet.side, "BUY");
+    assert.match(futures.fillSheet.qty, /100 g/);
+    assert.match(futures.fillSheet.path, /MCX/);
     const overlay = plans.find((p) => p.contract === "GOLDBEES");
     assert.ok(overlay);
     assert.equal(overlay.action, "BUY");
@@ -44,7 +48,16 @@ describe("commodities engine", () => {
     assert.match(plans[0].tradeLine, /NO TRADE/);
   });
 
-  it("converts COMEX gold into an MCX ₹/10g estimate", () => {
+  it("names USDINR as an importer hedge when the rupee is weakening", () => {
+    const row = UNIVERSE.find((u) => u.id === "usdinr");
+    const plans = buildPlans(row, { atr: 0.2, support: 82, resistance: 84, sma20: 83.2, sma50: 82.5, adx: 22 }, "BULLISH", 83.4, { usdinr: 83.4 });
+    assert.equal(plans[0].action, "BUY");
+    assert.equal(plans[0].structure, "Importer hedge");
+    assert.match(plans[0].tradeTicket.steps[0], /NSE/);
+    assert.equal(plans[0].fillSheet.product, "USDINR");
+  });
+
+  it("converts COMEX gold into an MCX rupee / 10g estimate", () => {
     const px = toMcx("gold", 3400, 83);
     assert.ok(px > 70000 && px < 120000, String(px));
   });

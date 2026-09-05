@@ -32,6 +32,37 @@ function Metric({ label, value, className = "" }) {
   );
 }
 
+function sheetRows(plan) {
+  const sheet = plan.fillSheet || {};
+  const stop =
+    sheet.stop ??
+    (typeof plan.stopLoss === "number" ? `₹${fmt(plan.stopLoss)}` : plan.stopLoss);
+  const t1 =
+    sheet.target ??
+    (typeof plan.targets?.t1 === "number" ? `₹${fmt(plan.targets.t1)}` : plan.targets?.t1);
+  const qty =
+    sheet.qty ||
+    (plan.action === "SIP" && plan.lots
+      ? `SIP ₹${fmt(plan.lots, 0)}`
+      : plan.lots != null
+        ? `${plan.lots} × ${plan.lotSpec || "unit"}`
+        : plan.lotSpec);
+  const rows = [
+    ["Where", sheet.venue || null],
+    ["Product", sheet.product || plan.contract],
+    ["Side", sheet.side || plan.action],
+    ["Qty", qty],
+    ["Order", sheet.orderType || null],
+    ["Limit / NAV", sheet.limit || zone(plan.entryZone)],
+    ["Stop", stop],
+    ["Target", t1],
+    ["When", sheet.when || plan.holdingPeriod],
+    ["Skip if", sheet.skip || null],
+    ["Broker path", sheet.path || null],
+  ];
+  return rows.filter(([, v]) => v != null && v !== "" && v !== "—");
+}
+
 export default function TradePlanCard({ plan, selected, onSelect }) {
   if (!plan) return null;
   const action = plan.action || plan.tradeTicket?.action || "PLAN";
@@ -53,12 +84,7 @@ export default function TradePlanCard({ plan, selected, onSelect }) {
       : typeof plan.targets.t2 === "number"
         ? `₹${fmt(plan.targets.t2)}`
         : plan.targets.t2;
-  const sizeLabel =
-    plan.lots != null && plan.contract && plan.action && plan.action !== "WAIT" && plan.action !== "NO TRADE"
-      ? plan.action === "SIP"
-        ? plan.tradeLine
-        : `${action} ${plan.lots} ${plan.lotSpec?.includes("lot") ? "lot" : plan.lotSpec || "unit"} ${plan.contract}`
-      : `${action}${plan.contract ? ` · ${plan.contract}` : ""}`;
+  const rows = sheetRows(plan);
 
   return (
     <article
@@ -85,21 +111,42 @@ export default function TradePlanCard({ plan, selected, onSelect }) {
       </header>
 
       <div className="trade-plan-fill">
-        <span className="fill-kicker">Proper trade</span>
-        <strong className="fill-action">{plan.tradeLine || sizeLabel}</strong>
+        <span className="fill-kicker">Instruction</span>
+        <strong className="fill-action">{plan.tradeLine || `${action} ${plan.contract || ""}`}</strong>
       </div>
 
       <div className="strategy-metrics-row strategy-metrics-risk">
-        <Metric label="Entry" value={zone(plan.entryZone)} />
-        <Metric label="Stop / rule" value={stop} className="risk" />
-        <Metric label="T1" value={t1} className="reward" />
+        <Metric label="Entry / limit" value={zone(plan.entryZone)} />
+        <Metric label="Stop" value={stop} className="risk" />
+        <Metric label="Target 1" value={t1} className="reward" />
         <Metric label="Hold" value={plan.holdingPeriod || "—"} />
         {plan.heat != null ? <Metric label="Heat / 1 lot" value={`₹${fmt(plan.heat, 0)}`} className="risk" /> : null}
       </div>
 
+      {rows.length ? (
+        <div className="legs-table-wrap" onClick={(e) => e.stopPropagation()}>
+          <table className="legs-table fill-sheet">
+            <thead>
+              <tr>
+                <th>Fill sheet</th>
+                <th>Do this</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(([k, v]) => (
+                <tr key={k}>
+                  <td>{k}</td>
+                  <td>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
       {plan.tradeTicket?.steps?.length ? (
-        <div className="strategy-ticket-wrap">
-          <small>Do this, in order</small>
+        <div className="strategy-ticket-wrap" onClick={(e) => e.stopPropagation()}>
+          <small>How to put it on</small>
           <ol className="strategy-ticket">
             {plan.tradeTicket.steps.map((step) => (
               <li key={step}>{step}</li>
@@ -108,7 +155,7 @@ export default function TradePlanCard({ plan, selected, onSelect }) {
         </div>
       ) : null}
 
-      {t2 ? <p className="panel-sub">T2 / management: {t2}</p> : null}
+      {t2 ? <p className="panel-sub">Target 2 / management: {t2}</p> : null}
 
       {plan.why?.length ? (
         <ul className="why-rationale">

@@ -9710,6 +9710,16 @@ html {
   font-weight: 650;
   overflow-wrap: anywhere;
 }
+.fill-sheet td:first-child {
+  color: var(--text-muted);
+  white-space: nowrap;
+  width: 7.5rem;
+  font-size: 0.78rem;
+}
+.fill-sheet td:last-child {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
 .legs-table { width: 100%; font-size: 0.82rem; }
 .legs-table th, .legs-table td { padding: 6px 8px; text-align: left; }
 .legs-table-wrap { overflow-x: auto; min-width: 0; }

@@ -74,6 +74,8 @@ describe("fund desk playbooks", () => {
     assert.equal(sip.action, "BUY");
     assert.match(sip.tradeLine, /NIFTYBEES/);
     assert.match(sip.tradeTicket.steps[0], /CNC/);
+    assert.equal(sip.fillSheet.product, "NIFTYBEES");
+    assert.match(sip.fillSheet.qty, /37/);
     assert.equal(unitsFor(10000, 268.4), 37);
   });
 
@@ -91,6 +93,8 @@ describe("fund desk playbooks", () => {
     assert.equal(flexi.action, "SIP");
     assert.match(flexi.tradeLine, /5,000/);
     assert.match(flexi.tradeTicket.steps[0], /Direct/);
+    assert.equal(flexi.fillSheet.side, "SIP");
+    assert.match(flexi.fillSheet.path, /Direct/);
   });
 
   it("labels a fat ETF premium as skip", () => {

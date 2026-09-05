@@ -33,7 +33,7 @@ export default function CommoditiesTerminal() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState("actionable");
+  const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState(null);
 
   const load = useCallback((isRefresh = false) => {
@@ -102,7 +102,7 @@ export default function CommoditiesTerminal() {
             <p className="terminal-eyebrow">Commodities desk</p>
             <h2>Named tickets — GOLDMINI, SILVERM, CRUDEOIL, GAS, COPPER, USDINR</h2>
             <p className="panel-sub">
-              Each card is a trade: BUY or SELL 1 lot, entry, stop, T1, rupee heat. MCX levels are COMEX × USDINR estimates — fill on your LTP.
+              Each card is a fill sheet: where, product, side, 1 lot, limit, hard stop. Confirm MCX LTP — rupee levels are COMEX × USDINR estimates.
             </p>
           </div>
           <div className="exec-badges">
@@ -166,9 +166,9 @@ export default function CommoditiesTerminal() {
       </div>
 
       <div className="strategy-horizon-filters" role="group" aria-label="Filter commodity tickets">
+        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All strategies</button>
         <button type="button" className={`chip sm${filter === "actionable" ? " active" : ""}`} onClick={() => setFilter("actionable")}>Do this</button>
         <button type="button" className={`chip sm${filter === "pass" ? " active" : ""}`} onClick={() => setFilter("pass")}>Stand aside</button>
-        <button type="button" className={`chip sm${filter === "all" ? " active" : ""}`} onClick={() => setFilter("all")}>All tickets</button>
         {contracts.map((c) => (
           <button
             key={c.id}
@@ -183,8 +183,8 @@ export default function CommoditiesTerminal() {
 
       <section className="strategy-list-section">
         <div className="section-head">
-          <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "All tickets"}</h3>
-          <p className="panel-sub">BUY / SELL / NO TRADE with a 1-lot heat figure. Square before delivery. Confirm SPAN.</p>
+          <h3>{filter === "pass" ? "Stand aside" : filter === "actionable" ? "Tickets to run" : "All strategies"}</h3>
+          <p className="panel-sub">Each card is a fill sheet: product, 1 lot, limit, stop. Square before delivery. Confirm SPAN.</p>
         </div>
         <div className="desk-legend" aria-hidden="true">
           <span><strong>BUY 1 lot</strong> dip to support, ATR stop</span>

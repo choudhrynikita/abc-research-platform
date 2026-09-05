@@ -264,7 +264,7 @@ export default function FundsTerminal() {
 
       <div className="strategy-horizon-filters" role="tablist" aria-label="Funds desk views">
         {[
-          ["playbook", "Do this"],
+          ["playbook", "Strategies"],
           ["etf", "ETF tape"],
           ["funds", "Featured funds"],
           ["index", "Index funds"],
@@ -286,9 +286,9 @@ export default function FundsTerminal() {
       {tab === "playbook" ? (
         <section className="strategy-list-section">
           <div className="section-head">
-            <h3>Playbook — the actual trades</h3>
+            <h3>Strategies — fill sheets</h3>
             <p className="panel-sub">
-              Core Nifty SIP, Gold BeES overlay, Bank/IT/Junior satellites, cash bucket, 70/20/10 book.
+              Each card says where, which product, BUY / SIP / WAIT, how many units, and the limit. CNC only for ETFs.
             </p>
           </div>
           <div className="desk-legend" aria-hidden="true">
@@ -313,20 +313,33 @@ export default function FundsTerminal() {
       {tab === "etf" ? (
         <section className="strategy-list-section">
           <div className="section-head">
-            <h3>Index & commodity ETFs</h3>
+            <h3>ETF strategies</h3>
             <p className="panel-sub">
-              Tape only. The playbook tab is the strategy. Prefer a tight premium and CNC delivery.
+              Same tickets as Strategies, one per listed ETF. Quotes sit on the fill sheet.
             </p>
           </div>
           <div className="strategy-grid">
-            {etfs.map((row) => (
-              <EtfCard
-                key={row.nse}
-                row={row}
-                selected={selected?.contract === row.nse}
-                onSelect={() => setSelected(playbook.find((s) => s.contract === row.nse) || { id: row.nse, contract: row.nse })}
-              />
-            ))}
+            {etfs.map((row) => {
+              const plan = playbook.find((s) => s.contract === row.nse);
+              if (plan) {
+                return (
+                  <TradePlanCard
+                    key={row.nse}
+                    plan={plan}
+                    selected={selected?.id === plan.id}
+                    onSelect={setSelected}
+                  />
+                );
+              }
+              return (
+                <EtfCard
+                  key={row.nse}
+                  row={row}
+                  selected={selected?.contract === row.nse}
+                  onSelect={() => setSelected({ id: row.nse, contract: row.nse })}
+                />
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -334,15 +347,26 @@ export default function FundsTerminal() {
       {tab !== "playbook" && tab !== "etf" ? (
         <section className="strategy-list-section">
           <div className="section-head">
-            <h3>{tab === "funds" ? "Featured mutual funds" : `Featured · ${tab}`}</h3>
+            <h3>{tab === "funds" ? "Featured mutual-fund SIPs" : `Featured · ${tab}`}</h3>
             <p className="panel-sub">
-              Direct–Growth NAVs. Use the 70/20/10 playbook rather than chasing last quarter's trophy.
+              Direct–Growth SIP tickets with rupee size. Do not chase last quarter's trophy.
             </p>
           </div>
           <div className="strategy-grid">
-            {filteredFeatured.map((row) => (
-              <FundCard key={row.code} row={row} />
-            ))}
+            {filteredFeatured.map((row) => {
+              const plan = playbook.find((s) => s.id === `fund-sip-${row.code}`);
+              if (plan) {
+                return (
+                  <TradePlanCard
+                    key={row.code}
+                    plan={plan}
+                    selected={selected?.id === plan.id}
+                    onSelect={setSelected}
+                  />
+                );
+              }
+              return <FundCard key={row.code} row={row} />;
+            })}
           </div>
         </section>
       ) : null}
