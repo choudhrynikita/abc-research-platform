@@ -28,8 +28,8 @@ export default function AcademyLesson({ trackId, lessonId }) {
   if (!meta || !track) {
     return (
       <div className="academy-shell">
-        <p>That lesson is not in the course.</p>
-        <Link href="/learn">Back</Link>
+        <p>That brief is not on this floor.</p>
+        <Link href="/learn">Back to the floor</Link>
       </div>
     );
   }
@@ -45,13 +45,11 @@ export default function AcademyLesson({ trackId, lessonId }) {
   return (
     <div className="academy-player">
       <nav className="academy-crumb">
-        <Link href="/learn">Course</Link>
+        <Link href="/learn">The floor</Link>
         <span>/</span>
         <Link href={`/learn/${track.id}`}>{track.title}</Link>
         <span>/</span>
-        <span>
-          {String(meta.number).padStart(2, "0")}
-        </span>
+        <span>Brief {String(meta.number).padStart(2, "0")}</span>
       </nav>
 
       <div className="academy-player-grid">
@@ -74,7 +72,7 @@ export default function AcademyLesson({ trackId, lessonId }) {
 
         <details className="academy-outline-mobile">
           <summary>
-            {track.title} · lesson {String(meta.number).padStart(2, "0")} of {siblings.length}
+            {track.title} · brief {String(meta.number).padStart(2, "0")} of {siblings.length}
           </summary>
           <ol>
             {siblings.map((lesson) => (
@@ -94,18 +92,18 @@ export default function AcademyLesson({ trackId, lessonId }) {
         <article className="academy-lesson">
           <header className="academy-lesson-head">
             <small>
-              {track.level} · {meta.minutes} min read
+              {track.level} · {meta.minutes} min on this desk
             </small>
             <h1>{meta.title}</h1>
             <div className="academy-tabs" role="tablist">
               <button type="button" className={tab === "lesson" ? "on" : ""} onClick={() => setTab("lesson")}>
-                Lesson
+                Brief
               </button>
               <button type="button" className={tab === "practice" ? "on" : ""} onClick={() => setTab("practice")}>
-                Assessment{passed ? " · passed" : ""}
+                Can you still send it?{passed ? " · seated" : ""}
               </button>
               <button type="button" className={tab === "desk" ? "on" : ""} onClick={() => setTab("desk")}>
-                Notes
+                Desk card
               </button>
             </div>
           </header>
@@ -114,8 +112,8 @@ export default function AcademyLesson({ trackId, lessonId }) {
             <>
               <AcademyLessonBody blocks={learn} quizState={progress.quiz[meta.id]} onGrade={(ok) => progress.markQuiz(meta.id, ok)} />
               <button type="button" className="academy-assess-cta" onClick={() => setTab("practice")}>
-                <strong>Chapter assessment</strong>
-                <span>{passed ? `Passed ${assessStored.score}/${assessStored.total}` : "5 questions · pass 4/5 to complete"}</span>
+                <strong>Five shots · keep the seat</strong>
+                <span>{passed ? `Seated ${assessStored.score}/${assessStored.total}` : "Pass 4/5 and this brief is yours"}</span>
               </button>
             </>
           )}
@@ -138,7 +136,7 @@ export default function AcademyLesson({ trackId, lessonId }) {
           )}
           {tab === "desk" && (
             <AcademyLessonBody
-              blocks={desk.length ? desk : [{ t: "p", text: "No extra desk note on this lesson. The takeaways live here when the quiz is done." }]}
+              blocks={desk.length ? desk : [{ t: "p", text: "No extra desk card on this brief. The takeaways live here once you pass the five shots." }]}
               quizState={progress.quiz[meta.id]}
               onGrade={(ok) => progress.markQuiz(meta.id, ok)}
             />
@@ -151,15 +149,15 @@ export default function AcademyLesson({ trackId, lessonId }) {
               onClick={() => (passed || done ? progress.markComplete(meta.id) : setTab("practice"))}
               disabled={done}
             >
-              {done ? "Completed" : passed ? "Mark complete" : "Pass assessment to complete"}
+              {done ? "Sat" : passed ? "Mark sat" : "Pass 4/5 to keep the seat"}
             </button>
             {next ? (
               <Link href={`/learn/${next.trackId}/${next.id}`} className="btn btn-ghost">
-                Next lesson
+                Next brief
               </Link>
             ) : (
               <Link href="/learn" className="btn btn-ghost">
-                Back to course
+                Back to the floor
               </Link>
             )}
           </div>
@@ -169,7 +167,7 @@ export default function AcademyLesson({ trackId, lessonId }) {
       <nav className="academy-pager">
         {prev ? (
           <Link href={`/learn/${prev.trackId}/${prev.id}`}>
-            <small>Previous</small>
+            <small>Previous brief</small>
             <strong>{prev.title}</strong>
           </Link>
         ) : (
@@ -177,7 +175,7 @@ export default function AcademyLesson({ trackId, lessonId }) {
         )}
         {next ? (
           <Link href={`/learn/${next.trackId}/${next.id}`}>
-            <small>Next</small>
+            <small>Next brief</small>
             <strong>{next.title}</strong>
           </Link>
         ) : (

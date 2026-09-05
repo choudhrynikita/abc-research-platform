@@ -13,8 +13,8 @@ export default function AcademyTrack({ trackId }) {
   if (!track) {
     return (
       <div className="academy-shell">
-        <p>That track is not in the course.</p>
-        <Link href="/learn">Back</Link>
+        <p>That desk is not on this floor.</p>
+        <Link href="/learn">Back to the floor</Link>
       </div>
     );
   }
@@ -25,24 +25,24 @@ export default function AcademyTrack({ trackId }) {
   return (
     <div className="academy-shell">
       <nav className="academy-crumb">
-        <Link href="/learn">Knowledge Centre</Link>
+        <Link href="/learn">The floor</Link>
         <span>/</span>
         <span>{track.title}</span>
       </nav>
       <header className="academy-track-head">
         <small>
-          {track.level} · Track {String(track.no).padStart(2, "0")} · {done}/{lessons.length} done
+          {track.level} · Desk {String(track.no).padStart(2, "0")} · {done}/{lessons.length} sat
         </small>
         <h1>{track.title}</h1>
         <p>{track.blurb}</p>
         {next ? (
-          <Link href={`/learn/${track.id}/${next.id}`} className="academy-continue">
+          <Link href={`/learn/${track.id}/${next.id}`} className="academy-continue academy-continue-hero">
             <span>
-              <small>{done ? "Next lesson" : "Lesson 01"}</small>
+              <small>{done ? "Next brief on this desk" : "Brief 01"}</small>
               <strong>{next.title}</strong>
               <em>{next.minutes} min</em>
             </span>
-            <span className="academy-continue-go">Start</span>
+            <span className="academy-continue-go">Sit it</span>
           </Link>
         ) : null}
       </header>
@@ -59,7 +59,7 @@ export default function AcademyTrack({ trackId }) {
                   <h3>{lesson.title}</h3>
                   <p>
                     {lesson.minutes} min
-                    {complete ? " · Completed" : ""}
+                    {complete ? " · Sat" : " · Brief"}
                   </p>
                 </div>
               </Link>

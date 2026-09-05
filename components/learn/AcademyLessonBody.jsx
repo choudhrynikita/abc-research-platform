@@ -20,7 +20,7 @@ function Quiz({ quiz, stored, onGrade }) {
 
   return (
     <div className="academy-quiz">
-      <p className="academy-kicker">Practice</p>
+      <p className="academy-kicker">Quick check</p>
       <h4>{quiz.q}</h4>
       <div className="academy-quiz-options">
         {quiz.options.map((option, index) => {

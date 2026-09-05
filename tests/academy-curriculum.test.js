@@ -72,6 +72,8 @@ describe("Knowledge Centre curriculum", () => {
     assert.ok(basis.some((h) => h.id === "relval-02"));
     const stt = searchLessons("0.15%");
     assert.ok(stt.some((h) => h.id === "tradertax-05"));
+    const tuesday = searchLessons("Tuesday");
+    assert.ok(tuesday.some((h) => h.id === "intraday-08"));
     const { prev, next } = neighbors("foundations-01");
     assert.equal(prev, null);
     assert.equal(next.id, "foundations-02");

@@ -46,15 +46,15 @@ export default function AcademyAssessment({ assessment, stored, onResult }) {
   return (
     <section className="academy-assess" aria-labelledby="academy-assess-title">
       <header className="academy-assess-head">
-        <p className="academy-kicker">Chapter assessment</p>
-        <h3 id="academy-assess-title">Five questions. Pass {passMark}/{total}.</h3>
+        <p className="academy-kicker">Can you still send it?</p>
+        <h3 id="academy-assess-title">Five shots. {passMark} to keep the seat.</h3>
         <p>
-          Closed-book. Answer all five, then submit. Explanations unlock after you
-          commit. Passing ({passMark}/{total}) marks this chapter complete.
+          Closed-book, like a live tape. Answer all five, then submit. Why-it-is
+          unlocks after you commit. Pass {passMark}/{total} and this brief is sat.
         </p>
         {stored?.passed && !submitted ? (
           <p className="academy-quiz-why ok">
-            Already passed {stored.score}/{stored.total}. Retake any time — the first pass still counts.
+            Already seated {stored.score}/{stored.total}. Retake any time — the first pass still counts.
           </p>
         ) : null}
       </header>
@@ -78,47 +78,36 @@ export default function AcademyAssessment({ assessment, stored, onResult }) {
                     type="button"
                     className={`academy-option${chosen && !submitted ? " picked" : ""}${isAnswer ? " answer" : ""}${miss ? " miss" : ""}`}
                     onClick={() => choose(qi, oi)}
-                    disabled={submitted}
                   >
                     {option}
                   </button>
                 );
               })}
             </div>
-            {submitted && item.why ? (
-              <p className={`academy-quiz-why ${pick === item.answer ? "ok" : "bad"}`}>
-                {pick === item.answer ? "Correct. " : "Not this one. "}
-                {item.why}
-              </p>
+            {submitted ? (
+              <p className={`academy-quiz-why ${pick === item.answer ? "ok" : "bad"}`}>{item.why}</p>
             ) : null}
           </fieldset>
         );
       })}
 
       <div className="academy-assess-bar">
-        {!submitted ? (
+        {submitted ? (
           <>
-            <p>
-              {answered}/{total} answered
+            <p className={passed ? "ok" : "bad"}>
+              {passed ? `Seated ${score}/${total}. The brief is yours.` : `${score}/${total} — sit it again. Need ${passMark}.`}
             </p>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={submit}
-              disabled={answered < total}
-            >
-              Submit assessment
+            <button type="button" className="btn btn-ghost" onClick={retake}>
+              Retake
             </button>
           </>
         ) : (
           <>
-            <p className={passed ? "ok" : "bad"}>
-              {passed
-                ? `Passed · ${score}/${total}. Chapter complete.`
-                : `Not yet · ${score}/${total}. You need ${passMark}/${total}. Reread, then retake.`}
+            <p>
+              {answered}/{total} answered
             </p>
-            <button type="button" className="btn btn-ghost" onClick={retake}>
-              Retake
+            <button type="button" className="btn btn-primary" onClick={submit} disabled={answered < total}>
+              Submit
             </button>
           </>
         )}
