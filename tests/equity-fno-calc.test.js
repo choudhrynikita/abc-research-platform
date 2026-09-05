@@ -17,6 +17,23 @@ describe("equity charges — never invent brokerage", () => {
     assert.ok(c.stt > 0); // sell-side STT
   });
 
+  it("uses Finance Act 2026 STT of 0.15% of premium on the sell side", () => {
+    const sell = computeOptionLegCharges({
+      premiumPerUnit: 100,
+      quantity: 25,
+      side: "SELL",
+    });
+    // turnover ₹2,500 × 0.15% = ₹3.75
+    assert.equal(sell.stt, 3.75);
+    assert.equal(sell.asOf, "2026-04-01");
+    const buy = computeOptionLegCharges({
+      premiumPerUnit: 100,
+      quantity: 25,
+      side: "BUY",
+    });
+    assert.equal(buy.stt, 0);
+  });
+
   it("rejects missing premium", () => {
     const c = computeOptionLegCharges({ premiumPerUnit: null, quantity: 25, side: "BUY" });
     assert.equal(c.available, false);
