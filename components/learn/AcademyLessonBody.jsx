@@ -162,6 +162,26 @@ export function Block({ block, quizState, onGrade }) {
       </ol>
     );
   }
+  if (block.t === "card") {
+    return (
+      <aside className="academy-desk-card">
+        <p className="academy-kicker">Desk card</p>
+        <h4>{block.title}</h4>
+        <dl>
+          {(block.fields || []).map((field) => {
+            const label = Array.isArray(field) ? field[0] : field;
+            const hint = Array.isArray(field) ? field[1] : "";
+            return (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{hint || "—"}</dd>
+              </div>
+            );
+          })}
+        </dl>
+      </aside>
+    );
+  }
   return null;
 }
 

@@ -32,10 +32,10 @@ export default function AcademyHub() {
         <p className="academy-kicker">Knowledge Centre</p>
         <h1>Learn markets like a desk — not like a feed.</h1>
         <p className="academy-hero-lead">
-          {catalog.counts.tracks} modules, {catalog.counts.lessons} chapters — Indian markets,
-          indicators, fundamentals, options OI, AI on the desk, funds, tax, NPS.
-          Original lessons. Every chapter ends with a 5-question assessment
-          (pass 4/5). Tap Continue, finish one chapter, come back tomorrow.
+          {catalog.counts.tracks} modules, {catalog.counts.lessons} chapters — from T+1
+          to dealer gamma, India VIX, cash-and-carry, RBI corridor, forensic cameras,
+          and a trader ITR. Intermediate through desk. Original lessons. Every chapter
+          ends with a 5-question assessment (pass 4/5).
         </p>
         <div className="academy-hero-stats">
           <span>{done}/{total} done</span>
@@ -68,7 +68,7 @@ export default function AcademyHub() {
             id="academy-q"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Greeks, T+1, iron condor, revenge trading…"
+            placeholder="India VIX, cash-and-carry, pledge, STT, opening range…"
           />
         </form>
         {query.trim() ? (
@@ -79,9 +79,40 @@ export default function AcademyHub() {
                 <span>{academy.getTrack(lesson.trackId)?.title}</span>
               </li>
             ))}
-            {hits.length === 0 ? <li>No matches. Try “options” or “risk”.</li> : null}
+            {hits.length === 0 ? <li>No matches. Try “VIX” or “basis”.</li> : null}
           </ul>
         ) : null}
+      </section>
+
+      <section>
+        <div className="academy-section-head">
+          <h2>If you already trade</h2>
+          <p>Six doors into the intermediate and desk layers — not a beginner tour.</p>
+        </div>
+        <div className="academy-path-grid">
+          {[
+            ["I trade Nifty F&O", "Greeks, OI, named structures, vol, expiry Thursday.", "options-05"],
+            ["I sit an advanced desk", "Microstructure, basis, hedges, systems, India VIX.", "microstructure-01"],
+            ["I day-trade the session", "Opening range, VWAP, 9:20 protocol, kill switch.", "intraday-01"],
+            ["I invest in names", "Statements, forensic cameras, one-page notes.", "forensic-01"],
+            ["I watch RBI and the rupee", "Corridor, USDINR bosses, oil–rupee–Nifty.", "rates-01"],
+            ["I file a trader ITR", "F&O as business income, STT 0.15%, March desk.", "tradertax-01"],
+          ].map(([title, blurb, lessonId]) => {
+            const first = academy.getLesson(lessonId);
+            return (
+              <article key={lessonId} className="academy-path-card">
+                <h3>{title}</h3>
+                <p>{blurb}</p>
+                <Link
+                  className="academy-inline"
+                  href={first ? `/learn/${first.trackId}/${first.id}` : "/learn"}
+                >
+                  Open
+                </Link>
+              </article>
+            );
+          })}
+        </div>
       </section>
 
       <section>

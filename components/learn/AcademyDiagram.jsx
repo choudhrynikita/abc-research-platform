@@ -233,5 +233,77 @@ export default function AcademyDiagram({ name }) {
       </Frame>
     );
   }
+  if (name === "index-weights") {
+    return (
+      <Frame title="Index contribution is weight times return">
+        <rect x="28" y="40" width="36" height="88" className="ad-ask" />
+        <rect x="72" y="58" width="36" height="70" className="ad-ask" />
+        <rect x="116" y="72" width="36" height="56" className="ad-card" />
+        <rect x="160" y="88" width="36" height="40" className="ad-bid" />
+        <rect x="204" y="96" width="36" height="32" className="ad-bid" />
+        <rect x="248" y="108" width="36" height="20" className="ad-bid" />
+        <text x="28" y="28" className="ad-label">Heavyweights move Nifty</text>
+        <text x="28" y="148" className="ad-note">A 0.3% name can rally 12% and still be a shrug</text>
+      </Frame>
+    );
+  }
+  if (name === "vix-term") {
+    return (
+      <Frame title="India VIX is ~30-day — the weekly is another camera">
+        <polyline points="36,110 90,96 150,70 210,58 270,50 330,46" className="ad-line" />
+        <circle cx="90" cy="96" r="5" className="ad-ask" />
+        <circle cx="270" cy="50" r="5" className="ad-bid" />
+        <text x="56" y="128" className="ad-note">this week</text>
+        <text x="236" y="36" className="ad-note">~30-day VIX</text>
+        <text x="40" y="148" className="ad-note">Don't sell a Thursday jump because the 30-day looks calm</text>
+      </Frame>
+    );
+  }
+  if (name === "opening-range") {
+    return (
+      <Frame title="Opening range — break, fail, or skip">
+        <rect x="48" y="48" width="264" height="64" className="ad-card" />
+        <line x1="48" y1="48" x2="312" y2="48" className="ad-wick" />
+        <line x1="48" y1="112" x2="312" y2="112" className="ad-wick" />
+        <text x="56" y="40" className="ad-note">OR high</text>
+        <text x="56" y="132" className="ad-note">OR low</text>
+        <text x="118" y="84" className="ad-label">wait for a close through</text>
+      </Frame>
+    );
+  }
+  if (name === "basis-spread") {
+    return (
+      <Frame title="Basis is future minus cash — costs eat cartoons">
+        <line x1="28" y1="88" x2="332" y2="88" className="ad-axis" />
+        <polyline points="28,100 80,92 140,70 200,64 260,72 332,60" className="ad-line" />
+        <polyline points="28,108 80,104 140,100 200,98 260,96 332,94" className="ad-axis" />
+        <text x="40" y="52" className="ad-label">future</text>
+        <text x="40" y="148" className="ad-note">cash</text>
+        <text x="200" y="40" className="ad-note">richness is not a free arb</text>
+      </Frame>
+    );
+  }
+  if (name === "rbi-corridor") {
+    return (
+      <Frame title="RBI corridor — floor, repo, ceiling">
+        <line x1="40" y1="40" x2="320" y2="40" className="ad-ask" />
+        <line x1="40" y1="80" x2="320" y2="80" className="ad-line" />
+        <line x1="40" y1="120" x2="320" y2="120" className="ad-bid" />
+        <text x="44" y="32" className="ad-note">MSF ceiling</text>
+        <text x="44" y="74" className="ad-label">repo</text>
+        <text x="44" y="148" className="ad-note">SDF floor — surplus parks here</text>
+      </Frame>
+    );
+  }
+  if (name === "intermarket-triangle") {
+    return (
+      <Frame title="Oil · rupee · Nifty — name the vertex you own">
+        <polygon points="180,28 64,132 296,132" className="ad-stroke" />
+        <text x="154" y="24" className="ad-label">Nifty</text>
+        <text x="40" y="148" className="ad-label">USDINR</text>
+        <text x="250" y="148" className="ad-label">Crude</text>
+      </Frame>
+    );
+  }
   return null;
 }

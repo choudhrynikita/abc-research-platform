@@ -19,21 +19,31 @@ describe("Knowledge Centre curriculum", () => {
   });
 
   it("ships a full Varsity-breadth course with a body for every id", () => {
-    assert.ok(TRACKS.length >= 23);
-    assert.ok(LESSON_LIST.length >= 200);
+    assert.ok(TRACKS.length >= 40);
+    assert.ok(LESSON_LIST.length >= 440);
     assert.deepEqual(missingLessons(), []);
     const cat = catalog();
     assert.equal(cat.counts.lessons, LESSON_LIST.length);
-    assert.ok(cat.counts.minutes > 2200);
+    assert.ok(cat.counts.minutes > 5500);
     const ids = TRACKS.map((t) => t.id);
-    for (const need of ["strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse", "positioning", "ai"]) {
+    for (const need of [
+      "strategies", "funds", "bonds", "sectors", "modelling", "insurance", "nps", "sse",
+      "positioning", "ai", "microstructure", "volatility", "specials", "macro", "portfolio",
+      "alts", "systems", "hedging", "indices", "intraday", "relval", "rates", "fx",
+      "forensic", "tradertax", "intermarket", "researchcraft",
+    ]) {
       assert.ok(ids.includes(need), need);
     }
-    assert.ok(LESSON_LIST.some((l) => l.id === "technicals-15"));
-    assert.ok(LESSON_LIST.some((l) => l.id === "fundamentals-15"));
-    assert.ok(LESSON_LIST.some((l) => l.id === "funds-11"));
-    assert.ok(LESSON_LIST.some((l) => l.id === "commodities-09"));
-    assert.ok(LESSON_LIST.some((l) => l.id === "commodities-14"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "volatility-03"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "microstructure-04"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "hedging-08"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "options-18"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "indices-06"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "intraday-02"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "relval-02"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "tradertax-05"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "forensic-10"));
+    assert.ok(LESSON_LIST.some((l) => l.id === "researchcraft-03"));
   });
 
   it("gives every lesson a lead, takeaways, and a four-option quiz", () => {
@@ -56,6 +66,12 @@ describe("Knowledge Centre curriculum", () => {
     assert.ok(oi.some((h) => h.id === "positioning-01"));
     const gamma = searchLessons("dealer gamma");
     assert.ok(gamma.some((h) => h.id === "positioning-09"));
+    const vix = searchLessons("India VIX");
+    assert.ok(vix.some((h) => h.id === "indices-06"));
+    const basis = searchLessons("cash-and-carry");
+    assert.ok(basis.some((h) => h.id === "relval-02"));
+    const stt = searchLessons("0.15%");
+    assert.ok(stt.some((h) => h.id === "tradertax-05"));
     const { prev, next } = neighbors("foundations-01");
     assert.equal(prev, null);
     assert.equal(next.id, "foundations-02");
