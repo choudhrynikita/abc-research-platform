@@ -118,7 +118,10 @@ describe("market planning and strategy eligibility", () => {
     assert.equal(rateLiquidityFromLegs([{ openInterest: 213515 }]), "High");
     assert.equal(rateLiquidityFromLegs([{ openInterest: 50000, volume: null }]), "High");
     assert.equal(rateLiquidityFromLegs([{ openInterest: 12000 }]), "Medium");
-    assert.equal(rateLiquidityFromLegs([{ openInterest: 4000, volume: 80 }]), "Low");
+    assert.equal(rateLiquidityFromLegs([{ openInterest: 4000, volume: 80 }]), "Medium");
+    assert.equal(rateLiquidityFromLegs([{ openInterest: 487, volume: 1334 }]), "Medium");
+    assert.equal(rateLiquidityFromLegs([{ openInterest: 3197, volume: 7027 }]), "Medium");
+    assert.equal(rateLiquidityFromLegs([{ openInterest: 80, volume: 20 }]), "Low");
     assert.equal(rateLiquidityFromLegs([{ premium: 40 }]), null);
   });
 
@@ -220,5 +223,28 @@ describe("market planning and strategy eligibility", () => {
     assert.equal(mid.eligibility.decision, "LIVE");
     assert.equal(mid.analytics.liquidityRating, "High");
     assert.ok(!mid.eligibility.blockers.some((item) => /liquidity/i.test(item)));
+  });
+
+  it("lets a 15-day Nifty spread live when OI is thin but session volume fills 1 lot", () => {
+    const monday = resolveMarketStatus(new Date("2026-09-07T04:45:00.000Z"));
+    const farWeek = applyStrategyEligibility(strategy({
+      name: "15-Day Bear Put Spread",
+      type: "Bear Put Spread",
+      bias: "Bearish",
+      expiry: "22-Sep-2026",
+      analytics: null,
+      strikes: [
+        { strike: 23750, type: "PE", action: "BUY", premium: 145, openInterest: 487, volume: 1334 },
+        { strike: 23550, type: "PE", action: "SELL", premium: 88.35, openInterest: 398, volume: 736 },
+      ],
+      payoff: { available: true, maxLoss: 56.65, maxLossUnlimited: false },
+    }), {
+      marketStatus: monday,
+      technical: { trend: "BEARISH" },
+      assetClass: "index",
+    });
+    assert.equal(farWeek.analytics.liquidityRating, "Medium");
+    assert.equal(farWeek.eligibility.decision, "LIVE");
+    assert.ok(!farWeek.eligibility.blockers.some((item) => /liquidity/i.test(item)));
   });
 });

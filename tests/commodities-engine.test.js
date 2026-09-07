@@ -121,6 +121,11 @@ describe("commodities engine", () => {
     }));
     const desk = assembleDesk([gold, ...others], { usdinr: 83.4 });
     assert.ok(desk.strategies.some((s) => s.contract === "GOLDMINI" && s.action === "BUY"));
+    const goldBuy = desk.strategies.find((s) => s.contract === "GOLDMINI" && s.action === "BUY");
+    assert.equal(goldBuy.trend, "BULLISH");
+    const gas = desk.strategies.find((s) => s.contract === "NATURALGAS");
+    assert.equal(gas.action, "NO TRADE");
+    assert.equal(gas.trend, "NEUTRAL");
     assert.ok(desk.strategies.some((s) => s.id === "crude-roll"));
     assert.ok(desk.executiveSummary.gold > 70000);
     assert.ok(desk.strategies.length >= 8);

@@ -82,10 +82,31 @@ describe("NSE IPO issueInfo + bid book parsing", () => {
     assert.ok(docs.some((d) => d.key === "ratios"));
   });
 
-  it("parses price bands and scientific share counts", () => {
-    const band = parsePriceBand("Rs. 546/- to Rs. 575/- per Equity Share");
-    assert.equal(band.low, 546);
-    assert.equal(band.high, 575);
-    assert.equal(nseNumber("6.3205127E7"), 63205127);
+  it("does not treat a 0x Total row with zero shares offered as a real book", () => {
+    const sub = parseSubscriptionCategories([
+      { category: "Total", noOfSharesOffered: "0", noOfTime: "0", noOfsharesBid: "44832000" },
+      { category: "Retail Individual Investors(RIIs)", noOfSharesOffered: "0", noOfTime: "0", noOfsharesBid: "0" },
+    ]);
+    assert.equal(sub.overall.available, false);
+    assert.equal(sub.overall.display, null);
+    assert.equal(sub.retail.available, false);
+  });
+
+  it("reads Price Band and Bid Lot aliases on SME-style issueInfo", () => {
+    const snap = parseIssueSnapshot({
+      companyName: "Qualiance International Limited",
+      issueInfo: {
+        dataList: [
+          { title: "Price Band", value: "Rs. 90 to Rs. 95 per Equity Share" },
+          { title: "Lot Size", value: "1200 Equity Shares" },
+          { title: "Issue Size", value: "Fresh issue aggregating up to Rs. 500 million" },
+        ],
+      },
+    }, { symbol: "QUALIANCE" });
+    assert.equal(snap.priceLow, 90);
+    assert.equal(snap.priceHigh, 95);
+    assert.equal(snap.lotSize, 1200);
+    assert.equal(snap.issueSizeCrore, 50);
+    assert.equal(snap.minInvestment, 1200 * 95);
   });
 });

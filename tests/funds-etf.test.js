@@ -5,6 +5,10 @@ const {
   classifyScheme,
   premiumToNav,
   searchFunds,
+  matchAmfi,
+  pickFeatured,
+  pickNavDate,
+  ETF_UNIVERSE,
 } = require("../lib/funds-etf");
 const { attachPositioning, tradeTicket, wallsFromChain } = require("../lib/strategy-positioning");
 const { NAV_HREFS } = require("../lib/nav-config");
@@ -54,6 +58,54 @@ describe("Funds & ETFs", () => {
     const hits = searchFunds(schemes, "bees");
     assert.ok(hits.some((h) => /nifty bees/i.test(h.name)));
   });
+
+  it("reads AMFI's 8-column Plan/Option file and does not treat the option as the NAV date", () => {
+    const text = `
+Scheme Code;ISIN Div Payout/ ISIN Growth;ISIN Div Reinvestment;Scheme Name;Plan;Option;Net Asset Value;Date
+Open Ended Schemes (Other Scheme - Other ETFs)
+Nippon India Mutual Fund
+140084;INF204KB14I2;-;Nippon India ETF Nifty 50 BeES;Direct Plan;;272.5784;04-Sep-2026
+140088;INF204KB17I5;-;Nippon India ETF Gold BeES;Direct Plan;;126.9779;04-Sep-2026
+148408;INF204KB15V2;-;Nippon India ETF Nifty IT;Direct Plan;;34.1230;04-Sep-2026
+146271;INF204KB1V68;-;Nippon India ETF Nifty Midcap 150;Direct Plan;;239.7020;04-Sep-2026
+140102;INF732E01128;-;Nippon India ETF Nifty Infrastructure BeES;Direct Plan;;952.0838;04-Sep-2026
+113076;INF109KC1NT3;-;ICICI Prudential Gold ETF;;;131.5245;04-Sep-2026
+120685;INF109K01U92;-;ICICI Prudential Gold ETF FOF;Direct Plan;Growth;49.1878;04-Sep-2026
+Open Ended Schemes (Equity Scheme - Flexi Cap Fund)
+PPFAS Mutual Fund
+122639;INF179K01YV8;-;Parag Parikh Flexi Cap Fund;Direct Plan;Growth;90.5289;04-Sep-2026
+122640;INF179K01YW6;-;Parag Parikh Flexi Cap Fund;Direct Plan;Annual IDCW Option;80.11;04-Sep-2026
+Open Ended Schemes (Debt Scheme - Liquid Fund)
+HDFC Mutual Fund
+101206;INF179KB1B90;-;HDFC Liquid Fund;Direct Plan;Growth Option;5574.6258;06-Sep-2026
+`;
+    const schemes = parseAmfiNavText(text);
+    assert.equal(pickNavDate(schemes), "04-Sep-2026");
+    assert.ok(!schemes.some((s) => /annual idcw option/i.test(s.date || "")));
+    const bees = matchAmfi(schemes, ETF_UNIVERSE.find((r) => r.nse === "NIFTYBEES"));
+    assert.ok(bees);
+    assert.equal(bees.nav, 272.5784);
+    assert.equal(bees.date, "04-Sep-2026");
+    const it = matchAmfi(schemes, ETF_UNIVERSE.find((r) => r.nse === "ITBEES"));
+    assert.equal(it.nav, 34.123);
+    const mid = matchAmfi(schemes, ETF_UNIVERSE.find((r) => r.nse === "MID150BEES"));
+    assert.equal(mid.nav, 239.702);
+    const infra = matchAmfi(schemes, ETF_UNIVERSE.find((r) => r.nse === "INFRABEES"));
+    assert.equal(infra.nav, 952.0838);
+    const goldEtf = matchAmfi(schemes, ETF_UNIVERSE.find((r) => r.nse === "GOLDIETF"));
+    assert.equal(goldEtf.nav, 131.5245);
+    assert.doesNotMatch(goldEtf.name, /FOF/i);
+    const featured = pickFeatured(schemes, {});
+    const flexi = featured.find((s) => /parag parikh/i.test(s.name));
+    assert.ok(flexi);
+    assert.equal(flexi.nav, 90.5289);
+    assert.match(flexi.name, /Direct Plan/);
+    assert.match(flexi.name, /Growth/);
+    assert.doesNotMatch(flexi.name, /IDCW/i);
+    const liquid = featured.find((s) => /hdfc liquid/i.test(s.name));
+    assert.ok(liquid);
+    assert.equal(liquid.nav, 5574.6258);
+  });
 });
 
 describe("fund desk playbooks", () => {
@@ -84,6 +136,15 @@ describe("fund desk playbooks", () => {
     const it = plans.find((p) => p.id === "itbees-satellite");
     assert.equal(it.action, "WAIT");
     assert.equal(it.status, "Pass");
+    assert.match(it.fillSheet.qty, /0 units/);
+  });
+
+  it("prints a Gold BeES unit count on the fill sheet", () => {
+    const plans = buildFundDeskPlans({ etfs, featured });
+    const gold = plans.find((p) => p.id === "goldbees-overlay");
+    assert.equal(gold.action, "BUY");
+    assert.match(gold.fillSheet.qty, /units/);
+    assert.notEqual(gold.fillSheet.qty, null);
   });
 
   it("writes Direct–Growth SIP tickets for featured funds", () => {
