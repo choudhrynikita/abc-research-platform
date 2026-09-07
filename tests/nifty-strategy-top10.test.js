@@ -73,6 +73,20 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.equal(new Set(names).size, 10);
   });
 
+  it("copies strike OI onto candidates so Nifty liquidity is not unrated", () => {
+    const chain = mockChain();
+    chain.strikes = chain.strikes.map((row) => ({
+      ...row,
+      ce: { ...row.ce, openInterest: 180000 },
+      pe: { ...row.pe, openInterest: 213515 },
+    }));
+    const candidates = generateCandidates(chain, { ...baseContext, trend: "BEARISH" });
+    const bear = candidates.find((s) => s.type === "Bear Put Spread");
+    assert.ok(bear, "expected a Bear Put Spread");
+    assert.ok(bear.strikes.every((leg) => Number(leg.openInterest) >= 180000));
+    assert.equal(bear.analytics.liquidityRating, "High");
+  });
+
   it("generateTechnicalSetups produces up to 10 pre-market strategies", () => {
     const setups = generateTechnicalSetups(baseContext, "NIFTY");
     assert.ok(setups.length >= 5);

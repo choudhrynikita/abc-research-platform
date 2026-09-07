@@ -10010,6 +10010,17 @@ html {
   font-weight: 650;
   overflow-wrap: anywhere;
 }
+.fill-sheet {
+  min-width: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+.fill-sheet th,
+.fill-sheet td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 .fill-sheet td:first-child {
   color: var(--text-muted);
   white-space: normal;
@@ -10021,6 +10032,39 @@ html {
   font-weight: 600;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+@media (max-width: 640px) {
+  .trade-plan-card .legs-table-wrap {
+    overflow-x: visible;
+  }
+  table.fill-sheet,
+  table.fill-sheet thead,
+  table.fill-sheet tbody,
+  table.fill-sheet tr,
+  table.fill-sheet th,
+  table.fill-sheet td {
+    display: block;
+    width: 100%;
+  }
+  table.fill-sheet thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  table.fill-sheet tr {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  table.fill-sheet td:first-child {
+    width: auto;
+    padding-bottom: 0;
+    font-weight: 500;
+  }
+  table.fill-sheet td:last-child {
+    padding-top: 2px;
+  }
 }
 .strategy-metrics-tape {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

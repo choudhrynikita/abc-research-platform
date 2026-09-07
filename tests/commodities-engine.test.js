@@ -29,7 +29,7 @@ describe("commodities engine", () => {
       { atr: 20, support: 3300, resistance: 3500, sma20: 3380, sma50: 3320, rsi: 58, adx: 24 },
       "BULLISH",
       3400,
-      { usdinr: 83, proxy: { price: 72.5, name: "Gold BeES" } }
+      { usdinr: 83, proxy: { price: 90.8, name: "Gold BeES" } }
     );
     const futures = plans.find((p) => p.contract === "GOLDMINI");
     assert.ok(futures);
@@ -186,5 +186,35 @@ describe("commodities engine", () => {
     assert.equal(fromBees, 126230);
     const gap = Math.abs(fromComex - fromBees) / fromComex;
     assert.ok(gap < 0.03, String(gap));
+  });
+
+  it("does not print a sendable GOLDMINI rupee limit when BeES and COMEX × FX disagree by more than 2%", () => {
+    const row = UNIVERSE.find((u) => u.id === "gold");
+    const price = 4476.6;
+    const atr = Number((price * 0.0185).toFixed(2));
+    const plans = buildPlans(
+      row,
+      { atr, support: 4100, resistance: 5010, sma20: 4476.6, sma50: 4238.98, rsi: 52.3, adx: 22 },
+      "NEUTRAL",
+      price,
+      { usdinr: 94.4575, proxy: { price: 125.10, name: "Gold BeES" } }
+    );
+    const futures = plans.find((p) => p.contract === "GOLDMINI");
+    const mapped = toMcx("gold", price, 94.4575);
+    const fromBees = beesToMcx("gold", 125.10);
+    assert.ok(mapped > 135000 && mapped < 137000, String(mapped));
+    assert.equal(fromBees, 125100);
+    assert.ok(Math.abs(fromBees - mapped) / mapped > 0.02);
+    assert.equal(futures.action, "BUY");
+    assert.equal(futures.status, "Plan");
+    assert.equal(futures.fillSheet.limit, "Confirm MCX LTP");
+    assert.equal(futures.entryZone, "Confirm MCX LTP");
+    assert.doesNotMatch(futures.name, /limit ₹/);
+    assert.doesNotMatch(futures.tradeLine, /1,35,/);
+    assert.match(futures.fillSheet.beesCheck, /do not send the COMEX rupee map/i);
+    assert.match(futures.fillSheet.mcxEstimate, /do not send/i);
+    assert.ok(futures.tradeTicket.steps.some((s) => /do not type that rupee number/i.test(s)));
+    const overlay = plans.find((p) => p.contract === "GOLDBEES");
+    assert.equal(overlay.action, "BUY");
   });
 });
