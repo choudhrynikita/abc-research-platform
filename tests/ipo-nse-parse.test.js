@@ -8,6 +8,7 @@ const {
   parseSubscriptionCategories,
   extractDocumentLinks,
   nseNumber,
+  mergeIpoDetail,
 } = require("../lib/nse-ipo");
 
 const luminoIssueInfo = {
@@ -108,5 +109,62 @@ describe("NSE IPO issueInfo + bid book parsing", () => {
     assert.equal(snap.lotSize, 1200);
     assert.equal(snap.issueSizeCrore, 50);
     assert.equal(snap.minInvestment, 1200 * 95);
+  });
+
+  it("fills an SME card from the NSE bid ladder and current-issue book when issueInfo is empty", () => {
+    const snap = parseIssueSnapshot({
+      companyName: "QUALIANCE",
+      issueInfo: {},
+      metaInfo: {},
+      demandDataNSE: [
+        { price: "127", cumQty: "50,41,95,000" },
+        { price: "126", cumQty: "50,42,70,000" },
+        { price: "120", cumQty: "50,52,22,000" },
+      ],
+    }, {
+      symbol: "QUALIANCE",
+      companyName: "Qualiance International Limited",
+      sharesOffered: 2543000,
+      overallSubscription: 198.67,
+    });
+    assert.equal(snap.priceLow, 120);
+    assert.equal(snap.priceHigh, 127);
+    assert.equal(snap.priceSource, "NSE bid ladder");
+    assert.equal(snap.sharesOffered, 2543000);
+    assert.equal(snap.issueSizeCrore, 32.3);
+    assert.match(snap.issueSizeDisplay, /32\.3/);
+    assert.equal(snap.lotSize, null);
+
+    const merged = mergeIpoDetail({
+      symbol: "QUALIANCE",
+      companyName: "Qualiance International Limited",
+      sharesOffered: 2543000,
+      overallSubscription: 198.67,
+      sharesBid: 505222000,
+      issueStartDate: "04-Sep-2026",
+      issueEndDate: "08-Sep-2026",
+      source: "NSE ipo-current-issue API",
+    }, {
+      issueSnapshot: snap,
+      subscription: parseSubscriptionCategories([
+        { category: "Total", noOfSharesOffered: "0", noOfTime: "0", noOfsharesBid: "195262000" },
+      ]),
+    });
+    assert.equal(merged.subscription.overall.available, true);
+    assert.equal(merged.subscription.overall.value, 198.67);
+    assert.equal(merged.subscription.overall.sharesOffered, 2543000);
+    assert.match(merged.issuePrice, /120/);
+    assert.match(merged.issueSize, /32\.3/);
+  });
+
+  it("does not let a demand ladder override a published issueInfo price band", () => {
+    const snap = parseIssueSnapshot({
+      companyName: "LUMINO",
+      issueInfo: luminoIssueInfo,
+      demandDataNSE: [{ price: "90" }, { price: "95" }],
+    }, { symbol: "LUMINO" });
+    assert.equal(snap.priceLow, 78);
+    assert.equal(snap.priceHigh, 82);
+    assert.equal(snap.priceSource, "NSE issue info");
   });
 });
