@@ -106,6 +106,21 @@ HDFC Mutual Fund
     assert.ok(liquid);
     assert.equal(liquid.nav, 5574.6258);
   });
+
+  it("quotes Nifty 50 ETFs on the live NSE tickers, not retired Yahoo aliases", () => {
+    const byNse = Object.fromEntries(ETF_UNIVERSE.map((r) => [r.nse, r.symbol]));
+    assert.equal(byNse.NIFTYIETF, "NIFTYIETF.NS");
+    assert.equal(byNse.NIFTY1, "NIFTY1.NS");
+    assert.equal(byNse.NIFTYBETA, "NIFTYBETA.NS");
+    assert.equal(byNse.NIFTYBEES, "NIFTYBEES.NS");
+    const symbols = ETF_UNIVERSE.map((r) => r.symbol);
+    const nses = ETF_UNIVERSE.map((r) => r.nse);
+    for (const dead of ["ICICINIFTY.NS", "KOTAKNIFTY.NS", "UTINIFTETF.NS"]) {
+      assert.equal(symbols.includes(dead), false, dead);
+    }
+    assert.equal(new Set(nses).size, nses.length);
+    assert.equal(nses.filter((n) => n === "NIFTYIETF").length, 1);
+  });
 });
 
 describe("fund desk playbooks", () => {
@@ -161,6 +176,35 @@ describe("fund desk playbooks", () => {
   it("labels a fat ETF premium as skip", () => {
     assert.match(premiumLabel(1.2), /SKIP/i);
     assert.match(premiumLabel(-0.5), /Discount/);
+    assert.match(premiumLabel(25.81), /iNAV/i);
+    assert.match(premiumLabel(25.81), /disagree/i);
+  });
+
+  it("does not send Nasdaq 100 ETF when last and NAV disagree", () => {
+    const plans = buildFundDeskPlans({
+      etfs: [...etfs, { nse: "MON100", name: "Motilal Oswal Nasdaq 100 ETF", price: 343.9, nav: 272.9, premiumPct: 25.81 }],
+      featured,
+    });
+    const nasdaq = plans.find((p) => p.id === "nasdaq-cap");
+    assert.equal(nasdaq.action, "WAIT");
+    assert.equal(nasdaq.status, "Pass");
+    assert.equal(nasdaq.lots, 0);
+    assert.match(nasdaq.fillSheet.qty, /0 units/);
+    assert.match(nasdaq.tradeLine, /WAIT/);
+    assert.match(nasdaq.tradeTicket.steps.join(" "), /iNAV/i);
+  });
+
+  it("keeps a Nasdaq satellite when the premium is tight", () => {
+    const plans = buildFundDeskPlans({
+      etfs: [...etfs, { nse: "MON100", name: "Motilal Oswal Nasdaq 100 ETF", price: 273.2, nav: 272.9, premiumPct: 0.11 }],
+      featured,
+    });
+    const nasdaq = plans.find((p) => p.id === "nasdaq-cap");
+    assert.equal(nasdaq.action, "BUY");
+    assert.equal(nasdaq.status, "Plan");
+    assert.ok(nasdaq.lots > 0);
+    assert.match(nasdaq.fillSheet.qty, /units/);
+    assert.doesNotMatch(nasdaq.fillSheet.qty, /0 units/);
   });
 });
 
