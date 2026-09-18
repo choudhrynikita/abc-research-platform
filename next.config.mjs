@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["pdfkit", "exceljs"],
+  serverExternalPackages: ["pdfkit", "exceljs", "pdfjs-dist", "jszip"],
   async redirects() {
     return [
       { source: "/brief", destination: "/nifty500", permanent: false },

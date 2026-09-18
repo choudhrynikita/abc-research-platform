@@ -3,6 +3,7 @@
 import IpoExecutiveSummary from "./IpoExecutiveSummary";
 import IpoScorecard from "./IpoScorecard";
 import IpoSubscriptionPanel from "./IpoSubscriptionPanel";
+import IpoCompanyPanel from "./IpoCompanyPanel";
 
 function ExpandBlock({ title, children, defaultOpen = false }) {
   return (
@@ -42,11 +43,13 @@ export default function IpoDetailView({ data, loading }) {
   const snap = data.snapshot?.fields || [];
   const demand = data.demand?.levels || data.financialCharts?.series || [];
   const docs = data.documents || [];
-  const subCats = (data.subscription?.categories || []).filter((c) => c.times != null);
+  const subCats = (data.subscription?.categories || []).filter((c) => c.times != null && Number(c.sharesOffered) > 0);
 
   return (
     <div className="ipo-detail">
       <IpoExecutiveSummary summary={data.executiveSummary} companyName={data.card?.companyName} />
+
+      <IpoCompanyPanel company={data.company} fundamentals={data.fundamentals} />
 
       {snap.length > 0 && (
         <ExpandBlock title="Issue Snapshot" defaultOpen>
@@ -166,7 +169,7 @@ export default function IpoDetailView({ data, loading }) {
         </ExpandBlock>
       )}
 
-      {data.risks?.bullets?.length > 0 && (
+      {data.risks?.bullets?.length > 0 && !data.company?.risks?.length && (
         <ExpandBlock title="Risk Analysis">
           <ul className="risk-list">{data.risks.bullets.map((b) => <li key={b}>{b}</li>)}</ul>
         </ExpandBlock>

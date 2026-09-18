@@ -14,14 +14,15 @@ function SubGauge({ label, metric }) {
 }
 
 export default function IpoSubscriptionPanel({ subscription }) {
-  if (!subscription?.overall?.available && !subscription?.qib?.available && !subscription?.retail?.available) {
+  const bookRows = (subscription?.bookRows || []).filter((row) => row.reservedLakhs != null && row.reservedLakhs > 0);
+  if (!subscription?.overall?.available && !subscription?.qib?.available && !subscription?.retail?.available && !bookRows.length) {
     return null;
   }
 
   return (
     <section className="ipo-subscription glass-card">
       <h3>Subscription Status</h3>
-      <p className="panel-sub">Live NSE bid book — official times subscribed</p>
+      <p className="panel-sub">Live NSE bid book — official times subscribed. Grey-market premium is not used.</p>
       <div className="sub-gauge-grid">
         <SubGauge label="Overall" metric={subscription.overall} />
         <SubGauge label="QIB" metric={subscription.qib} />
@@ -30,6 +31,30 @@ export default function IpoSubscriptionPanel({ subscription }) {
         <SubGauge label="Retail" metric={subscription.retail} />
         <SubGauge label="Employee" metric={subscription.employee} />
       </div>
+      {bookRows.length > 0 && (
+        <div className="ipo-table-wrap ipo-objects-table">
+          <table className="ipo-demand-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Reserved (lakhs)</th>
+                <th>Applied (lakhs)</th>
+                <th>Subscription</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookRows.map((row) => (
+                <tr key={row.label}>
+                  <td>{row.label}</td>
+                  <td>{row.reservedLakhs != null ? row.reservedLakhs.toLocaleString("en-IN") : "—"}</td>
+                  <td>{row.appliedLakhs != null ? row.appliedLakhs.toLocaleString("en-IN") : "—"}</td>
+                  <td>{row.times != null ? `${Number(row.times).toFixed(row.times < 0.01 ? 4 : 2)}x` : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }

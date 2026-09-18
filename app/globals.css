@@ -7853,6 +7853,97 @@ th {
   color: var(--red);
 }
 
+.ipo-about {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.ipo-fin-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 10px 0 12px;
+}
+
+.ipo-fin-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.ipo-fin-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.ipo-fin-swatch.assets,
+.ipo-fin-fill.assets { background: var(--accent); }
+.ipo-fin-swatch.revenue,
+.ipo-fin-fill.revenue { background: var(--green); }
+.ipo-fin-swatch.pat,
+.ipo-fin-fill.pat { background: var(--purple); }
+
+.ipo-fin-year strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+}
+
+.ipo-fin-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ipo-fin-bar-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 110px) minmax(0, 1fr) 72px;
+  gap: 8px;
+  align-items: center;
+}
+
+.ipo-fin-bar-row small {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ipo-fin-bar-row span {
+  text-align: right;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ipo-fin-track {
+  height: 8px;
+  background: var(--bg-elevated);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.ipo-fin-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.ipo-objects-table {
+  margin-top: 12px;
+}
+
+.ipo-expand a {
+  color: var(--accent);
+}
+
 .ipo-scorecard,
 .ipo-subscription,
 .ipo-rec-panel,
@@ -8090,6 +8181,12 @@ th {
   }
   .ipo-demand-table {
     font-size: 0.75rem;
+  }
+  .ipo-fin-bar-row {
+    grid-template-columns: minmax(0, 1fr) 64px;
+  }
+  .ipo-fin-bar-row small {
+    grid-column: 1 / -1;
   }
 }
 
