@@ -29,7 +29,7 @@ export default function IpoExecutiveSummary({ summary, companyName }) {
         </div>
         <div>
           <small>Confidence</small>
-          <strong>{summary.confidence != null ? `${summary.confidence}%` : "—"}</strong>
+          <strong>{summary.confidence != null ? `${Math.round(Number(summary.confidence))}%` : "—"}</strong>
         </div>
         <div>
           <small>Risk</small>

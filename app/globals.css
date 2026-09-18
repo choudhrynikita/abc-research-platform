@@ -8050,7 +8050,15 @@ th {
   text-align: left;
   padding: 6px 8px;
   border-bottom: 1px solid var(--border);
+}
+
+.ipo-demand-table td:first-child {
   overflow-wrap: anywhere;
+}
+
+.ipo-demand-table td:not(:first-child) {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .ipo-demand-table th {

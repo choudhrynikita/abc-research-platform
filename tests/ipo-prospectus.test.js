@@ -188,4 +188,94 @@ ${KHERIA_BUSINESS}
     assert.ok(bundled.risks.some((r) => /Tier-I vendors/i.test(r)));
     assert.equal(bundledProspectus("../etc"), null);
   });
+
+  it("converts Hero restated ₹ million assets/revenue/PAT into crore", () => {
+    const fin = parseFinancialSummary(`
+SUMMARY OF FINANCIAL INFORMATION
+RESTATED STATEMENT OF ASSETS AND LIABILITIES ( in ₹ million, except for share data )
+Particulars As at March 31, 2026 As at March 31, 2025 As at March 31, 2024
+Total assets   13,718.28   11,646.20   10,598.55
+Revenue from operations (I)   11,883.51   10,895.93   10,643.86
+Restated profit for the year attributable to : Equity holder of parent   435.68   252.02   134.17
+`);
+    assert.equal(detectUnit(`RESTATED STATEMENT OF ASSETS AND LIABILITIES ( in ₹ million )`), "million");
+    assert.equal(fin.years[0].assets, 1371.83);
+    assert.equal(fin.years[0].revenue, 1188.35);
+    assert.equal(fin.years[0].pat, 43.57);
+    assert.ok(fin.analysis.some((a) => /Revenue up 9\.1%/i.test(a)));
+  });
+
+  it("reads Hero objects in American utilize spelling and keeps GCP as unpublished", () => {
+    const objects = parseObjectsOfOffer(`
+OBJECTS OF THE OFFER
+Our Company proposes to utilize the Net Proceeds from the Fresh Issue towards funding the following objects:
+1. Repayment/prepayment/redemption, in full or in part, of certain outstanding borrowings availed by our Company; and
+2. Capital expenditure of our Company through purchase of equipment required for expansion in capacity of our Gautam Buddha Nagar, Uttar Pradesh facility; and
+3. Funding inorganic growth through unidentified acquisitions and other strategic initiatives and general corporate purposes.
+(collectively, the “Objects”)
+Requirement of funds and Utilization of Net Proceeds
+Particulars Estimated Amount (₹ million)
+Repayment/prepayment/redemption in full or in part, of certain outstanding borrowings availed by our Company; 1,900.00
+Capital expenditure of our Company through purchase of equipment required for expansion in capacity of our Gautam Buddha Nagar, Uttar Pradesh facility 2,000.00
+Funding inorganic growth through unidentified acquisitions and other strategic initiatives and general corporate purposes [●]
+Net Proceeds [●]
+`, 600);
+    assert.ok(objects);
+    const repay = objects.items.find((i) => /repayment/i.test(i.purpose));
+    const capex = objects.items.find((i) => /Gautam Buddha/i.test(i.purpose));
+    const gcp = objects.items.find((i) => /inorganic growth/i.test(i.purpose));
+    assert.equal(repay.amountCrore, 190);
+    assert.equal(capex.amountCrore, 200);
+    assert.equal(gcp.amountCrore, null);
+    assert.match(gcp.amountLabel, /finalis/i);
+    assert.doesNotMatch(objects.note, /still prints object amounts as \[●\]/);
+  });
+
+  it("reads Hero competitive-strength bullets and keeps the Europe 33.59% risk intact", () => {
+    const strengths = parseStrengths(`
+OUR COMPETITIVE STRENGTHS We believe that we are well positioned to take advantage of changing powertrain dynamics globally basis our strengths:
+• Among India’s Leading Solutions Provider to Global E -Mobility Industry backed by Diversified Product and Service Offerings;
+• Growing Market Presence in the Electric-Bikes and Premium Two-Wheelers Segments;
+• Longstanding Relationships with Premier Global Original Equipment Manufacturers and Expertise in Delivering Solutions;
+OUR STRATEGIES
+`);
+    assert.ok(strengths.some((s) => /E-Mobility/i.test(s)));
+    assert.ok(strengths.some((s) => /Electric-Bikes/i.test(s)));
+    assert.ok(!strengths.some((s) => /inorganic growth/i.test(s)));
+    const about = parseAbout(`
+OUR BUSINESS Overview We are one of India’s leading automotive technology companies engaged in designing, developing, manufacturing and supplying highly engineered powertrain solutions catering to automotive original equipment manufacturers.
+Our Company is not related to such suppliers of equipment from whom quotations have been received.
+We are a fully integrated powertrain systems provider offering comprehensive solutions including services for designing, prototyping, validating, developing, and delivering system-level and component-level powertrain solutions.
+`);
+    assert.match(about, /powertrain/i);
+    assert.doesNotMatch(about, /quotations have been received/i);
+    const ops = parseOperations("In India, our manufacturing facilities are situated at Gautam Buddha Nagar, Uttar Pradesh and Ludhiana, Punjab. In addition, we operate two technology centers.");
+    assert.match(ops, /Gautam Buddha Nagar/i);
+    assert.match(ops, /Ludhiana/i);
+    const risks = parseRiskTitles(`
+SECTION II: RISK FACTORS An investment in our Equity Shares involves a high degree of risk.
+Internal Risk Factors
+1. We generate a portion of our revenue from operations from jurisdictions outside India, in particular, from Europe which contributed 33.59%, 28.45% and 29.33%, of our revenue from operations, in Fiscal 2026, 2025 and 2024, respectively. Any adverse events affecting these jurisdictions could have an adverse impact on our revenue from operations.
+2. Our business is dependent on the performance of certain industries particularly e-bikes and two wheelers, both in the Indian and overseas markets. Any adverse changes in the conditions affecting these industries can adversely impact our business.
+`);
+    assert.ok(risks.some((r) => /Europe which contributed 33\.59%/i.test(r)));
+    assert.ok(!risks.some((r) => /Europe which contributed 33$/i.test(r)));
+  });
+
+  it("ships a Hero Motors RHP extract so the company page is not empty when the live zip cannot be parsed", () => {
+    const bundled = bundledProspectus("HEROMOTORS");
+    assert.equal(bundled.available, true);
+    assert.match(bundled.about, /powertrain/i);
+    assert.equal(bundled.financials.years[0].revenue, 1188.35);
+    assert.equal(bundled.financials.years[0].assets, 1371.83);
+    assert.equal(bundled.financials.years[0].pat, 43.57);
+    assert.ok(bundled.strengths.some((s) => /E-Mobility|e-mobility|OEM/i.test(s)));
+    assert.ok(bundled.risks.some((r) => /Europe which contributed 33\.59%/i.test(r)));
+    const repay = bundled.objects.items.find((i) => /repayment/i.test(i.purpose));
+    const capex = bundled.objects.items.find((i) => /Gautam Buddha|equipment/i.test(i.purpose));
+    const gcp = bundled.objects.items.find((i) => /inorganic|general corporate/i.test(i.purpose));
+    assert.equal(repay.amountCrore, 190);
+    assert.equal(capex.amountCrore, 200);
+    assert.equal(gcp.amountCrore, null);
+  });
 });

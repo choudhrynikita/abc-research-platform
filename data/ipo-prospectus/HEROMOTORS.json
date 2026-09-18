@@ -1,0 +1,109 @@
+{
+  "available": true,
+  "about": "We are one of India’s leading automotive technology companies engaged in designing, developing, manufacturing and supplying highly engineered powertrain solutions catering to automotive original equipment manufacturers (“ OEMs ”) in United States, Europe, India and the Association of Southeast Asian Nations (“ ASEAN ”) region. We are a fully integrated powertrain systems provider offering comprehensive solutions including services for designing, prototyping, validating, developing, and delivering system-level and component-level powertrain solutions for both electric as well as non-electric powertrains.",
+  "operations": "In India, our manufacturing facilities are situated at Gautam Buddha Nagar, Uttar Pradesh and Ludhiana, Punjab.",
+  "strengths": [
+    "Among India’s Leading Solutions Provider to Global E-Mobility Industry backed by Diversified Product and Service Offerings",
+    "Growing Market Presence in the Electric-Bikes and Premium Two-Wheelers Segments",
+    "Longstanding Relationships with Premier Global Original Equipment Manufacturers and Expertise in Delivering Solutions",
+    "Advanced Infrastructure with Geographically Diverse Operations",
+    "Strong Research and Development Capabilities and Long-Term Partnerships",
+    "Legacy of Diverse Growth, Experienced Management Team and Strong Corporate Governance"
+  ],
+  "risks": [
+    "We generate a portion of our revenue from operations from jurisdictions outside India, in particular, from Europe which contributed 33.59%, 28.45% and 29.33%, of our revenue from operations, in Fiscal 2026, 2025 and 2024, respectively",
+    "Our business is dependent on the performance of certain industries particularly e-bikes and two wheelers, both in the Indian and overseas markets",
+    "We depend on a certain limited set of suppliers for the supply of critical raw materials",
+    "Our business largely depends upon our top 10 customers",
+    "We may not be able to anticipate and respond swiftly to changing technological and market trends, as well as to develop new products aligned with customer demands in the automotive sector, which could have an adverse impact on our financial condition",
+    "We may not be able to compete effectively in the global powertrain solutions industry which could have a material adverse effect on our business, financial condition, results of operations and cash flows"
+  ],
+  "financials": {
+    "unit": "₹ crore",
+    "years": [
+      {
+        "label": "March 2026",
+        "assets": 1371.83,
+        "revenue": 1188.35,
+        "pat": 43.57
+      },
+      {
+        "label": "March 2025",
+        "assets": 1164.62,
+        "revenue": 1089.59,
+        "pat": 25.2
+      },
+      {
+        "label": "March 2024",
+        "assets": 1059.86,
+        "revenue": 1064.39,
+        "pat": 13.42
+      }
+    ],
+    "chartYears": [
+      {
+        "label": "March 2024",
+        "assets": 1059.86,
+        "revenue": 1064.39,
+        "pat": 13.42
+      },
+      {
+        "label": "March 2025",
+        "assets": 1164.62,
+        "revenue": 1089.59,
+        "pat": 25.2
+      },
+      {
+        "label": "March 2026",
+        "assets": 1371.83,
+        "revenue": 1188.35,
+        "pat": 43.57
+      }
+    ],
+    "analysis": [
+      "Revenue up 9.1% in March 2026 vs March 2025 (restated).",
+      "Profit after tax up 72.9% over the same restated years.",
+      "PAT margin 3.7% on restated March 2026 revenue.",
+      "Total assets up 17.8% over the same restated years.",
+      "Figures are restated prospectus numbers, not a forecast and not a buy/sell call."
+    ],
+    "source": "NSE-hosted Red Herring Prospectus — summary of restated financials"
+  },
+  "objects": {
+    "items": [
+      {
+        "purpose": "Repayment/prepayment/redemption, in full or in part, of certain outstanding borrowings availed by our Company",
+        "amountCrore": 190,
+        "amountLabel": "₹190 Cr",
+        "pct": 31.67
+      },
+      {
+        "purpose": "Capital expenditure of our Company through purchase of equipment required for expansion in capacity of our Gautam Buddha Nagar, Uttar Pradesh facility",
+        "amountCrore": 200,
+        "amountLabel": "₹200 Cr",
+        "pct": 33.33
+      },
+      {
+        "purpose": "Funding inorganic growth through unidentified acquisitions and other strategic initiatives and general corporate purposes",
+        "amountCrore": null,
+        "amountLabel": "To be finalised in the prospectus",
+        "pct": null
+      }
+    ],
+    "note": "Amounts are from the RHP objects table, converted to ₹ crore. General corporate purpose is left blank when the RHP still prints [●] — it is not back-solved from the residual.",
+    "source": "NSE-hosted Red Herring Prospectus — Objects of the Offer"
+  },
+  "issueBreakdown": {
+    "totalCrore": 1000,
+    "freshCrore": 600,
+    "ofsCrore": 400,
+    "totalLabel": "₹1,000 Cr",
+    "freshLabel": "₹600 Cr",
+    "ofsLabel": "₹400 Cr",
+    "source": "NSE issue size text / RHP cover"
+  },
+  "source": "NSE-hosted Red Herring Prospectus",
+  "rhpUrl": "https://nsearchives.nseindia.com/content/ipo/RHP_HEROMOTORS.zip",
+  "fetchedAt": "2026-09-18T15:00:47.264Z",
+  "symbol": "HEROMOTORS"
+}
