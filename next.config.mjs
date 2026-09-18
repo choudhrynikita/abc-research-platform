@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["pdfkit", "exceljs", "pdfjs-dist", "jszip"],
+  outputFileTracingIncludes: {
+    "/app/api/[[...slug]]/route": ["./data/ipo-prospectus/**/*"],
+  },
   async redirects() {
     return [
       { source: "/brief", destination: "/nifty500", permanent: false },

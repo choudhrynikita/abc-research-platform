@@ -1,0 +1,101 @@
+{
+  "available": true,
+  "about": "Our Company is an auto ancillary unit engaged in the business of plastic injection moulding. We specialise in the manufacture of plastic injection moulding sub- assembly operations and supplying primarily to the automotive sector.",
+  "operations": "We operate as a Tier-II supplier, producing moulded plastic components in accordance with the specifications of Tier-I vendors, who in turn supply to original equipment manufacturers (“OEMs”) in the passenger vehicle categories.",
+  "strengths": [
+    "Experience-Driven Manufacturing Excellence",
+    "Strategically located manufacturing facilities",
+    "Technology‑Enabled Manufacturing and Process Engineering Capabilities",
+    "Comprehensive In‑House Testing and Quality Control Infrastructure"
+  ],
+  "risks": [
+    "We are dependent on Tier-I vendors, whose demand is directly linked to OEM procurement cycles",
+    "A substantial portion of our revenue is derived from customers located in the state of Gujarat",
+    "We are significantly dependent on the automotive sector, and any downturn or change in demand in this sector may adversely affect our business, financial condition and results of operations",
+    "Our cash flows from operating activities have fluctuated in the past and may continue to fluctuate due to changes in our working capital requirements",
+    "Our lenders have charge over our movable and immovable properties in respect of finance availed by us and settlement arrangements may affect perceptions of our credit profile",
+    "Our Company has in the past been non-compliant with certain provisions of the Companies Act, 1956 and the Companies Act, 2013, and may be subject to penalties for such non-compliances"
+  ],
+  "financials": {
+    "unit": "₹ crore",
+    "years": [
+      {
+        "label": "March 2026",
+        "assets": 106.23,
+        "revenue": 120.01,
+        "pat": 11.42
+      },
+      {
+        "label": "March 2025",
+        "assets": 81.79,
+        "revenue": 92.07,
+        "pat": 8.24
+      },
+      {
+        "label": "March 2024",
+        "assets": 53.14,
+        "revenue": 62.32,
+        "pat": 3.31
+      }
+    ],
+    "chartYears": [
+      {
+        "label": "March 2024",
+        "assets": 53.14,
+        "revenue": 62.32,
+        "pat": 3.31
+      },
+      {
+        "label": "March 2025",
+        "assets": 81.79,
+        "revenue": 92.07,
+        "pat": 8.24
+      },
+      {
+        "label": "March 2026",
+        "assets": 106.23,
+        "revenue": 120.01,
+        "pat": 11.42
+      }
+    ],
+    "analysis": [
+      "Revenue up 30.3% in March 2026 vs March 2025 (restated).",
+      "Profit after tax up 38.6% over the same restated years.",
+      "PAT margin 9.5% on restated March 2026 revenue.",
+      "Total assets up 29.9% over the same restated years.",
+      "Figures are restated prospectus numbers, not a forecast and not a buy/sell call."
+    ],
+    "source": "NSE-hosted Red Herring Prospectus — summary of restated financials"
+  },
+  "objects": {
+    "items": [
+      {
+        "purpose": "Part funding of capital expenditure for setting up of new manufacturing facility for plastic moulded auto components at GIDC Sanand Industrial Park",
+        "amountCrore": null,
+        "amountLabel": null,
+        "pct": null
+      },
+      {
+        "purpose": "General Corporate Purposes",
+        "amountCrore": null,
+        "amountLabel": "To be finalised in the prospectus",
+        "pct": null
+      }
+    ],
+    "note": "RHP still prints object amounts as [●]. Purposes are listed from the official objects chapter; rupee split is not invented.",
+    "source": "NSE-hosted Red Herring Prospectus — Objects of the Offer"
+  },
+  "issueBreakdown": {
+    "totalCrore": null,
+    "freshCrore": null,
+    "ofsCrore": 0,
+    "totalLabel": null,
+    "freshLabel": null,
+    "ofsLabel": "Nil — no offer for sale",
+    "source": "NSE issue size text / RHP cover"
+  },
+  "source": "NSE-hosted Red Herring Prospectus",
+  "rhpUrl": "https://nsearchives.nseindia.com/content/ipo/RHP_KHERIAAUTO.zip",
+  "fetchedAt": "2026-09-18T14:30:05.172Z",
+  "symbol": "KHERIAAUTO"
+}

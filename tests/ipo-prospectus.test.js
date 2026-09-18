@@ -14,6 +14,7 @@ const {
   detectUnit,
 } = require("../lib/ipo-prospectus");
 const { nseRhpArchiveUrl, extractDocumentLinks } = require("../lib/nse-ipo");
+const { bundledProspectus } = require("../lib/ipo-rhp");
 
 const KHERIA_BUSINESS = `
 BUSINESS OVERVIEW The following information is qualified in its entirety by, and should be read together with, the more detailed financial and other information.
@@ -176,5 +177,15 @@ ${KHERIA_BUSINESS}
     assert.ok(capex);
     assert.doesNotMatch(capex.purpose, /;\s*and$/i);
     assert.match(objects.note, /\[●\]/);
+  });
+
+  it("ships a Kheria RHP extract so the company page is not empty when the live zip cannot be parsed", () => {
+    const bundled = bundledProspectus("KHERIAAUTO");
+    assert.equal(bundled.available, true);
+    assert.match(bundled.about, /auto ancillary/i);
+    assert.equal(bundled.financials.years[0].revenue, 120.01);
+    assert.ok(bundled.strengths.some((s) => /Strategically located/i.test(s)));
+    assert.ok(bundled.risks.some((r) => /Tier-I vendors/i.test(r)));
+    assert.equal(bundledProspectus("../etc"), null);
   });
 });
