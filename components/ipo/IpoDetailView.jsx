@@ -5,7 +5,7 @@ import IpoScorecard from "./IpoScorecard";
 import IpoSubscriptionPanel from "./IpoSubscriptionPanel";
 import IpoCompanyPanel from "./IpoCompanyPanel";
 
-function ExpandBlock({ title, children, defaultOpen = false }) {
+function ExpandBlock({ title, children }) {
   return (
     <section className="ipo-expand glass-card">
       <h3>{title}</h3>
@@ -14,12 +14,14 @@ function ExpandBlock({ title, children, defaultOpen = false }) {
   );
 }
 
-function money(value) {
-  if (value == null || value === "") return "—";
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return `₹${value.toLocaleString("en-IN")}`;
-  }
-  return String(value);
+function Kv({ label, value, wide = false }) {
+  if (value == null || value === "") return null;
+  return (
+    <div className={wide ? "ipo-kv ipo-kv-wide" : "ipo-kv"}>
+      <small>{label}</small>
+      <strong>{value}</strong>
+    </div>
+  );
 }
 
 export default function IpoDetailView({ data, loading }) {
@@ -43,7 +45,9 @@ export default function IpoDetailView({ data, loading }) {
   const snap = data.snapshot?.fields || [];
   const demand = data.demand?.levels || data.financialCharts?.series || [];
   const docs = data.documents || [];
-  const subCats = (data.subscription?.categories || []).filter((c) => c.times != null && Number(c.sharesOffered) > 0);
+  const intermediariesInSnap = snap.some((row) => /lead manager|registrar/i.test(row.label));
+  const showProspectusKpis = Boolean(data.prospectus?.available) && !intermediariesInSnap;
+  const showProspectus = showProspectusKpis || docs.length > 0 || data.prospectus?.message;
 
   return (
     <div className="ipo-detail">
@@ -52,13 +56,10 @@ export default function IpoDetailView({ data, loading }) {
       <IpoCompanyPanel company={data.company} fundamentals={data.fundamentals} />
 
       {snap.length > 0 && (
-        <ExpandBlock title="Issue Snapshot" defaultOpen>
+        <ExpandBlock title="Issue Snapshot">
           <div className="ipo-snapshot-grid">
             {snap.map((row) => (
-              <div key={row.label}>
-                <small>{row.label}</small>
-                <strong>{row.value}</strong>
-              </div>
+              <Kv key={row.label} label={row.label} value={row.value} wide={Boolean(row.wide)} />
             ))}
           </div>
         </ExpandBlock>
@@ -66,38 +67,11 @@ export default function IpoDetailView({ data, loading }) {
 
       <IpoSubscriptionPanel subscription={data.subscription} />
 
-      {subCats.length > 0 && (
-        <ExpandBlock title="Category Bid Book">
-          <div className="ipo-table-wrap">
-            <table className="ipo-demand-table">
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Offered</th>
-                  <th>Bid</th>
-                  <th>Times</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subCats.map((row) => (
-                  <tr key={`${row.srNo}-${row.category}`}>
-                    <td>{row.category}</td>
-                    <td>{row.sharesOffered != null ? Number(row.sharesOffered).toLocaleString("en-IN") : "—"}</td>
-                    <td>{row.sharesBid != null ? Number(row.sharesBid).toLocaleString("en-IN") : "—"}</td>
-                    <td>{row.times != null ? `${Number(row.times).toFixed(row.times < 0.01 ? 4 : 2)}x` : "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </ExpandBlock>
-      )}
-
       {demand.length > 0 && (
         <ExpandBlock title="Demand by Price">
           <p className="panel-sub">NSE cumulative quantity at each price. Updated {data.demand?.updatedAt || "during the live book"}.</p>
           <div className="ipo-table-wrap">
-            <table className="ipo-demand-table">
+            <table className="ipo-demand-table ipo-num-table">
               <thead>
                 <tr>
                   <th>Price</th>
@@ -131,15 +105,8 @@ export default function IpoDetailView({ data, loading }) {
         </section>
       )}
 
-      {data.valuation?.available && (
+      {data.valuation?.available && (data.valuation.ratiosUrl || data.valuation.message) && (
         <ExpandBlock title="Issue Terms / Valuation Context">
-          <div className="ipo-snapshot-grid">
-            <div><small>Price band</small><strong>{data.valuation.priceBand || "—"}</strong></div>
-            <div><small>IPO mid</small><strong>{money(data.valuation.ipoPrice)}</strong></div>
-            <div><small>Face value</small><strong>{data.valuation.faceValue != null ? `₹${data.valuation.faceValue}` : "—"}</strong></div>
-            <div><small>Min. investment</small><strong>{money(data.valuation.minInvestment)}</strong></div>
-            <div><small>Issue size</small><strong>{data.valuation.issueSize || "—"}</strong></div>
-          </div>
           <p className="ipo-note">{data.valuation.message}</p>
           {data.valuation.ratiosUrl && (
             <p><a href={data.valuation.ratiosUrl} target="_blank" rel="noreferrer">NSE basis of issue price</a></p>
@@ -151,10 +118,7 @@ export default function IpoDetailView({ data, loading }) {
         <ExpandBlock title="Post-listing Financials">
           <div className="ipo-snapshot-grid">
             {data.fundamentals.metrics.map((m) => (
-              <div key={m.label}>
-                <small>{m.label}</small>
-                <strong>{m.value}</strong>
-              </div>
+              <Kv key={m.label} label={m.label} value={m.value} />
             ))}
           </div>
           <p className="ipo-note">{data.fundamentals.message}</p>
@@ -175,13 +139,15 @@ export default function IpoDetailView({ data, loading }) {
         </ExpandBlock>
       )}
 
-      {(data.prospectus?.available || docs.length > 0) && (
+      {showProspectus && (
         <ExpandBlock title="Prospectus & Intermediaries">
-          <div className="prospectus-grid">
-            <div><small>Lead Managers</small><strong>{data.prospectus?.leadManagers || "—"}</strong></div>
-            <div><small>Registrar</small><strong>{data.prospectus?.registrar || "—"}</strong></div>
-            <div><small>Sponsor Bank</small><strong>{data.prospectus?.sponsorBank || "—"}</strong></div>
-          </div>
+          {showProspectusKpis ? (
+            <div className="prospectus-grid">
+              <Kv label="Lead Managers" value={data.prospectus?.leadManagers || "—"} wide />
+              <Kv label="Registrar" value={data.prospectus?.registrar || "—"} />
+              <Kv label="Sponsor Bank" value={data.prospectus?.sponsorBank || "—"} />
+            </div>
+          ) : null}
           {docs.length > 0 && (
             <ul className="ipo-doc-list">
               {docs.map((doc) => (

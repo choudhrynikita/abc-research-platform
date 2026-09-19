@@ -19,7 +19,7 @@ function displayAmount(value) {
 function Fact({ label, value, secondary = false }) {
   if (value == null || value === "") return null;
   return (
-    <div className={`ipo-fact${secondary ? " ipo-fact-secondary" : ""}`}>
+    <div className={`ipo-fact ipo-kv${secondary ? " ipo-fact-secondary" : ""}`}>
       <small>{label}</small>
       <strong>{value}</strong>
     </div>

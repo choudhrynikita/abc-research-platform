@@ -110,10 +110,13 @@ export default function IpoTerminal() {
           </div>
         </div>
         <div className="ipo-count-strip">
-          <div><small>Open</small><strong>{counts.open ?? 0}</strong></div>
-          <div><small>Upcoming</small><strong>{counts.upcoming ?? 0}</strong></div>
-          <div><small>Listed 30D</small><strong>{counts.listed ?? 0}</strong></div>
-          <div><small>Updated</small><strong>{dashboard?.refreshedAt ? new Date(dashboard.refreshedAt).toLocaleString() : "Not published by NSE"}</strong></div>
+          <div className="ipo-kv"><small>Open</small><strong>{counts.open ?? 0}</strong></div>
+          <div className="ipo-kv"><small>Upcoming</small><strong>{counts.upcoming ?? 0}</strong></div>
+          <div className="ipo-kv"><small>Listed 30D</small><strong>{counts.listed ?? 0}</strong></div>
+          <div className="ipo-kv ipo-updated">
+            <small>Updated</small>
+            <strong>{dashboard?.refreshedAt ? new Date(dashboard.refreshedAt).toLocaleString() : "Not published by NSE"}</strong>
+          </div>
         </div>
       </section>
 

@@ -167,7 +167,14 @@ describe("fluid IPO layout", () => {
     assert.match(css, /\.ipo-snapshot-grid\s*\{[^}]*minmax\(0,\s*1fr\)/s);
     assert.match(css, /\.ipo-fin-bar-row\s*\{[^}]*minmax\(0,\s*1fr\)/s);
     assert.match(css, /\.ipo-rec-badge\s*\{[^}]*white-space:\s*normal/s);
-    assert.match(css, /\.ipo-exec h2[\s\S]*?overflow-wrap:\s*anywhere/);
+    assert.match(css, /\.ipo-exec h2[\s\S]*?overflow-wrap:\s*break-word/);
+  });
+
+  it("stacks IPO labels above values so Lead Managers does not run into ICICI", () => {
+    assert.match(css, /\.ipo-kv[\s\S]*?flex-direction:\s*column/);
+    assert.match(css, /\.prospectus-grid small[\s\S]*?display:\s*block/);
+    assert.match(css, /\.ipo-demand-table td:not\(:first-child\)[\s\S]*?white-space:\s*nowrap/);
+    assert.match(css, /\.ipo-kv-wide\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
   });
 
   it("uses a stacked list then a two-pane layout as the terminal widens", () => {

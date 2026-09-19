@@ -97,10 +97,19 @@ export default function IpoCompanyPanel({ company, fundamentals }) {
           <h3>Issue size & use of proceeds</h3>
           <div className="expand-body always-open">
             {breakdown ? (
-              <div className="ipo-snapshot-grid">
-                <div><small>Total issue</small><strong>{breakdown.totalLabel || "—"}</strong></div>
-                <div><small>Fresh issue — proceeds to the company</small><strong>{breakdown.freshLabel || "—"}</strong></div>
-                <div><small>Offer for sale — proceeds to existing investors</small><strong>{breakdown.ofsLabel || "—"}</strong></div>
+              <div className="ipo-issue-split">
+                <div className="ipo-kv">
+                  <small>Total issue</small>
+                  <strong>{breakdown.totalLabel || "—"}</strong>
+                </div>
+                <div className="ipo-kv">
+                  <small>Fresh issue — proceeds to the company</small>
+                  <strong>{breakdown.freshLabel || "—"}</strong>
+                </div>
+                <div className="ipo-kv">
+                  <small>Offer for sale — proceeds to existing investors</small>
+                  <strong>{breakdown.ofsLabel || "—"}</strong>
+                </div>
               </div>
             ) : null}
             {utilisation?.items?.length ? (
@@ -148,7 +157,7 @@ export default function IpoCompanyPanel({ company, fundamentals }) {
             <ul className="risk-list">
               {company.risks.map((s) => <li key={s}>{s}</li>)}
             </ul>
-            <p className="ipo-note">These titles are from the RHP risk-factor chapter. Read the full prospectus before a long-term call. GMP is not used.</p>
+            <p className="ipo-note">These titles are from the RHP risk-factor chapter. Read the full prospectus before a long-term call.</p>
           </div>
         </section>
       ) : null}

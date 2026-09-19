@@ -22,20 +22,22 @@ export default function IpoExecutiveSummary({ summary, companyName }) {
       </div>
 
       <div className="ipo-exec-metrics">
-        <div>
+        <div className="ipo-kv">
           <small>IPO Score</small>
-          <strong className="score-val">{summary.ipoScore ?? "—"}</strong>
-          <span className="score-of"> / 100</span>
+          <strong>
+            <span className="score-val">{summary.ipoScore ?? "—"}</span>
+            <span className="score-of"> / 100</span>
+          </strong>
         </div>
-        <div>
+        <div className="ipo-kv">
           <small>Confidence</small>
           <strong>{summary.confidence != null ? `${Math.round(Number(summary.confidence))}%` : "—"}</strong>
         </div>
-        <div>
+        <div className="ipo-kv">
           <small>Risk</small>
           <strong>{summary.riskLevel ?? "—"}</strong>
         </div>
-        <div>
+        <div className="ipo-kv">
           <small>Horizon</small>
           <strong>{summary.horizon ?? "—"}</strong>
         </div>
