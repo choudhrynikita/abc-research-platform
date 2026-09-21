@@ -100,7 +100,7 @@ export default function IpoDetailView({ data, loading }) {
         </ExpandBlock>
       )}
 
-      {data.industryOutlook?.available && (
+      {data.industryOutlook?.available && !data.company?.sector && (
         <ExpandBlock title="Industry">
           <ul>
             {data.industryOutlook.bullets?.map((b) => <li key={b}>{b}</li>)}

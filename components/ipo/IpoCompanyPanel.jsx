@@ -161,6 +161,18 @@ export default function IpoCompanyPanel({ company, fundamentals }) {
           </div>
         </section>
       ) : null}
+
+      {(company?.sector?.overview || company?.sector?.competition || company?.sector?.stand) ? (
+        <section className="ipo-expand glass-card">
+          <h3>Sector & competition</h3>
+          <div className="expand-body always-open">
+            {company.sector.overview ? <p className="ipo-about">{company.sector.overview}</p> : null}
+            {company.sector.competition ? <p className="ipo-about">{company.sector.competition}</p> : null}
+            {company.sector.stand ? <p className="ipo-about">{company.sector.stand}</p> : null}
+            <p className="ipo-note">Industry and competitor names are from the official RHP (Credence report commissioned for the offer). Peer multiples are not invented.</p>
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }

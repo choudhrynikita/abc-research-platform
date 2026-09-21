@@ -279,3 +279,193 @@ Internal Risk Factors
     assert.equal(gcp.amountCrore, null);
   });
 });
+
+const SPECTRAA_FIN = `
+SUMMARY OF RESTATED CONSOLIDATED FINANCIAL STATEMENTS
+The following tables provide the summary of financial information of our Company derived from the Restated Consolidated Financial Statements for the financial years ended March 31, 2026, March 31, 2025 and March 31, 2024.
+(Amount in INR lakhs)
+Particulars Note No. As at 31 March, 2026 As at 31 March, 2025 As at 31 March, 2024
+EQUITY AND LIABILITIES
+Total Outstanding dues of micro enterprises and small enterprises; and 84.06 893.96 1,032.11
+Total Outstanding dues of creditors other than micro enterprises and small enterprises 3,336.53 1,935.46 1,414.35
+Total 10,628.84 9,999.74 6,664.47
+ASSETS
+(e) Other Current Assets 18 19.14 25.81 22.64
+Total 10,628.84 9,999.74 6,664.47
+Revenue From Operations 19 10,116.21 7,516.62 8,896.17
+Other Income 20 188.29 36.44 71.73
+Total Income 10,304.50 7,553.06 8,967.90
+Profit for the period 1,155.71 491.43 200.45
+`;
+
+const SPECTRAA_COVER = `
+INITIAL PUBLIC OFFER OF UPTO 36,03,600 EQUITY SHARES OF FACE VALUE OF ₹ 10/- EACH OF SPECTRAA TECHNOLOGY SOLUTIONS LIMITED
+COMPRISING OF A FRESH ISSUE OF UPTO 32,55,600 EQUITY SHARES OF FACE VALUE OF ₹ 10/- EACH AGGREGATING TO ₹ [●] LAKHS (THE “FRESH ISSUE”) AND AN OFFER FOR SALE OF UPTO 3,48,000 EQUITY SHARES OF FACE VALUE OF ₹ 10/- EACH
+`;
+
+const SPECTRAA_OBJECTS = `
+OBJECTS OF THE OFFER
+The Offer comprises Fresh Issue of up to 32,55,600 * Equity Shares aggregating up to ₹ [●] lakhs by our Company and Offer for Sale of up to 3,48,000 * Equity Shares aggregating up to ₹ [●] lakhs by the Promoter Selling Shareholders.
+Our Company proposes to utilise the Net Proceeds towards funding of the following objects:
+1. Capital Expenditure at Jaipur manufacturing facility
+2. Repayment of Term Loans availed by our Company ;
+3. Meet the Working Capital requirements;
+4. General Corporate Purposes; and
+5. Offer Expenses.
+(Collectively referred as the “ Objects ”)
+Utilization of Net Proceeds
+The Net Proceeds are proposed to be used in accordance with the details as set forth below:
+(₹ in lakhs)
+Sr. No Particulars Estimated Amount % of Net Proceeds
+1. Capital Expenditure at Jaipur manufacturing facility Up to 1,100.00 # [●]
+2. Repayment of Term Loans availed by our Company Up to 647.72 [●]
+3. Working Capital requirements Up to 950.00 [●]
+4. General Corporate Purposes (1)(2) [●] [●]
+Net issue Proceeds [●] [●]
+`;
+
+const SPECTRAA_BUSINESS = `
+OUR BUSINESS
+OVERVIEW Our Company, SpectraA Technology Solutions Limited, was incorporated as a private company on January 20, 2009 in Bengaluru and converted to a public limited company on February 01, 2021. We provide engineering, designing, fabrication, installation, commissioning and decommissioning greenfield and brownfield projects across various industries which include, Breweries (Craft and Microbreweries), Distilleries, Food and Beverages, Malt Spirit and Blending, Extraction Plants, FMCG (Fast Moving Consumer Goods) and Pharmaceuticals. We undertake projects with full responsibility from design to handover, build key equipment in-house, use standardized modules and appropriate designs, and deploy project teams across client sites, which helps us deliver on schedule, cut rework, and control costs.
+We have two manufacturing facilities located at Bengaluru and Jaipur with an aggregate built up area of 33,214.75 square feet.
+Commercial Brewery Equipment 6,893.43 68.14% 4,117.70 54.78% 6,260.47 70.37%
+Our export revenue was 29.38% of total revenue from operations and the top ten customers accounted for 65.60% of total revenue from operations in the financial year ended March 31, 2026.
+As on August 25, 2026, our order book (exclusing GST) stands at ₹ 8,129.61 lakhs.
+STRENGTHS
+1. Geographical Advantage of two manufacturing facilities
+We operate two manufacturing facilities – one in Bengaluru and one in Jaipur.
+2. In-house Product Fabrication
+We fabricate all our equipment in house from design to final assembly.
+3. Diversified and Sustainable Order Book
+Our order pipeline is anchored by existing and repeat customers.
+4. Quality Control and Compliance
+We apply quality checks across the production lifecycle.
+5. Experienced Leadership and Skilled Team
+A L Arun Kumar, our Promoter and Chairman and Managing Director, has an experience of 21 in this industry.
+STRATEGIES
+COMPETITION
+We operate in a fragmented and highly competitive market that includes large domestic OEMs, international suppliers (often via imports), and numerous regional fabricators. Competitive intensity is elevated by buyers’ strong bargaining power, modular equipment options, and active upgrading by breweries and malt-spirit producers and the players differentiate themselves by technology, efficiency, service coverage, and lifecycle support. Key domestic competitors include Praj Industries (largest share among domestic players), along with Alfa Laval India, GEA, and Prodeb. (Key competitors identified as per the Credence Report)
+`;
+
+const SPECTRAA_INDUSTRY = `
+INDUSTRY OVERVIEW
+The India beer and malt spirit equipment market was valued at USD 165.09 million in 2018, grew to USD 204.08 million in 2024, and is projected to reach USD 302.28 million by 2032. This steady growth highlights the combined impact of rising beer consumption, the expansion of microbreweries, and the increasing demand for premium malt spirits.
+The India Beer and Malt-Spirit Equipment Market is witnessing robust growth, driven by evolving consumer preferences, premiumization trends, expanding raw material capacity, and government policy support for the broader alcoholic beverages industry.
+`;
+
+const SPECTRAA_RISK = `
+SECTION II – RISK FACTORS An investment in Equity Shares involves a high degree of risk.
+INTERNAL RISK FACTORS
+1. We derive a significant portion of our revenue from limited number of customers. The loss of any customer, the deterioration of their financial condition or prospects, or a reduction in their demand for our products could adversely affect our business, results of operations, financial condition and cash flows.
+2. We depend on a limited number of suppliers for our raw materials, and any disruption in supply or adverse change in supply terms it may materially affect our business. For the Fiscals 2026, 2025, and 2024 the cost of raw materials sourced from our top 10 suppliers accounted for 43.35%.
+4. We are unable to locate the Consent to Establish for our manufacturing unit at Jaipur and any inability to comply with applicable environmental laws may expose us to regulatory action and could adversely affect our business, financial condition and results of operations. The Jaipur unit is leased.
+5. Our revenues are significantly dependent on certain geographical regions, and any adverse developments in these regions could adversely impact our business, financial condition and results of operations. Concentration of revenue is set out below.
+6. Our revenues have been on a decreasing trend for the financial year ended March 31, 2025 and March 31, 2024. This is due to a strategic shift towards higher-margin products by our Company. If we are unable to secure sufficient high-margin orders our revenues may continue to be adversely impacted.
+`;
+
+describe("SpectraA official RHP extract", () => {
+  it("converts restated ₹ lakh totals into crore from Revenue From Operations, not Total Income", () => {
+    const { detectUnit, parseFinancialSummary } = require("../lib/ipo-prospectus");
+    assert.equal(detectUnit(SPECTRAA_FIN), "lakh");
+    const fin = parseFinancialSummary(SPECTRAA_FIN);
+    assert.ok(fin);
+    const y0 = fin.years.find((y) => y.label === "March 2026");
+    assert.equal(y0.assets, 106.29);
+    assert.equal(y0.revenue, 101.16);
+    assert.equal(y0.pat, 11.56);
+    assert.ok(y0.revenue !== 103.05);
+    assert.ok(fin.analysis.some((a) => /Revenue up 34\.6%/i.test(a)));
+    assert.ok(fin.analysis.some((a) => /PAT margin 11\.4%/i.test(a)));
+  });
+
+  it("sizes the offer from RHP share counts × cap ₹118 and does not invent GCP rupees", () => {
+    const { parseIssueComposition, parseObjectsOfOffer, parseShareCounts } = require("../lib/ipo-prospectus");
+    const shares = parseShareCounts(SPECTRAA_COVER);
+    assert.equal(shares.freshShares, 3255600);
+    assert.equal(shares.ofsShares, 348000);
+    assert.equal(shares.totalShares, 3603600);
+    const issue = parseIssueComposition(SPECTRAA_COVER, null, 118);
+    assert.equal(issue.totalCrore, 42.52);
+    assert.equal(issue.freshCrore, 38.42);
+    assert.equal(issue.ofsCrore, 4.11);
+    const objects = parseObjectsOfOffer(SPECTRAA_OBJECTS, 38.42);
+    const jaipur = objects.items.find((i) => /Jaipur/i.test(i.purpose));
+    const repay = objects.items.find((i) => /Term Loans/i.test(i.purpose));
+    const wc = objects.items.find((i) => /Working Capital/i.test(i.purpose));
+    const gcp = objects.items.find((i) => /General Corporate/i.test(i.purpose));
+    assert.equal(jaipur.amountCrore, 11);
+    assert.equal(repay.amountCrore, 6.48);
+    assert.equal(wc.amountCrore, 9.5);
+    assert.equal(gcp.amountCrore, null);
+    assert.match(gcp.amountLabel, /finalis/i);
+    assert.ok(!objects.items.some((i) => /offer expenses/i.test(i.purpose)));
+    assert.ok(!objects.items.some((i) => i.amountCrore === 11.44));
+  });
+
+  it("reads SpectraA about, plants, numbered strengths, risks, and Credence competition", () => {
+    const {
+      parseAbout,
+      parseOperations,
+      parseStrengths,
+      parseRiskTitles,
+      parseCompetition,
+      parseSector,
+      parseStand,
+      parseRhptSections,
+    } = require("../lib/ipo-prospectus");
+    const about = parseAbout(SPECTRAA_BUSINESS);
+    assert.match(about, /engineering, designing, fabrication/i);
+    assert.match(about, /Breweries/i);
+    const ops = parseOperations(SPECTRAA_BUSINESS);
+    assert.match(ops, /Bengaluru and Jaipur/i);
+    const strengths = parseStrengths(SPECTRAA_BUSINESS);
+    assert.ok(strengths.some((s) => /Geographical Advantage/i.test(s)));
+    assert.ok(strengths.some((s) => /In-house Product Fabrication/i.test(s)));
+    const risks = parseRiskTitles(SPECTRAA_RISK);
+    assert.ok(risks.some((r) => /limited number of customers/i.test(r)));
+    assert.ok(risks.some((r) => /Consent to Establish/i.test(r)));
+    assert.match(parseCompetition(SPECTRAA_BUSINESS), /Praj Industries/i);
+    assert.match(parseSector(SPECTRAA_INDUSTRY), /USD 204\.08 million in 2024/i);
+    assert.match(parseStand(SPECTRAA_BUSINESS), /68\.14%/);
+    const d = parseRhptSections({
+      coverText: SPECTRAA_COVER,
+      businessText: SPECTRAA_BUSINESS,
+      financialText: SPECTRAA_FIN,
+      objectsText: SPECTRAA_OBJECTS,
+      riskText: SPECTRAA_RISK,
+      industryText: SPECTRAA_INDUSTRY,
+    });
+    assert.equal(d.available, true);
+    assert.equal(d.financials.years[0].revenue, 101.16);
+    assert.match(d.sector.competition, /Alfa Laval India/i);
+  });
+
+  it("prefers RHP share-count issue size over an NSE net-of-anchor book print", () => {
+    const { parseIssueComposition, mergeIssueBreakdown } = require("../lib/ipo-prospectus");
+    const fromNse = parseIssueComposition("", 30.43);
+    const fromRhp = parseIssueComposition(SPECTRAA_COVER, null, 118);
+    const merged = mergeIssueBreakdown(fromRhp, fromNse);
+    assert.equal(merged.totalCrore, 42.52);
+    assert.equal(merged.freshCrore, 38.42);
+    assert.equal(merged.ofsCrore, 4.11);
+  });
+
+  it("ships a SpectraA RHP extract so the company page is not empty when the live zip cannot be parsed", () => {
+    const bundled = bundledProspectus("SPECTRAA");
+    assert.equal(bundled.available, true);
+    assert.match(bundled.about, /Breweries/i);
+    assert.match(bundled.operations, /Bengaluru and Jaipur/i);
+    assert.equal(bundled.financials.years[0].assets, 106.29);
+    assert.equal(bundled.financials.years[0].revenue, 101.16);
+    assert.equal(bundled.financials.years[0].pat, 11.56);
+    assert.equal(bundled.issueBreakdown.totalCrore, 42.52);
+    assert.equal(bundled.issueBreakdown.freshCrore, 38.42);
+    assert.equal(bundled.issueBreakdown.ofsCrore, 4.11);
+    const jaipur = bundled.objects.items.find((i) => /Jaipur/i.test(i.purpose));
+    const gcp = bundled.objects.items.find((i) => /General Corporate/i.test(i.purpose));
+    assert.equal(jaipur.amountCrore, 11);
+    assert.equal(gcp.amountCrore, null);
+    assert.match(bundled.sector.competition, /Praj Industries/i);
+    assert.match(bundled.sector.stand, /68\.14%/);
+  });
+});

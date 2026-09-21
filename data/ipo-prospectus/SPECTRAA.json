@@ -1,0 +1,124 @@
+{
+  "available": true,
+  "about": "We provide engineering, designing, fabrication, installation, commissioning and decommissioning greenfield and brownfield projects across various industries which include, Breweries (Craft and Microbreweries), Distilleries, Food and Beverages, Malt Spirit and Blending, Extraction Plants, FMCG (Fast Moving Consumer Goods) and Pharmaceuticals. We undertake projects with full responsibility from design to handover, build key equipment in-house, use standardized modules and appropriate designs, and deploy project teams across client sites, which helps us deliver on schedule, cut rework, and control costs. Over the last 17 years, we have built systems compliant with ISO 9001:2015 to design, develop, fabricate and expand various process plants which are customized to customer specifications.",
+  "operations": "We have two manufacturing facilities located at Bengaluru and Jaipur with an aggregate built up area of 33,214.75 square feet.",
+  "strengths": [
+    "Geographical Advantage of two manufacturing facilities",
+    "In-house Product Fabrication",
+    "Diversified and Sustainable Order Book",
+    "Quality Control and Compliance",
+    "Experienced Leadership and Skilled Team"
+  ],
+  "risks": [
+    "We derive a significant portion of our revenue from limited number of customers",
+    "We depend on a limited number of suppliers for our raw materials, and any disruption in supply or adverse change in supply terms it may materially affect our business",
+    "Trade Receivables form a substantial part of our current assets",
+    "We are unable to locate the Consent to Establish for our manufacturing unit at Jaipur and any inability to comply with applicable environmental laws may expose us to regulatory action and could adversely affect our business, financial condition and results of operations",
+    "Our revenues are significantly dependent on certain geographical regions, and any adverse developments in these regions could adversely impact our business, financial condition and results of operations",
+    "Our revenues have been on a decreasing trend for the financial year ended March 31, 2025 and March 31, 2024. This is due to a strategic shift towards higher-margin products by our Company"
+  ],
+  "financials": {
+    "unit": "₹ crore",
+    "years": [
+      {
+        "label": "March 2026",
+        "assets": 106.29,
+        "revenue": 101.16,
+        "pat": 11.56
+      },
+      {
+        "label": "March 2025",
+        "assets": 100,
+        "revenue": 75.17,
+        "pat": 4.91
+      },
+      {
+        "label": "March 2024",
+        "assets": 66.64,
+        "revenue": 88.96,
+        "pat": 2
+      }
+    ],
+    "chartYears": [
+      {
+        "label": "March 2024",
+        "assets": 66.64,
+        "revenue": 88.96,
+        "pat": 2
+      },
+      {
+        "label": "March 2025",
+        "assets": 100,
+        "revenue": 75.17,
+        "pat": 4.91
+      },
+      {
+        "label": "March 2026",
+        "assets": 106.29,
+        "revenue": 101.16,
+        "pat": 11.56
+      }
+    ],
+    "analysis": [
+      "Revenue up 34.6% in March 2026 vs March 2025 (restated).",
+      "Profit after tax up 135.4% over the same restated years.",
+      "PAT margin 11.4% on restated March 2026 revenue.",
+      "Total assets up 6.3% over the same restated years.",
+      "Commercial brewery equipment was 68.14% of restated FY26 revenue from operations; EBITDA margin 19.04% on the RHP KPI table.",
+      "Figures are restated prospectus numbers, not a forecast and not a buy/sell call."
+    ],
+    "source": "NSE-hosted Red Herring Prospectus — summary of restated financials"
+  },
+  "objects": {
+    "items": [
+      {
+        "purpose": "Capital Expenditure at Jaipur manufacturing facility",
+        "amountCrore": 11,
+        "amountLabel": "₹11 Cr",
+        "pct": 28.63
+      },
+      {
+        "purpose": "Repayment of Term Loans availed by our Company",
+        "amountCrore": 6.48,
+        "amountLabel": "₹6.48 Cr",
+        "pct": 16.87
+      },
+      {
+        "purpose": "Meet the Working Capital requirements",
+        "amountCrore": 9.5,
+        "amountLabel": "₹9.5 Cr",
+        "pct": 24.73
+      },
+      {
+        "purpose": "General Corporate Purposes",
+        "amountCrore": null,
+        "amountLabel": "To be finalised in the prospectus",
+        "pct": null
+      }
+    ],
+    "note": "Amounts are from the RHP objects table, converted to ₹ crore. General corporate purpose is left blank when the RHP still prints [●] — it is not back-solved from the residual.",
+    "source": "NSE-hosted Red Herring Prospectus — Objects of the Offer"
+  },
+  "issueBreakdown": {
+    "totalCrore": 42.52,
+    "freshCrore": 38.42,
+    "ofsCrore": 4.11,
+    "freshShares": 3255600,
+    "ofsShares": 348000,
+    "totalShares": 3603600,
+    "totalLabel": "₹42.52 Cr",
+    "freshLabel": "₹38.42 Cr",
+    "ofsLabel": "₹4.11 Cr",
+    "source": "RHP share counts × published cap price ₹118. Cover still prints rupee size as [●]."
+  },
+  "sector": {
+    "overview": "The India beer and malt spirit equipment market was valued at USD 165.09 million in 2018, grew to USD 204.08 million in 2024, and is projected to reach USD 302.28 million by 2032. This steady growth highlights the combined impact of rising beer consumption, the expansion of microbreweries, and the increasing demand for premium malt spirits. The India Beer and Malt-Spirit Equipment Market is witnessing robust growth, driven by evolving consumer preferences, premiumization trends, expanding raw material capacity, and government policy support for the broader alcoholic beverages industry.",
+    "competition": "We operate in a fragmented and highly competitive market that includes large domestic OEMs, international suppliers (often via imports), and numerous regional fabricators. Competitive intensity is elevated by buyers’ strong bargaining power, modular equipment options, and active upgrading by breweries and malt-spirit producers and the players differentiate themselves by technology, efficiency, service coverage, and lifecycle support. Key domestic competitors include Praj Industries (largest share among domestic players), along with Alfa Laval India, GEA, and Prodeb.",
+    "stand": "Commercial brewery equipment was 68.14% of restated FY26 revenue from operations; export revenue was 29.38% of FY26 operations; the top ten customers accounted for 65.60%; pending order book ₹81.30 Cr as printed in the RHP. These are prospectus figures, not a ranking versus named peers.",
+    "source": "NSE-hosted Red Herring Prospectus — Industry Overview (Credence) and Our Business — Competition"
+  },
+  "source": "NSE-hosted Red Herring Prospectus",
+  "rhpUrl": "https://nsearchives.nseindia.com/content/ipo/RHP_SPECTRAA.zip",
+  "fetchedAt": "2026-09-21T07:45:00.000Z",
+  "symbol": "SPECTRAA"
+}
