@@ -43,7 +43,6 @@ export default function IpoDetailView({ data, loading }) {
   }
 
   const snap = data.snapshot?.fields || [];
-  const demand = data.demand?.levels || data.financialCharts?.series || [];
   const docs = data.documents || [];
   const intermediariesInSnap = snap.some((row) => /lead manager|registrar/i.test(row.label));
   const showProspectusKpis = Boolean(data.prospectus?.available) && !intermediariesInSnap;
@@ -66,30 +65,6 @@ export default function IpoDetailView({ data, loading }) {
       )}
 
       <IpoSubscriptionPanel subscription={data.subscription} />
-
-      {demand.length > 0 && (
-        <ExpandBlock title="Demand by Price">
-          <p className="panel-sub">NSE cumulative quantity at each price. Updated {data.demand?.updatedAt || "during the live book"}.</p>
-          <div className="ipo-table-wrap">
-            <table className="ipo-demand-table ipo-num-table">
-              <thead>
-                <tr>
-                  <th>Price</th>
-                  <th>Cumulative qty</th>
-                </tr>
-              </thead>
-              <tbody>
-                {demand.map((row) => (
-                  <tr key={`${row.price}-${row.cumulativeQty}`}>
-                    <td>{row.price}</td>
-                    <td>{row.cumulativeQty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </ExpandBlock>
-      )}
 
       <IpoScorecard scorecard={data.scorecard} />
 
