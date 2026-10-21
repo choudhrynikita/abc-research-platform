@@ -138,6 +138,71 @@ describe("top50 sell plan", () => {
     assert.equal(plan.by, "2026-11-18");
     assert.equal(plan.openOn, "2026-10-28");
   });
+
+  it("does not buy Coforge-style when the 20-day high is only about 1% away", () => {
+    const ranked = rankTop50([
+      {
+        symbol: "COFORGE.NS",
+        name: "Coforge Limited",
+        sector: "IT",
+        price: 1949.8,
+        changePercent: 1.29,
+        weeklyChangePercent: 2,
+        monthlyChangePercent: 5.91,
+        peRatio: { available: true, value: 39.9 },
+        technicals: {
+          trend: "BULLISH",
+          sma20: 1850,
+          sma50: 1700,
+          rsi: 58,
+          macdHistogram: 1.2,
+          adx: 28,
+          volumeTrend: "Rising",
+          support: 1800,
+          resistance: 1970,
+          atr: 30,
+        },
+        _candles: makeCandles(80, 1700),
+      },
+    ], { indexMonthlyChange: 1, sectorMap: { IT: { avgChange: 1, count: 5 } } });
+    assert.equal(ranked[0].recommendation.action, "WATCH");
+    assert.match(ranked[0].recommendation.reasons.join(" "), /20-day high/i);
+    assert.equal(ranked[0].recommendation.action === "BUY", false);
+  });
+
+  it("does not buy after a dark cloud even when the 20-day high is far above", () => {
+    const candles = makeCandles(40, 1600);
+    candles.push(
+      { open: 1860, high: 1900, low: 1855, close: 1890 },
+      { open: 1925, high: 1935, low: 1862, close: 1868 }
+    );
+    const ranked = rankTop50([
+      {
+        symbol: "BHARTIARTL.NS",
+        name: "Bharti Airtel Limited",
+        sector: "Telecom",
+        price: 1845,
+        changePercent: -1.5,
+        weeklyChangePercent: -2,
+        monthlyChangePercent: 3,
+        technicals: {
+          trend: "BULLISH",
+          sma20: 1750,
+          sma50: 1650,
+          rsi: 58,
+          macdHistogram: 0.4,
+          adx: 26,
+          volumeTrend: "Stable",
+          support: 1700,
+          resistance: 2200,
+          atr: 28,
+        },
+        _candles: candles,
+      },
+    ], { indexMonthlyChange: 1, sectorMap: { Telecom: { avgChange: 0.2, count: 3 } } });
+    assert.equal(ranked[0].recommendation.action, "WATCH");
+    assert.match(ranked[0].recommendation.reasons.join(" "), /Dark Cloud/i);
+  });
 });
 
 describe("top50 scoring dossier integration", () => {

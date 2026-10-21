@@ -3530,7 +3530,8 @@ th {
   overflow-wrap: anywhere;
 }
 
-.stock-sell-by strong {
+.stock-sell-by strong,
+.stock-sell-plan .sell-ceiling {
   color: var(--text);
 }
 

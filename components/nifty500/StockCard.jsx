@@ -95,17 +95,21 @@ export default function StockCard({ stock, rank }) {
       {rec?.sellPlan && (
         <div className="stock-sell-plan">
           <div>
-            <small>Intend to sell at</small>
-            <strong>{rec.sellPlan.price != null ? rupee(rec.sellPlan.price) : "Not published"}</strong>
+            <small>{rec.action === "BUY" ? "Intend to sell at" : "20-day high"}</small>
+            <strong className={rec.action === "BUY" ? undefined : "sell-ceiling"}>
+              {rec.sellPlan.price != null ? rupee(rec.sellPlan.price) : "Not published"}
+            </strong>
           </div>
           <div className="stock-sell-by">
-            <small>By</small>
-            <strong>{rec.sellPlan.price != null ? rec.sellPlan.byLabel : "—"}</strong>
+            <small>{rec.action === "BUY" ? "By" : "Call"}</small>
+            <strong>{rec.action === "BUY" && rec.sellPlan.price != null ? rec.sellPlan.byLabel : rec.action}</strong>
           </div>
           <p>
-            {rec.sellPlan.price != null
-              ? `Window opens ${rec.sellPlan.openLabel}. ${rec.sellPlan.basis} ${rec.sellPlan.note}`
-              : rec.sellPlan.basis}
+            {rec.blockers?.length
+              ? rec.blockers[0]
+              : rec.sellPlan.price != null
+                ? `Window opens ${rec.sellPlan.openLabel}. ${rec.sellPlan.basis} ${rec.sellPlan.note}`
+                : rec.sellPlan.basis}
           </p>
         </div>
       )}
