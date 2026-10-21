@@ -145,7 +145,9 @@ describe("NIFTY strategy top 10 pipeline", () => {
     assert.ok(!names.includes("Long OTM Put"));
     assert.ok(!names.includes("Protective Put Hedge"));
     assert.ok(!names.includes("Long ATM Put"));
-    assert.ok(names.some((n) => /Straddle|Strangle|Condor|Butterfly/i.test(n)));
+    assert.ok(!names.includes("Long ATM Straddle"));
+    assert.ok(!names.includes("Long OTM Strangle"));
+    assert.ok(names.some((n) => /Condor|Butterfly/i.test(n)));
   });
 
   it("weekend technical plans use a rounded last-close map, not placeholders or raw floats", () => {

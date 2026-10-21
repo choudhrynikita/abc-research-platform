@@ -297,7 +297,15 @@ export default function PayoffChart({ strategy, height = 220, eager = false }) {
         </div>
         <div>
           <small>R:R</small>
-          <strong>{payoff.riskRewardRatio != null ? `${payoff.riskRewardRatio}:1` : PREMIUMS_UNAVAILABLE}</strong>
+          <strong>
+            {payoff.riskRewardRatio != null
+              ? `${payoff.riskRewardRatio}:1`
+              : payoff.maxProfitUnlimited
+                ? "Unlimited profit"
+                : payoff.netPremium != null
+                  ? "Not a ratio"
+                  : PREMIUMS_UNAVAILABLE}
+          </strong>
         </div>
       </div>
 

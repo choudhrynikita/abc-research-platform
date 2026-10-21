@@ -5,6 +5,8 @@ const {
   enrichStrategyWithPayoff,
   payoffAt,
   netPremiumFromLegs,
+  isDownwardPayoffGraph,
+  isDownwardStrategy,
 } = require("../lib/options-payoff");
 
 describe("options payoff primitives", () => {
@@ -265,5 +267,45 @@ describe("never fabricates missing inputs", () => {
     assert.equal(r.available, false);
     assert.equal(r.maxProfit, null);
     assert.equal(r.maxLoss, null);
+  });
+});
+
+describe("downward payoff valley", () => {
+  it("rejects a long straddle and a long strangle, and keeps a call and a short iron", () => {
+    const straddle = analyzeStrategyPayoff({
+      strikes: [
+        { action: "BUY", type: "CE", strike: 22950, premium: 180 },
+        { action: "BUY", type: "PE", strike: 22950, premium: 158.75 },
+      ],
+      spot: 22946,
+      lotSize: 65,
+    });
+    const strangle = analyzeStrategyPayoff({
+      strikes: [
+        { action: "BUY", type: "CE", strike: 23150, premium: 90 },
+        { action: "BUY", type: "PE", strike: 22750, premium: 88.35 },
+      ],
+      spot: 22946,
+      lotSize: 65,
+    });
+    const call = analyzeStrategyPayoff({
+      strikes: [{ action: "BUY", type: "CE", strike: 23000, premium: 120 }],
+      spot: 22946,
+    });
+    const iron = analyzeStrategyPayoff({
+      strikes: [
+        { action: "BUY", type: "PE", strike: 22700, premium: 40 },
+        { action: "SELL", type: "PE", strike: 22900, premium: 90 },
+        { action: "SELL", type: "CE", strike: 23000, premium: 95 },
+        { action: "BUY", type: "CE", strike: 23200, premium: 45 },
+      ],
+      spot: 22946,
+    });
+    assert.equal(isDownwardPayoffGraph(straddle), true);
+    assert.equal(isDownwardPayoffGraph(strangle), true);
+    assert.equal(isDownwardPayoffGraph(call), false);
+    assert.equal(isDownwardPayoffGraph(iron), false);
+    assert.equal(isDownwardStrategy({ type: "Long Straddle", name: "Long ATM Straddle" }), true);
+    assert.equal(isDownwardStrategy({ type: "Straddle Watch", name: "Pre-Market Range Straddle Watch" }), false);
   });
 });
