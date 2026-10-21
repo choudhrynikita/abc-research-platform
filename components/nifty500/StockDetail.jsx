@@ -565,6 +565,14 @@ export default function StockDetail({ symbol }) {
               <MetricValue value={decision.stopLoss} type="price" label="Stop" />
             </div>
             <div className="ai-insight-block">
+              <span>Intend to sell</span>
+              <strong>
+                {decision.sellPlan?.price != null
+                  ? `₹${Number(decision.sellPlan.price).toLocaleString("en-IN", { maximumFractionDigits: 2 })} by ${decision.sellPlan.byLabel}`
+                  : DATA_UNAVAILABLE}
+              </strong>
+            </div>
+            <div className="ai-insight-block">
               <span>Target 1</span>
               <MetricValue value={decision.targets?.t1 ?? tech.resistance} type="price" label="T1" />
             </div>

@@ -8,7 +8,7 @@ const {
   splitFactors,
   DATA_UNAVAILABLE,
 } = require("../lib/strategy-dossier");
-const { scoreStock, rankTop50 } = require("../lib/top50-scoring");
+const { scoreStock, rankTop50, buildSellPlan } = require("../lib/top50-scoring");
 const { rankTop10, generateCandidates } = require("../lib/nifty-strategy-engine");
 
 function makeCandles(n = 120, start = 100) {
@@ -116,6 +116,30 @@ describe("strategy-dossier package", () => {
   });
 });
 
+describe("top50 sell plan", () => {
+  const asOf = new Date("2026-10-21T02:00:00Z");
+
+  it("sells at the first resistance above spot and names the horizon end date", () => {
+    const plan = buildSellPlan({ price: 302.9, resistance: 318, buyScore: 80, asOf });
+    assert.equal(plan.price, 318);
+    assert.equal(plan.openOn, "2026-11-11");
+    assert.equal(plan.by, "2027-01-13");
+    assert.equal(plan.openLabel, "11 Nov 2026");
+    assert.equal(plan.byLabel, "13 Jan 2027");
+  });
+
+  it("steps up the resistance ladder instead of selling below the last price", () => {
+    const plan = buildSellPlan({ price: 320, resistance: 300, buyScore: 80, asOf });
+    assert.equal(plan.price, 330);
+  });
+
+  it("uses a 4-week swing end date below the positional threshold", () => {
+    const plan = buildSellPlan({ price: 100, resistance: 110, buyScore: 60, asOf });
+    assert.equal(plan.by, "2026-11-18");
+    assert.equal(plan.openOn, "2026-10-28");
+  });
+});
+
 describe("top50 scoring dossier integration", () => {
   it("attaches confidence/backtest and strips _candles", () => {
     const stock = {
@@ -153,6 +177,9 @@ describe("top50 scoring dossier integration", () => {
     assert.equal(ranked.length, 1);
     assert.equal(ranked[0]._candles, undefined);
     assert.ok(ranked[0].recommendation);
+    assert.ok(ranked[0].recommendation.sellPlan);
+    assert.equal(ranked[0].recommendation.sellPlan.price, 1580);
+    assert.match(ranked[0].recommendation.sellPlan.byLabel, /\d{1,2} [A-Z][a-z]{2} \d{4}/);
     assert.ok(ranked[0].dossier || ranked[0].recommendation.dossier);
     assert.ok(ranked[0].confidence || ranked[0].recommendation.confidence);
     assert.ok(ranked[0].backtest);

@@ -3502,6 +3502,46 @@ th {
   color: var(--text-muted);
 }
 
+.stock-sell-plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 8px 12px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--tint-04);
+  border: 1px solid var(--border);
+}
+
+.stock-sell-plan small {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stock-sell-plan strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.95rem;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.stock-sell-by strong {
+  color: var(--text);
+}
+
+.stock-sell-plan p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
 .stock-card-evidence {
   display: flex;
   flex-wrap: wrap;

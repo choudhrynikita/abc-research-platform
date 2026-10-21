@@ -14,6 +14,11 @@ function ScorePill({ label, value }) {
   );
 }
 
+function rupee(n) {
+  if (n == null || !Number.isFinite(Number(n))) return null;
+  return `₹${Number(n).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+}
+
 export default function StockCard({ stock, rank }) {
   const chg = stock.changePercent;
   const chgCls = chg == null ? "" : chg >= 0 ? "up" : "down";
@@ -84,6 +89,24 @@ export default function StockCard({ stock, rank }) {
               <li key={r}>{r}</li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {rec?.sellPlan && (
+        <div className="stock-sell-plan">
+          <div>
+            <small>Intend to sell at</small>
+            <strong>{rec.sellPlan.price != null ? rupee(rec.sellPlan.price) : "Not published"}</strong>
+          </div>
+          <div className="stock-sell-by">
+            <small>By</small>
+            <strong>{rec.sellPlan.price != null ? rec.sellPlan.byLabel : "—"}</strong>
+          </div>
+          <p>
+            {rec.sellPlan.price != null
+              ? `Window opens ${rec.sellPlan.openLabel}. ${rec.sellPlan.basis} ${rec.sellPlan.note}`
+              : rec.sellPlan.basis}
+          </p>
         </div>
       )}
 
