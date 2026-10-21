@@ -162,6 +162,9 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
         </div>
         <span className={`strategy-status ${statusCls}`}>{formatTradeBadge(strategy)}</span>
       </header>
+      {strategy.entryBlockers?.[0] ? (
+        <p className="strategy-defer-note">{strategy.entryBlockers[0]}</p>
+      ) : null}
 
       <div className="fno-type-row">
         <span className="strategy-type-pill">{formatStructureName(strategy)}</span>
@@ -516,7 +519,10 @@ export default function FnoStrategyCard({ strategy, selected, onSelect }) {
           <ExpandSection title="Why This Strategy?">
             <ul>
               {strategy.why?.length ? (
-                strategy.why.map((w) => <li key={w}>{w}</li>)
+                strategy.why.map((w) => {
+                  const text = typeof w === "string" ? w : w?.text;
+                  return <li key={text}>{text}</li>;
+                })
               ) : (
                 <li className="na-text">Pending verified data</li>
               )}

@@ -261,6 +261,9 @@ export default function StrategyCard({ strategy, marketContext, selected, onSele
         </div>
         <TradeBadge strategy={strategy} />
       </header>
+      {strategy.entryBlockers?.[0] ? (
+        <p className="strategy-defer-note">{strategy.entryBlockers[0]}</p>
+      ) : null}
 
       <div className="strategy-metrics-row strategy-metrics-risk">
         <MetricCell

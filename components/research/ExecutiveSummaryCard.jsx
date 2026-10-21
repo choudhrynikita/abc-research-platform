@@ -34,7 +34,9 @@ export default function ExecutiveSummaryCard({
       ? "buy"
       : summary.recommendation === "Avoid"
         ? "avoid"
-        : "hold";
+        : summary.recommendation === "Watch"
+          ? "watch"
+          : "hold";
 
   const mcap = formatMetric(extractValue(summary.marketCap), "cr");
 
@@ -60,6 +62,7 @@ export default function ExecutiveSummaryCard({
         </div>
         <div className="exec-badges">
           <span className={`rec-badge large ${recCls}`}>{summary.recommendation}</span>
+          {summary.buyBlockers?.[0] ? <p className="panel-sub">{summary.buyBlockers[0]}</p> : null}
           <span className="rating-pill">
             Rating <strong>{summary.overallRating}</strong>/100
           </span>
