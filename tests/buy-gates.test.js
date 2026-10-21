@@ -22,7 +22,7 @@ describe("structure gate across desks", () => {
   it("waits a bullish Nifty structure pinned under the 20-day high", () => {
     const ranked = rankTop10(
       [directional("Bullish"), { name: "Iron Condor", type: "Iron Condor", bias: "Neutral", status: "Active", why: ["Range"] }],
-      { price: 24500, resistance: 24800, support: 23000, trend: "BULLISH", rsi: 55 }
+      { price: 24500, resistance: 24800, support: 24300, trend: "BULLISH", rsi: 55 }
     );
     const bull = ranked.find((s) => s.bias === "Bullish");
     const neutral = ranked.find((s) => s.bias === "Neutral");
@@ -41,7 +41,7 @@ describe("structure gate across desks", () => {
     const ranked = rankTop10([directional("Bullish")], {
       price: 100,
       resistance: 120,
-      support: 70,
+      support: 99,
       trend: "BULLISH",
       candles,
     });
@@ -60,11 +60,22 @@ describe("structure gate across desks", () => {
     assert.match(ranked[0].entryBlockers[0], /20-day low/);
   });
 
+  it("waits a bullish structure that is not sitting on support", () => {
+    const ranked = rankTop10([directional("Bullish")], {
+      price: 1736.6,
+      resistance: 1900,
+      support: 1674.2,
+      trend: "BULLISH",
+    });
+    assert.equal(ranked[0].status, "Wait");
+    assert.match(ranked[0].entryBlockers[0], /Not at support/);
+  });
+
   it("keeps a bullish structure active when the high is more than 8% away and no reversal printed", () => {
     const ranked = rankTop10([directional("Bullish", { expiryType: "Monthly", horizon: "monthly" })], {
       price: 100,
       resistance: 112,
-      support: 80,
+      support: 99,
       trend: "BULLISH",
     });
     assert.equal(ranked[0].status, "Active");
@@ -75,7 +86,7 @@ describe("structure gate across desks", () => {
     const ranked = rankTop10([directional("Bullish")], {
       price: 100,
       resistance: 98,
-      support: 80,
+      support: 99,
       trend: "BULLISH",
     });
     assert.equal(ranked[0].status, "Active");
@@ -85,7 +96,7 @@ describe("structure gate across desks", () => {
     const ranked = rankEquity([
       {
         ...directional("Bullish", { expiryType: "Monthly" }),
-        _ctx: { price: 1949.8, resistance: 1970, support: 1700, trend: "BULLISH", candles: [] },
+        _ctx: { price: 1949.8, resistance: 1970, support: 1930, trend: "BULLISH", candles: [] },
       },
     ], { marketTrend: "BULLISH" });
     assert.equal(ranked[0].status, "Wait");
@@ -130,7 +141,7 @@ describe("structure gate across desks", () => {
   it("does not buy a share scored above 70 when it is 1% under the 20-day high", () => {
     const ratings = computeRatings({
       price: 100,
-      technicalAnalysis: { trend: "BULLISH", rsi: 55, macdHistogram: 1, resistance: 101, support: 80 },
+      technicalAnalysis: { trend: "BULLISH", rsi: 55, macdHistogram: 1, resistance: 101, support: 99 },
       fundamentalAnalysis: { roe: 0.2, revenueGrowth: 0.2, debtToEquity: 0.2 },
       sectorComparison: { available: true, sectorAvgChange1m: 2 },
       aiConclusion: { confidenceScore: 80 },
@@ -143,7 +154,7 @@ describe("structure gate across desks", () => {
   it("still buys a share with room above the 20-day high and no reversal", () => {
     const ratings = computeRatings({
       price: 100,
-      technicalAnalysis: { trend: "BULLISH", rsi: 55, macdHistogram: 1, resistance: 120, support: 80 },
+      technicalAnalysis: { trend: "BULLISH", rsi: 55, macdHistogram: 1, resistance: 120, support: 99 },
       fundamentalAnalysis: { roe: 0.2, revenueGrowth: 0.2, debtToEquity: 0.2 },
       sectorComparison: { available: true, sectorAvgChange1m: 2 },
       aiConclusion: { confidenceScore: 80 },

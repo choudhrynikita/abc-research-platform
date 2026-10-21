@@ -134,21 +134,29 @@ export default function StockCard({ stock, rank }) {
       {rec?.sellPlan && (
         <div className="stock-sell-plan">
           <div>
+            <small>Entry at support</small>
+            <strong>{rec.entryAt != null ? rupee(rec.entryAt) : "Not published"}</strong>
+          </div>
+          <div className="stock-sell-by">
+            <small>{rec.atSupport ? "Last price" : "Do not chase"}</small>
+            <strong>{rec.atSupport ? "On support" : rec.action}</strong>
+          </div>
+          <div>
             <small>{rec.action === "BUY" ? "Intend to sell at" : "20-day high"}</small>
             <strong className={rec.action === "BUY" ? undefined : "sell-ceiling"}>
               {rec.sellPlan.price != null ? rupee(rec.sellPlan.price) : "Not published"}
             </strong>
           </div>
           <div className="stock-sell-by">
-            <small>{rec.action === "BUY" ? "By" : "Call"}</small>
-            <strong>{rec.action === "BUY" && rec.sellPlan.price != null ? rec.sellPlan.byLabel : rec.action}</strong>
+            <small>Stop</small>
+            <strong>{rec.stopLoss != null ? rupee(rec.stopLoss) : "—"}</strong>
           </div>
           <p>
             {rec.blockers?.length
               ? rec.blockers[0]
-              : rec.sellPlan.price != null
-                ? `Window opens ${rec.sellPlan.openLabel}. ${rec.sellPlan.basis} ${rec.sellPlan.note}`
-                : rec.sellPlan.basis}
+              : rec.atSupport
+                ? `Limit at support. Window opens ${rec.sellPlan.openLabel}. ${rec.sellPlan.note}`
+                : rec.blockers?.[0] || rec.sellPlan.basis}
           </p>
         </div>
       )}
@@ -183,7 +191,7 @@ export default function StockCard({ stock, rank }) {
           <span>Horizon: {rec.horizon ?? "—"}</span>
           {rec.riskRewardRatio != null && (
             <span>
-              R:R <strong>{rec.riskRewardRatio}:1</strong>
+              {rec.atSupport ? "R:R" : "Limit R:R"} <strong>{rec.riskRewardRatio}:1</strong>
             </span>
           )}
         </footer>

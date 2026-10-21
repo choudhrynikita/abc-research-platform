@@ -234,7 +234,9 @@ describe("top50 sell plan", () => {
     ], { indexMonthlyChange: 1, sectorMap: { FMCG: { avgChange: 0.4, count: 4 } } });
     const rec = ranked[0].recommendation;
     assert.equal(rec.action, "WATCH");
-    assert.match(rec.reasons.join(" "), /Reward\/risk is 0\.\d+:1/);
+    assert.match(rec.reasons.join(" "), /Not at support/);
+    assert.match(rec.analysis.trade.join(" "), /do not chase/);
+    assert.match(rec.analysis.trade.join(" "), /Buying the last price instead is 0\.\d+:1/);
     assert.match(rec.analysis.technical.join(" "), /below the 20 DMA/);
     assert.match(rec.analysis.technical.join(" "), /day -2\.46%/);
     assert.match(rec.analysis.fundamental.join(" "), /ROE is not in the current feed/);
@@ -262,7 +264,7 @@ describe("top50 sell plan", () => {
           macdHistogram: 0.4,
           adx: 27,
           volumeTrend: "Rising",
-          support: 96,
+          support: 99,
           resistance: 120,
           atr: 1.5,
         },
@@ -273,7 +275,7 @@ describe("top50 sell plan", () => {
     assert.equal(rec.action, "BUY");
     assert.ok(rec.analysis.technical.length > 0);
     assert.match(rec.analysis.fundamental.join(" "), /ROE is 18\.0%/);
-    assert.match(rec.analysis.trade.join(" "), /Reward\/risk is/);
+    assert.match(rec.analysis.trade.join(" "), /Reward\/risk from the limit/);
   });
 });
 
