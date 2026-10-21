@@ -83,12 +83,51 @@ export default function StockCard({ stock, rank }) {
 
       {rec?.reasons?.length > 0 && (
         <div className="why-buy">
-          <h5>Why recommended</h5>
-          <ul>
-            {rec.reasons.slice(0, 4).map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
+          <h5>
+            {rec.action === "BUY"
+              ? "Why this is a buy"
+              : rec.blockers?.length
+                ? "Why this is not a buy"
+                : "Why this is a watch"}
+          </h5>
+          {rec.blockers?.[0] ? <p className="why-lead">{rec.blockers[0]}</p> : null}
+          {rec.analysis?.technical?.length > 0 && (
+            <>
+              <p className="why-kicker">Technical</p>
+              <ul>
+                {rec.analysis.technical.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {rec.analysis?.fundamental?.length > 0 && (
+            <>
+              <p className="why-kicker">Fundamental</p>
+              <ul>
+                {rec.analysis.fundamental.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {rec.analysis?.trade?.length > 0 && (
+            <>
+              <p className="why-kicker">Trade math</p>
+              <ul>
+                {rec.analysis.trade.map((r) => (
+                  <li key={r}>{r}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {!rec.analysis && (
+            <ul>
+              {rec.reasons.slice(0, 4).map((r) => (
+                <li key={r}>{r}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
@@ -118,7 +157,7 @@ export default function StockCard({ stock, rank }) {
         <div className="stock-card-evidence">
           {stock.confidence?.score != null && (
             <span title={stock.confidence.methodology || stock.confidence.disclaimer}>
-              Conviction{" "}
+              Evidence{" "}
               <strong>{stock.confidence.score}</strong>
               <small>/100</small>
             </span>
@@ -139,7 +178,7 @@ export default function StockCard({ stock, rank }) {
       {rec?.conviction && (
         <footer className="stock-card-foot">
           <span>
-            Conviction: <strong>{rec.conviction}</strong>
+            {rec.action === "BUY" ? "Conviction" : "Score band"}: <strong>{rec.conviction}</strong>
           </span>
           <span>Horizon: {rec.horizon ?? "—"}</span>
           {rec.riskRewardRatio != null && (

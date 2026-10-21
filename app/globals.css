@@ -3482,6 +3482,21 @@ th {
   color: var(--text-muted);
 }
 
+.why-lead {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.why-kicker {
+  margin: 8px 0 2px;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .why-buy ul {
   margin: 0;
   padding-left: 16px;

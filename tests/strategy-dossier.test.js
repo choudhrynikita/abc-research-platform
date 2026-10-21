@@ -203,6 +203,78 @@ describe("top50 sell plan", () => {
     assert.equal(ranked[0].recommendation.action, "WATCH");
     assert.match(ranked[0].recommendation.reasons.join(" "), /Dark Cloud/i);
   });
+
+  it("explains Balrampur-style as a watch when the gain to the high is smaller than the stop", () => {
+    const ranked = rankTop50([
+      {
+        symbol: "BALRAMCHIN.NS",
+        name: "Balrampur Chini Mills Ltd",
+        sector: "FMCG",
+        price: 684.55,
+        changePercent: -2.46,
+        weeklyChangePercent: -1.2,
+        monthlyChangePercent: 1.78,
+        peRatio: { available: true, value: 37.6 },
+        revenueGrowth: { available: true, value: 0.12 },
+        debtToEquity: { available: true, value: 0.4 },
+        technicals: {
+          trend: "BULLISH",
+          sma20: 710,
+          sma50: 640,
+          rsi: 48,
+          macdHistogram: 1.1,
+          adx: 28,
+          volumeTrend: "Stable",
+          support: 638,
+          resistance: 736,
+          atr: 18,
+        },
+        _candles: makeCandles(80, 600),
+      },
+    ], { indexMonthlyChange: 1, sectorMap: { FMCG: { avgChange: 0.4, count: 4 } } });
+    const rec = ranked[0].recommendation;
+    assert.equal(rec.action, "WATCH");
+    assert.match(rec.reasons.join(" "), /Reward\/risk is 0\.\d+:1/);
+    assert.match(rec.analysis.technical.join(" "), /below the 20 DMA/);
+    assert.match(rec.analysis.technical.join(" "), /day -2\.46%/);
+    assert.match(rec.analysis.fundamental.join(" "), /ROE is not in the current feed/);
+    assert.match(rec.analysis.fundamental.join(" "), /P\/E is 37\.6x/);
+    assert.ok(rec.analysis.trade.some((line) => /Sell level is ₹736/.test(line)));
+  });
+
+  it("still buys when the sell level pays at least the stop and states both cases", () => {
+    const ranked = rankTop50([
+      {
+        symbol: "ROOMY.NS",
+        name: "Roomy Ltd",
+        sector: "IT",
+        price: 100,
+        changePercent: 1.2,
+        weeklyChangePercent: 2,
+        monthlyChangePercent: 4,
+        roe: { available: true, value: 0.18 },
+        peRatio: { available: true, value: 18 },
+        technicals: {
+          trend: "BULLISH",
+          sma20: 96,
+          sma50: 90,
+          rsi: 58,
+          macdHistogram: 0.4,
+          adx: 27,
+          volumeTrend: "Rising",
+          support: 96,
+          resistance: 120,
+          atr: 1.5,
+        },
+        _candles: makeCandles(80, 80),
+      },
+    ], { indexMonthlyChange: 1, sectorMap: { IT: { avgChange: 1, count: 5 } } });
+    const rec = ranked[0].recommendation;
+    assert.equal(rec.action, "BUY");
+    assert.ok(rec.analysis.technical.length > 0);
+    assert.match(rec.analysis.fundamental.join(" "), /ROE is 18\.0%/);
+    assert.match(rec.analysis.trade.join(" "), /Reward\/risk is/);
+  });
 });
 
 describe("top50 scoring dossier integration", () => {
